@@ -34,7 +34,7 @@ There are four ceremonies in this workflow framework
 4. Sprint retrospective: Give comments on what has gone well and what has gone poorly in the past sprint
 5. (no need) Code review: Not necessary to have team code review as we already require you to raise a pull request where the reviewer(me or Ngoc) will review the code before merging it.
 
-I'm thinking of doing sprint planning every Friday and sprint demo every Tuesday night(since the lab is on Wednesday)
+For this week we are meeting on Friday but I think ideally we want to do sprint planning at the start of each sprint(so Wednesday/Thursday) and sprint demo before the sprint ends(so Monday/Tuesday) so that we have time to do last minute fixes if necessary. However this might not work out as we as well all probably have different timetables, but let’s discuss further on friday :)
 
 # Git Stuff
 
@@ -85,6 +85,13 @@ When you pull you need to switch to the development branch, pull the latest deve
 
 Always pull the `development` branch to the latest version before branching out to your feature branch
 
-Before you push, do the same thing again: Pull `development` to the latest. Then merge your branch with development. Resolve any conflicts + remove merge markers/console.logs before pushing.
+Before you push, do the following:
+
+- TEST YOUR CODE
+- Pull `development` to the latest
+- Merge your branch with with development
+- Resolve any conflicts + remove merge markers/console.logs
+- TEST YOUR CODE AGAIN!
+- Finally push your code to development, a link will appear in the terminal to create a pull request.
 
 Go to GitHub/GitLab(whichever one we decided to use) and raise a pull request with Ngoc and me as code reviewers.
