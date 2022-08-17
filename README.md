@@ -95,3 +95,41 @@ Before you push, do the following:
 - Finally push your code to development, a link will appear in the terminal to create a pull request.
 
 Go to GitHub/GitLab(whichever one we decided to use) and raise a pull request with Ngoc and me as code reviewers.
+
+# Application setup
+
+### Recommended extensions
+
+Git lens: See the author of any given line of code
+
+Prettier: Code formatting
+
+Tailwind intellisense: Hovering over
+
+### On initial clone of project
+
+You can use the terminal built-in to VS code.
+
+On one terminal:
+
+- Go into the `sc2006-web` directory: `cd sc2006-web`
+- Start up the development server: `npm ci`
+
+On another terminal:
+
+- Go into the `sc2006-backend` directory: `cd sc2006-backend`
+- Start up the development server: `npm ci`
+
+### Starting up the application
+
+You can use the terminal built-in to VS code.
+
+On one terminal:
+
+- Go into the `sc2006-web` directory: `cd sc2006-web`
+- Start up the development server: `npm run dev`
+
+On another terminal:
+
+- Go into the `sc2006-backend` directory: `cd sc2006-backend`
+- Start up the development server: `npm run start:dev`
