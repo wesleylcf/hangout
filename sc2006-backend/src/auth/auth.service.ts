@@ -20,7 +20,7 @@ export class AuthService {
       return { error: 'Unable to sign up user: User already exists' };
     }
     try {
-      const hashedPassword = bcrypt.hash(password, this.saltRounds);
+      const hashedPassword = await bcrypt.hash(password, this.saltRounds);
       await this.userService.create({
         username: username,
         password: hashedPassword,
@@ -29,6 +29,13 @@ export class AuthService {
     } catch (e) {
       return { error: e.message };
     }
+  }
+
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
   async validateUser(
@@ -43,18 +50,5 @@ export class AuthService {
       );
       return undefined;
     }
-    const res = await bcrypt.compare(inputPassword, user.password);
-    if (!res) {
-      return undefined;
-    }
-    const { password, ...result } = user;
-    return result;
-  }
-
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
   }
 }
