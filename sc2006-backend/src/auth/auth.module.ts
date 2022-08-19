@@ -11,26 +11,28 @@ import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.stategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
-import { ConfigModule } from '@nestjs/config';
-import { LoggerMiddleware } from 'src/logger.middleware';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
+
+/* 
+  AuthModule is dependent on ConfigModule, but they don't know that, so there is a race condition where
+  AuthModule is loaded before ConfigModule has finished loading, and process.env.* is not ready yet.
+  Thus Need to use registerAsync(instead of register) to ensure that configModule(and its service) has
+  been loaded before we get our SECRET
+*/
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '3600s' },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
     }),
-    ConfigModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, Logger],
+  providers: [AuthService, LocalStrategy, JwtStrategy, Logger, UserService],
   exports: [AuthService],
 })
-export class AuthModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes({ path: 'ab*cd', method: RequestMethod.ALL });
-  }
-}
+export class AuthModule {}
