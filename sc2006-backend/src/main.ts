@@ -24,7 +24,7 @@ async function bootstrap() {
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.ms(),
-            nestWinstonModuleUtilities.format.nestLike('MyApp', {
+            nestWinstonModuleUtilities.format.nestLike('Hangout Ideas', {
               // options
             }),
           ),

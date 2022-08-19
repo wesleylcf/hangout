@@ -5,6 +5,7 @@ import {
   UseGuards,
   Get,
   Request,
+  Logger,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './login-user.dto';
@@ -12,7 +13,10 @@ import { JwtAuthGuard, LocalAuthGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly logger: Logger,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
