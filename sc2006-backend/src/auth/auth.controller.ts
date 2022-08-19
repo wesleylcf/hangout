@@ -6,11 +6,19 @@ import {
   Get,
   Request,
   Logger,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserDto } from './login-user.dto';
+import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
+import { ResTransformInterceptor } from 'src/ResTransform.interceptor';
+import { LoggingInterceptor } from 'src/logging.interceptor';
 
+/* 
+Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransformInterCeptor
+*/
+@UseInterceptors(LoggingInterceptor)
+@UseInterceptors(ResTransformInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -20,12 +28,12 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Body() user: LoginUserDto) {
+  login(@Body() user: AuthUserDto) {
     return this.authService.login(user);
   }
 
   @Post('signup')
-  signup(@Body() user) {
+  signup(@Body() user: AuthUserDto) {
     return this.authService.signup(user);
   }
 
