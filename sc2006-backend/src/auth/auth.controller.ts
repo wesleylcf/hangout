@@ -13,6 +13,7 @@ import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { ResTransformInterceptor } from 'src/ResTransform.interceptor';
 import { LoggingInterceptor } from 'src/logging.interceptor';
+import { User } from './constants';
 
 /* 
 Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransformInterCeptor
@@ -28,7 +29,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Body() user: AuthUserDto) {
+  login(@Body() user: User) {
     return this.authService.login(user);
   }
 

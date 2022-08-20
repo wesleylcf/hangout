@@ -16,7 +16,9 @@ export class LoggingInterceptor implements NestInterceptor {
     // Before Request reaches controller
     const req = context.switchToHttp().getRequest();
     this.logger.log(
-      `Request: ${JSON.stringify(req.body)}`,
+      `Request: { body: ${JSON.stringify(req.body)}, user: ${JSON.stringify(
+        req.user,
+      )}, session: ${JSON.stringify(req.session)}}`,
       `${req.method} ${req.path}`,
     );
 
