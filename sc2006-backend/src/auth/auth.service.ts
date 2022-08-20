@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt');
 import { User } from './constants';
 import { AuthUserDto } from './auth-user.dto';
+import { ValidateUserOutcome } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -31,24 +32,35 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  async login(user: ValidateUserOutcome) {
+    return user['error']
+      ? { error: 'Invalid username or password' }
+      : {
+          access_token: this.jwtService.sign(user),
+        };
   }
 
   async validateUser(
     username: string,
     inputPassword: string,
-  ): Promise<Omit<User, 'password'> | undefined> {
-    const user = await this.userService.findOne(username);
-    if (!user) {
-      this.logger.warn(
-        'User not found, unable to validate login',
-        'AuthService',
+  ): Promise<ValidateUserOutcome> {
+    try {
+      const user = await this.userService.findOne(username);
+      if (!user) {
+        throw new Error(`User ${username} not found`);
+      }
+      const response: boolean = await bcrypt.compare(
+        inputPassword,
+        user.password,
       );
-      return undefined;
+      if (!response) {
+        throw new Error('Invalid password');
+      }
+
+      return user;
+    } catch (e) {
+      this.logger.warn(`User validation failed: ${e.message}`, 'AuthService');
+      return { error: e.message };
     }
   }
 }

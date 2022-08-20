@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 /* 
   Since we extended PassportStrategy without specifying a name, it defaults to the string
-  before '-' in the file name, in this case jwt
+  before '.' in the file name, in this case jwt
 */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22,9 +22,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     passing the decoded JSON as its single parameter. Based on the way JWT signing works,
     we're guaranteed that we're receiving a valid token that we have previously signed and issued to a valid user.
 
-    Passport will build a user object based on the return value of our validate() method, and attach it as a property on the Request object.
+    Passport will build a user object based on the return value of our validate() method,
+    and attach it as a property on the Request object sent to the Controller
   */
-  async validate(payload: any) {
-    return { userId: payload.sub, username: payload.username };
+  async validate(payload) {
+    return { username: payload.username };
   }
 }

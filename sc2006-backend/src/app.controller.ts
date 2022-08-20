@@ -1,12 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post('seed-data')
+  getHello(@Body() { secret }: { secret: string }) {
+    if (secret !== process.env.SEED_DATA_SECRET) {
+      throw new UnauthorizedException();
+    }
+    return this.appService.seedData();
   }
 }
