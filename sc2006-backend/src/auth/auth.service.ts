@@ -1,10 +1,9 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-const bcrypt = require('bcrypt');
-import { User } from './constants';
+const bcrypt = require('bcrypt'); // eslint-disable-line
 import { AuthUserDto } from './auth-user.dto';
-import { ValidateUserOutcome } from './constants';
+import { ValidateUserOutcome } from '../constants/auth';
 
 @Injectable()
 export class AuthService {

@@ -5,11 +5,12 @@ import {
   getDoc,
   serverTimestamp,
   setDoc,
+  Timestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { User } from 'src/auth/constants';
+import { User } from 'src/constants/auth';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser } from './constants';
+import { DbUser } from '../constants/user';
 
 @Injectable()
 export class UserService {
@@ -36,7 +37,11 @@ export class UserService {
       }
       const dbUser: DbUser = {
         password,
-        createdAt: serverTimestamp() as unknown as Date,
+        createdAt: serverTimestamp() as Timestamp,
+        eventIds: [],
+        schedule: [],
+        notifications: [],
+        address: null,
       };
       await setDoc(doc(db, 'users', username), dbUser);
       this.logger.log(`User ${username} created`, 'UserService');

@@ -13,7 +13,7 @@ import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { ResTransformInterceptor } from 'src/ResTransform.interceptor';
 import { LoggingInterceptor } from 'src/logging.interceptor';
-import { User } from './constants';
+import { User } from '../constants/auth';
 
 /* 
 Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransformInterCeptor

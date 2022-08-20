@@ -1,8 +1,8 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from './constants';
+import { User } from '../constants/auth';
 
 /* 
   Since we extended PassportStrategy without specifying a name, it defaults to the string
