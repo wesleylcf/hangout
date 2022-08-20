@@ -18,6 +18,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+// Commented out as analytics can only run on frontend
 // const analytics = getAnalytics(app);
 const db = getFirestore();
 

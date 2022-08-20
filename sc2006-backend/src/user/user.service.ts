@@ -1,15 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { db } from 'src/firebase.config';
 import {
-  collection,
   doc,
   getDoc,
-  getDocs,
-  where,
-  query,
-  limit,
+  serverTimestamp,
   setDoc,
-  addDoc,
+  writeBatch,
 } from 'firebase/firestore';
 import { User } from 'src/auth/constants';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
@@ -38,13 +34,33 @@ export class UserService {
       if (docSnap.exists()) {
         throw new Error('User already exists');
       }
-
-      const dbUser: DbUser = { password };
+      const dbUser: DbUser = {
+        password,
+        createdAt: serverTimestamp() as unknown as Date,
+      };
       await setDoc(doc(db, 'users', username), dbUser);
       this.logger.log(`User ${username} created`, 'UserService');
     } catch (e) {
       this.logger.warn(`Unable to create User: ${e.message}`, 'UserService');
       throw e;
     }
+  }
+
+  async bulkCreate(users: AuthUserDto[]) {
+    // Get a new write batch
+    const batch = writeBatch(db);
+
+    users.forEach((user) => {
+      const { username, ...rest } = user;
+
+      const docRef = doc(db, 'users', username);
+      batch.set(docRef, {
+        createdAt: serverTimestamp() as unknown as Date,
+        ...rest,
+      });
+    });
+
+    // Commit the batch
+    await batch.commit();
   }
 }
