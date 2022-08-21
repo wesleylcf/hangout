@@ -1,24 +1,28 @@
-import axios from 'axios'
+import axios from 'axios';
 import {
 	SignUpRes,
 	LoginRes,
-	AuthUserReq
-} from 'sc2006-project/sc2006-common/src/api-models/api-models'
+	AuthUserReq,
+} from '../../sc2006-common/src/api-models';
 
 export class MeService {
-	async signup (user: AuthUserReq) {
+	async signup(user: AuthUserReq) {
 		const { data } = await axios.post<SignUpRes>(
 			`${process.env.API_URL}/auth/signup`,
-			user
-		)
-		return data
+			user,
+		);
+		return data;
 	}
 
-	async login (user: AuthUserReq) {
+	async login(req: AuthUserReq) {
 		const { data } = await axios.post<LoginRes>(
 			`${process.env.API_URL}/auth/login`,
-			user
-		)
-		return data
+			req,
+		);
+		const { user, error } = data;
+		if (error) {
+			throw new Error(error);
+		}
+		return user!;
 	}
 }

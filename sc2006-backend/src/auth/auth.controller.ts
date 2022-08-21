@@ -1,12 +1,13 @@
 import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Get,
-  Request,
-  Logger,
-  UseInterceptors,
+	Controller,
+	Post,
+	Body,
+	UseGuards,
+	Get,
+	Request,
+	Logger,
+	UseInterceptors,
+	Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthUserDto } from './auth-user.dto';
@@ -22,25 +23,29 @@ Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransf
 @UseInterceptors(ResTransformInterceptor)
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly logger: Logger,
-  ) {}
+	constructor(
+		private readonly authService: AuthService,
+		private readonly logger: Logger,
+	) {}
 
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  login(@Body() user: User) {
-    return this.authService.login(user);
-  }
+	/* 
+    LocalAuthGuard calls ValidateUser which reads in from Body,
+    And attaches either the User or Error onto Request
+  */
+	@UseGuards(LocalAuthGuard)
+	@Post('login')
+	login(@Req() req) {
+		return this.authService.login(req.user);
+	}
 
-  @Post('signup')
-  signup(@Body() user: AuthUserDto) {
-    return this.authService.signup(user);
-  }
+	@Post('signup')
+	signup(@Body() user: AuthUserDto) {
+		return this.authService.signup(user);
+	}
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	getProfile(@Request() req) {
+		return req.user;
+	}
 }

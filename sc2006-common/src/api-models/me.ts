@@ -1,12 +1,15 @@
+import { User } from '../constants';
+
 export interface SignUpRes {
-  error?: string;
+	error?: string;
 }
 
 export interface LoginRes {
-  jwtToken: string;
+	user?: User;
+	error?: string;
 }
 
 export interface AuthUserReq {
-  username: string;
-  password: string;
+	username: string;
+	password: string;
 }
