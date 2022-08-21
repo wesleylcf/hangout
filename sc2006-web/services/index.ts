@@ -1,3 +1,3 @@
-import { MeService } from "./MeService";
+import { MeService } from './MeService.js'
 
-export const meService = new MeService();
+export const meService = new MeService()

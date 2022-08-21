@@ -1,0 +1,4 @@
+*.config.js
+
+# built nestjs files
+/sc2006-backend/dist

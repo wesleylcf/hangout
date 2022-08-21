@@ -4,10 +4,11 @@ import { Notification } from '../notification';
 export interface DbUser {
   password: string;
   createdAt: Timestamp;
-  eventIds: [];
-  schedule: [];
+  eventIds: string[];
+  schedule: DateTime[];
   notifications: Notification[];
   address: string | null;
+  friendIds: string[];
 }
 
 export interface DateTime {

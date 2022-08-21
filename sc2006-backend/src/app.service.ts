@@ -1,17 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from './user/user.service';
-import { users } from './seed-data';
+import { SeedDataService } from './seed-data/seed-data.service';
 
 @Injectable()
 export class AppService {
-  constructor(private userService: UserService, private logger: Logger) {}
+	constructor(
+		private logger: Logger,
+		private userService: UserService,
+		private seedDataService: SeedDataService,
+	) {}
 
-  seedData() {
-    try {
-      this.userService.bulkCreate(users);
-      this.logger.log('USER data seeded: SUCCESS', 'AppService');
-    } catch (e) {
-      this.logger.log('USER data seeded: FAILURE', 'AppService');
-    }
-  }
+	seedData() {
+		const users = this.seedDataService.getUsers();
+		try {
+			this.userService.bulkCreate(users);
+			this.logger.log('USER data seeded: SUCCESS', 'AppService');
+		} catch (e) {
+			this.logger.log('USER data seeded: FAILURE', 'AppService');
+		}
+	}
 }
