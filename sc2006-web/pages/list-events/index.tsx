@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react'
 
-const ListEventsPage = () => {
-  return <div>ListEventsPage</div>;
-};
+function ListEventsPage () {
+	return <div>ListEventsPage</div>
+}
 
-export default ListEventsPage;
+export default ListEventsPage
