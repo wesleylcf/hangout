@@ -5,8 +5,11 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  /*
+    This endpoint should never be called. Use seed-data.sh to seed your data
+  */
   @Post('seed-data')
-  getHello(@Body() { secret }: { secret: string }) {
+  seedData(@Body() { secret }: { secret: string }) {
     if (secret !== process.env.SEED_DATA_SECRET) {
       throw new UnauthorizedException();
     }
