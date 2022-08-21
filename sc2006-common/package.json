@@ -2,5 +2,8 @@
   "dependencies": {
     "dayjs": "^1.11.1",
     "dayjs-precise-range": "^1.0.1"
+  },
+  "devDependencies": {
+    "firebase": "^9.9.3"
   }
 }
