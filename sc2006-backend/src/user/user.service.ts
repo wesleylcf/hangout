@@ -42,6 +42,7 @@ export class UserService {
         schedule: [],
         notifications: [],
         address: null,
+        friendIds: [],
       };
       await setDoc(doc(db, 'users', username), dbUser);
       this.logger.log(`User ${username} created`, 'UserService');
@@ -53,6 +54,7 @@ export class UserService {
 
   async bulkCreate(users: AuthUserDto[]) {
     // Get a new write batch
+    // console.log(users);
     const batch = writeBatch(db);
 
     users.forEach((user) => {
