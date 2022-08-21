@@ -1,18 +1,17 @@
-import { createContext } from 'react'
-
-export type UpdateState<S> = (
-	state: Partial<S> | ((prevState: S) => Partial<S>),
-) => void;
-
-export interface Me {
-	username: string;
+import { createContext } from 'react';
+import { LoginRes } from '../../sc2006-common/src/api-models';
+import { User } from '../../sc2006-common/src/constants';
+import { UpdateState } from '../hooks/useUpdateState';
+export interface Me extends User {
+	// other stuff
 }
 
 export interface GlobalContextProps {
 	me: Me;
+	updateMe: UpdateState<Me>;
 	setMe: (me: Me) => void;
 }
 
 export const GlobalContext = createContext<GlobalContextProps>(
-	undefined as any
-)
+	undefined as any,
+);

@@ -10,13 +10,13 @@ export class AppService {
 		private seedDataService: SeedDataService,
 	) {}
 
-	seedData() {
-		const users = this.seedDataService.getUsers();
+	async seedData() {
+		const users = await this.seedDataService.getUsers();
 		try {
-			this.userService.bulkCreate(users);
+			await this.userService.bulkCreate(users as unknown as any);
 			this.logger.log('USER data seeded: SUCCESS', 'AppService');
 		} catch (e) {
-			this.logger.log('USER data seeded: FAILURE', 'AppService');
+			this.logger.log(`USER data seeded: FAILURE - ${e.message}`, 'AppService');
 		}
 	}
 }
