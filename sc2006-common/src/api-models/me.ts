@@ -5,6 +5,7 @@ export interface SignUpRes {
 }
 
 export interface LoginRes {
+	access_token?: string;
 	user?: User;
 	error?: string;
 }

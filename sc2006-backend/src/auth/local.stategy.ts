@@ -10,19 +10,19 @@ import { User } from '../constants/auth';
 */
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private authService: AuthService, private logger: Logger) {
-    super();
-  }
+	constructor(private authService: AuthService, private logger: Logger) {
+		super();
+	}
 
-  /*
+	/*
   Passport will build a user object based on the return value of our validate() method,
   and attach it as a property on the Request object, which will be sent to the Controller
   */
-  async validate(
-    username: string,
-    password: string,
-  ): Promise<User | { error: string }> {
-    const user = await this.authService.validateUser(username, password);
-    return user;
-  }
+	async validate(
+		username: string,
+		password: string,
+	): Promise<User | { error: string }> {
+		const user = await this.authService.validateUser(username, password);
+		return user;
+	}
 }

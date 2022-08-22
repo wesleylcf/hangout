@@ -64,7 +64,10 @@ export class AuthService {
 		}
 	}
 
-	async hashPasswords(users: { password: string }[]) {
+	/* 
+    Promise.all takes iterable of promises, and returns a single promise.
+  */
+	async hashPasswords(users: { password: string }[]): Promise<String[]> {
 		return Promise.all(
 			users.map(async (user) => {
 				return await bcrypt.hash(user.password, 10);
