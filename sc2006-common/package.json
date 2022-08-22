@@ -1,9 +1,28 @@
 {
-  "dependencies": {
-    "dayjs": "^1.11.1",
-    "dayjs-precise-range": "^1.0.1"
-  },
-  "devDependencies": {
-    "firebase": "^9.9.3"
-  }
+	"dependencies": {
+		"dayjs": "^1.11.1",
+		"dayjs-precise-range": "^1.0.1"
+	},
+	"devDependencies": {
+		"firebase": "^9.9.3",
+		"ts-loader": "^9.3.1",
+		"typescript": "^4.7.4"
+	},
+	"name": "sc2006-common",
+	"version": "1.0.0",
+	"main": "dist/index.js",
+	"types": "src/index.ts",
+	"scripts": {
+		"preinstall": "npx npm-force-resolutions",
+		"postinstall": "rm -rf node_modules/protobufjs/cli",
+		"lint": "eslint '**/*.ts'",
+		"test": "jest",
+		"postbuild": "cp -r src/templates dist",
+		"build": "tsc",
+		"build:clean": "del-cli --force dist && npm run build",
+		"build:watch": "tsc -w"
+	},
+	"author": "",
+	"license": "ISC",
+	"description": ""
 }
