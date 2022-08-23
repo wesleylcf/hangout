@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Res } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt'); // eslint-disable-line
@@ -31,13 +31,14 @@ export class AuthService {
 		}
 	}
 
-	async login(user: ValidateUserOutcome) {
-		return user['error']
-			? { error: 'Invalid username or password' }
-			: {
-					access_token: this.jwtService.sign(user),
-					user,
-			  };
+	async login(user: ValidateUserOutcome, @Res() res) {
+		// if (user['error']) {
+		// 	return user['error'];
+		// }
+		// res
+		// 	.set({ 'x-access-token': this.jwtService.sign(user) })
+		// 	.status(200)
+		// 	.json(user);
 	}
 
 	async validateUser(
@@ -57,7 +58,7 @@ export class AuthService {
 				throw new Error('Invalid password');
 			}
 
-			return user;
+			return { user };
 		} catch (e) {
 			this.logger.warn(`User validation failed: ${e.message}`, 'AuthService');
 			return { error: e.message };

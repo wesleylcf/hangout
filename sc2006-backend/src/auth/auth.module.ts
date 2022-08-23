@@ -16,18 +16,19 @@ import { UserService } from 'src/user/user.service';
   been loaded before we get our SECRET
 */
 @Module({
-  imports: [
-    UserModule,
-    PassportModule,
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-      }),
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, Logger, UserService],
-  exports: [AuthService],
+	imports: [
+		UserModule,
+		PassportModule,
+		JwtModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: async (configService: ConfigService) => ({
+				secret: configService.get<string>('JWT_SECRET'),
+				signOptions: { expiresIn: 28800 }, //8 minutes
+			}),
+		}),
+	],
+	controllers: [AuthController],
+	providers: [AuthService, LocalStrategy, JwtStrategy, Logger, UserService],
+	exports: [AuthService],
 })
 export class AuthModule {}

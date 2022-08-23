@@ -8,9 +8,8 @@ import {
 	Timestamp,
 	writeBatch,
 } from 'firebase/firestore';
-import { User } from 'src/constants/auth';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser } from '../constants/user';
+import { DbUser } from '../../../sc2006-common/';
 
 @Injectable()
 export class UserService {
@@ -19,13 +18,17 @@ export class UserService {
 	/*
     Returns User document if found, else null
   */
-	async findOne(username: string): Promise<User | undefined> {
-		const docRef = doc(db, 'users', username);
+	async findOne(_username: string): Promise<DbUser | undefined> {
+		const docRef = doc(db, 'users', _username);
 		const docSnap = await getDoc(docRef);
-		if (!docSnap.data()) {
+		if (!docSnap.exists) {
 			return undefined;
 		}
-		return { username: docSnap.id, ...docSnap.data() } as User;
+		// TODO destructure docSnap.data() and return new object
+		return {
+			username: docSnap.id,
+			...(docSnap.data() as Omit<DbUser, 'username'>),
+		};
 	}
 
 	async create({ username, password }: AuthUserDto) {
@@ -35,7 +38,7 @@ export class UserService {
 			if (docSnap.exists()) {
 				throw new Error('User already exists');
 			}
-			const dbUser: DbUser = {
+			const dbUser: Omit<DbUser, 'username'> = {
 				password,
 				createdAt: serverTimestamp() as Timestamp,
 				eventIds: [],
@@ -52,7 +55,7 @@ export class UserService {
 		}
 	}
 
-	async bulkCreate(users: AuthUserDto[]) {
+	async bulkCreate(users: Omit<DbUser, 'createdAt'>[]) {
 		// Get a new write batch
 		const batch = writeBatch(db);
 

@@ -2,7 +2,7 @@ import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from '../constants/auth';
+import { ValidateUserOutcome } from 'src/constants';
 
 /* 
   Since we extended PassportStrategy without specifying a name, it defaults to the string
@@ -20,9 +20,18 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   */
 	async validate(
 		username: string,
-		password: string,
-	): Promise<User | { error: string }> {
-		const user = await this.authService.validateUser(username, password);
-		return user;
+		_password: string,
+	): Promise<ValidateUserOutcome> {
+		const outcome = await this.authService.validateUser(username, _password);
+		console.log(outcome);
+		let user = null;
+		if (!outcome.error) {
+			const { password, ...rest } = outcome.user;
+			user = rest;
+		}
+		return {
+			user,
+			...outcome,
+		};
 	}
 }
