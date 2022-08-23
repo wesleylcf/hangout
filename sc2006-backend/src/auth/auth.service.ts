@@ -31,14 +31,15 @@ export class AuthService {
 		}
 	}
 
-	async login(user: ValidateUserOutcome, @Res() res) {
-		// if (user['error']) {
-		// 	return user['error'];
-		// }
-		// res
-		// 	.set({ 'x-access-token': this.jwtService.sign(user) })
-		// 	.status(200)
-		// 	.json(user);
+	async login(
+		outcome: ValidateUserOutcome,
+	): Promise<ValidateUserOutcome & { access_token: string | null }> {
+		const { user, error } = outcome;
+		let access_token = null;
+		if (!error) {
+			access_token = this.jwtService.sign(user);
+		}
+		return { ...outcome, access_token };
 	}
 
 	async validateUser(
@@ -57,8 +58,9 @@ export class AuthService {
 			if (!response) {
 				throw new Error('Invalid password');
 			}
+			const { password, ...rest } = user;
 
-			return { user };
+			return { user: rest };
 		} catch (e) {
 			this.logger.warn(`User validation failed: ${e.message}`, 'AuthService');
 			return { error: e.message };

@@ -13,15 +13,13 @@ import {
 import { AuthService } from './auth.service';
 import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
-import { ResTransformInterceptor } from 'src/ResTransform.interceptor';
 import { LoggingInterceptor } from 'src/logging.interceptor';
-import { ValidateUserOutcome } from 'src/constants';
+import { LoginRes } from '../../../sc2006-common';
 
 /* 
 Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransformInterCeptor
 */
 @UseInterceptors(LoggingInterceptor)
-@UseInterceptors(ResTransformInterceptor)
 @Controller('auth')
 export class AuthController {
 	constructor(
@@ -36,16 +34,18 @@ export class AuthController {
   */
 	@UseGuards(LocalAuthGuard)
 	@Post('login')
-	login(
-		@Req() req: { user: ValidateUserOutcome },
-		@Res({ passthrough: true }) res,
-	) {
-		const { user, error } = req.user;
-		this.logger.log(error, 'err');
-		if (error) {
-			return error;
-		}
-		return user;
+	async login(
+		@Req() req,
+		@Res({ passthrough: true }) response,
+	): Promise<LoginRes> {
+		const { access_token, ...rest } = await this.authService.login(req.user);
+		console.log('COOKIE', req.cookies['jwtToken']);
+		response.cookie('jwtToken', access_token, {
+			secure: process.env.NODE_ENV !== 'development',
+			httpOnly: true,
+			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
+		});
+		return rest;
 	}
 
 	@Post('signup')
@@ -56,6 +56,7 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	@Get('profile')
 	getProfile(@Request() req) {
+		console.log('COOKIE', req.cookies);
 		return req.user;
 	}
 }

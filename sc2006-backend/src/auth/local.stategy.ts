@@ -22,16 +22,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 		username: string,
 		_password: string,
 	): Promise<ValidateUserOutcome> {
-		const outcome = await this.authService.validateUser(username, _password);
-		console.log(outcome);
-		let user = null;
-		if (!outcome.error) {
-			const { password, ...rest } = outcome.user;
-			user = rest;
-		}
-		return {
-			user,
-			...outcome,
-		};
+		return await this.authService.validateUser(username, _password);
 	}
 }

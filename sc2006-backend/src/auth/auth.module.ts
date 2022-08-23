@@ -23,7 +23,7 @@ import { UserService } from 'src/user/user.service';
 			inject: [ConfigService],
 			useFactory: async (configService: ConfigService) => ({
 				secret: configService.get<string>('JWT_SECRET'),
-				signOptions: { expiresIn: 28800 }, //8 minutes
+				signOptions: { expiresIn: process.env.AUTH_TOKEN_EXPIRY_MSEC },
 			}),
 		}),
 	],

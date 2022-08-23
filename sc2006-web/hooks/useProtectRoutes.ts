@@ -1,13 +1,13 @@
 import { useContext, useEffect } from 'react';
 import Router from 'next/router';
 import axios from 'axios';
-import { LoginRes, Response } from '../../sc2006-common/src/api-models';
+import { LoginRes } from '../../sc2006-common/src/api-models';
 import { GlobalContext } from '../contexts/GlobalContext';
 import { useRouter } from 'next/router';
 import { protectRoutes, publicRoutes } from '../constants';
 
-const fetcher = (url: string) =>
-	axios.get<Response<LoginRes>>(url).then((res) => res.data);
+// const fetcher = (url: string) =>
+// 	axios.get<Response<LoginRes>>(url).then((res) => res.data);
 
 interface useUserProps {
 	redirectIfNotFound?: string;

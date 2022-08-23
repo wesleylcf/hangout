@@ -9,14 +9,14 @@ import { ConfigService } from '@nestjs/config';
 */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private configService: ConfigService) {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
-    });
-  }
-  /*
+	constructor() {
+		super({
+			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+			ignoreExpiration: false,
+			secretOrKey: process.env.JWT_SECRET,
+		});
+	}
+	/*
     Passport first verifies the JWT's signature and decodes the JSON. It then invokes our validate() method
     passing the decoded JSON as its single parameter. Based on the way JWT signing works,
     we're guaranteed that we're receiving a valid token that we have previously signed and issued to a valid user.
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     Passport will build a user object based on the return value of our validate() method,
     and attach it as a property on the Request object sent to the Controller
   */
-  async validate(payload) {
-    return { username: payload.username };
-  }
+	async validate(payload) {
+		return { username: payload.username };
+	}
 }
