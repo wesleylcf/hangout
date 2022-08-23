@@ -1,7 +1,7 @@
 export const protectRoutes = [
 	'/create-event',
 	'/list-events',
-	'/user-settings',
-];
+	'/user-settings'
+]
 
-export const publicRoutes = ['/'];
+export const publicRoutes = ['/']

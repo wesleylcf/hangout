@@ -1,4 +1,4 @@
-import { DependencyList, EffectCallback, useEffect, useRef } from 'react';
+import { DependencyList, EffectCallback, useEffect, useRef } from 'react'
 
 /**
  * `useEffect` that will only execute the effect on first update of dependencies onward.
@@ -8,15 +8,15 @@ import { DependencyList, EffectCallback, useEffect, useRef } from 'react';
  */
 export const useUpdateEffect = (
 	effect: EffectCallback,
-	dependencies?: DependencyList,
+	dependencies?: DependencyList
 ) => {
-	const firstRenderRef = useRef(true);
+	const firstRenderRef = useRef(true)
 
 	useEffect(() => {
 		if (firstRenderRef.current) {
-			firstRenderRef.current = false;
-			return;
+			firstRenderRef.current = false
+			return
 		}
-		return effect();
-	}, dependencies);
-};
+		return effect()
+	}, dependencies)
+}

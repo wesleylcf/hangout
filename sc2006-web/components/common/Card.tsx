@@ -1,5 +1,6 @@
-import React, { CSSProperties, forwardRef, ReactNode } from 'react';
-import { Spin } from '.';
+/* eslint-disable react/display-name */
+import React, { CSSProperties, forwardRef, ReactNode } from 'react'
+import { Spin } from '.'
 
 export interface CardProps {
 	id?: string;
@@ -23,11 +24,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
 		onClick,
 		onMouseEnter,
 		onMouseLeave,
-		highlightOnHover,
-	} = props;
+		highlightOnHover
+	} = props
 
 	const hoverClassName =
-		'border border-solid border-white transition hover:bg-sky-50 hover:border-sky-200';
+		'border border-solid border-white transition hover:bg-sky-50 hover:border-sky-200'
 
 	return (
 		<div
@@ -38,7 +39,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
 			} ${highlightOnHover ? hoverClassName : ''} ${className || ''}`}
 			style={{
 				boxShadow: '0 2px 6px 0 rgba(0, 0, 0, 0.2)',
-				...style,
+				...style
 			}}
 			onClick={onClick}
 			onMouseEnter={onMouseEnter}
@@ -51,5 +52,5 @@ export const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
 			)}
 			{children}
 		</div>
-	);
-});
+	)
+})
