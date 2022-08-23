@@ -7,10 +7,30 @@ import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { SeedDataService } from './seed-data/seed-data.service';
 import { SeedDataModule } from './seed-data/seed-data.module';
+import * as Joi from 'joi';
 
+/*
+  Joi used to define an Object Schema which is compared to Config Object,
+  So if for example NODE_ENV which we marked as required is not defined, an error is thrown
+*/
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UserModule, SeedDataModule],
-  controllers: [AppController, AuthController],
-  providers: [AppService, Logger, SeedDataService],
+	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			validationSchema: Joi.object({
+				NODE_ENV: Joi.string()
+					.valid('development', 'production', 'test', 'provision')
+					.required(),
+				PORT: Joi.number().required(),
+				JWT_SECRET: Joi.string().required(),
+				AUTH_TOKEN_EXPIRY_MSEC: Joi.number().required(),
+			}),
+		}),
+		AuthModule,
+		UserModule,
+		SeedDataModule,
+	],
+	controllers: [AppController, AuthController],
+	providers: [AppService, Logger, SeedDataService],
 })
 export class AppModule {}

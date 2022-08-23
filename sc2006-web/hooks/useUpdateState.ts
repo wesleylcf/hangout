@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react'
 
 export type UpdateState<S> = (
 	state: Partial<S> | ((prevState: S) => Partial<S>),
@@ -10,40 +10,25 @@ export type UpdateState<S> = (
  * @param initialState initial state
  * @returns [state, updateState, setState]
  */
-function useUpdateState<S extends Record<string, any>>(
-	initialState: S | (() => S),
-): [
-	state: S,
-	updateState: UpdateState<S>,
-	setState: Dispatch<SetStateAction<S>>,
-];
 
-function useUpdateState<S extends Record<string, any>>(
-	initialState?: S | (() => S),
-): [
-	state: S | undefined,
-	updateState: UpdateState<S>,
-	setState: Dispatch<SetStateAction<S | undefined>>,
-];
-
-function useUpdateState<S extends Record<string, any>>(
-	initialState: S | (() => S),
+function useUpdateState<S extends Record<string, any>> (
+	initialState: S | (() => S)
 ): [
 	state: S,
 	updateState: UpdateState<S>,
 	setState: Dispatch<SetStateAction<S>>,
 ] {
-	const [state, setState] = useState<S>(initialState);
+	const [state, setState] = useState<S>(initialState)
 
 	const updateState: UpdateState<S> = (update) => {
 		if (typeof update === 'function') {
-			setState((prevState) => ({ ...prevState, ...update(prevState) }));
+			setState((prevState) => ({ ...prevState, ...update(prevState) }))
 		} else {
-			setState((prevState) => ({ ...prevState, ...update }));
+			setState((prevState) => ({ ...prevState, ...update }))
 		}
-	};
+	}
 
-	return [state, updateState, setState];
+	return [state, updateState, setState]
 }
 
-export { useUpdateState };
+export { useUpdateState }

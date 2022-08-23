@@ -141,7 +141,7 @@
 	},
 	"homepage": "https://gitlab.com/sc2006/sc2006-project#readme",
 	"lint-staged": {
-		"*.js": "eslint --cache --fix",
-		"*.--write": "prettier --write"
+		"*.ts": "eslint . --cache --fix",
+		"*.--write": "prettier . --write"
 	}
 }

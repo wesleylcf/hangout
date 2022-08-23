@@ -3,12 +3,13 @@ import React, { useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 import { MenuBar } from '.'
 import { Spin } from '../common'
+import { useProtectRoute } from '../../hooks'
 
-interface LayoutProps {
-  children: React.ReactNode;
+interface AppContainerProps {
+	children: React.ReactNode;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => (
+export const AppContainer: React.FC<AppContainerProps> = ({ children }) => (
 	<AntdLayout className="w-screen h-screen relative">
 		<MenuBar />
 		<PageWrapper>{children}</PageWrapper>
@@ -17,12 +18,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => (
 
 const PageWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const router = useRouter()
-	const [isLoading, setIsLoading] = useState(false)
+	useProtectRoute({
+		redirectIfNotFound: '/login',
+		redirectIfFound: '/'
+	})
+	const [loading, setLoading] = useState(false)
+
 	useEffect(() => {
 		const handleStart = (url: string) =>
-			url !== router.asPath && setIsLoading(true)
+			url !== router.asPath && setLoading(true)
 		// Removed url === router.asPath as it seems possible that url !== asPath
-		const handleEnd = () => setIsLoading(false)
+		const handleEnd = () => setLoading(false)
 
 		router.events.on('routeChangeStart', handleStart)
 		router.events.on('routeChangeComplete', handleEnd)
@@ -37,7 +43,7 @@ const PageWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 	return (
 		<div className="flex flex-row items-center justify-center w-full h-full">
-			{isLoading ? <Spin size="large" center /> : children}
+			{loading ? <Spin size="large" center /> : children}
 		</div>
 	)
 }

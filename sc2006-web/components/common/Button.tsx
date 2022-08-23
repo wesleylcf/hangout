@@ -1,8 +1,8 @@
-import AntdButton, { ButtonProps as AntButtonProps } from 'antd/lib/button';
-import { Spin } from '.';
-import React from 'react';
+import AntdButton, { ButtonProps as AntButtonProps } from 'antd/lib/button'
+import { Spin } from '.'
+import React from 'react'
 
-type ButtonType = 'primary' | 'secondary' | 'danger-outline' | 'text';
+// type ButtonType = 'primary' | 'secondary' | 'danger-outline' | 'text';
 
 // export type ButtonProps = Omit<AntButtonProps, 'type'> & {
 // 	type?: ButtonType;
@@ -35,17 +35,17 @@ export const Button = ({
 	// };
 
 	if (!type) {
-		type = 'primary';
+		type = 'primary'
 	}
 
 	// const typeToUse =
 	// 	type === 'danger-outline' ? 'ghost' : type === 'text' ? 'text' : 'primary';
 
 	if (!size) {
-		size = 'middle';
+		size = 'middle'
 	}
 
-	const sizeClassName = size === 'small' ? 'text-sm' : 'text-base';
+	// const sizeClassName = size === 'small' ? 'text-sm' : 'text-base'
 
 	// let processedClassName = `box-border px-4 rounded-lg  font-semibold ${
 	// 	classNames[type]
@@ -53,15 +53,15 @@ export const Button = ({
 
 	if (loading) {
 		// processedClassName = `${processedClassName} opacity-50`;
-		icon = <Spin className={size === 'small' ? 'small' : ''} size="small" />;
-		disabled = true;
+		icon = <Spin className={size === 'small' ? 'small' : ''} size="small" />
+		disabled = true
 	}
 
-	let height = 48;
+	let height = 48
 	if (size === 'large') {
-		height = 56;
+		height = 56
 	} else if (size === 'small') {
-		height = 36;
+		height = 36
 	}
 
 	return (
@@ -86,10 +86,10 @@ export const Button = ({
 				<div className={icon ? 'ml-2' : ''}>{children}</div>
 			</div>
 		</AntdButton>
-	);
-};
+	)
+}
 
 Button.defaultProps = {
 	type: 'primary',
-	size: 'middle',
-};
+	size: 'middle'
+}
