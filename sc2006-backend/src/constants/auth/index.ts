@@ -1,10 +1,6 @@
-export interface User {
-  username: string;
-  password: string;
-}
+import { DbUser } from '../../../../sc2006-common/src';
 
-interface Error {
-  error: string;
+export interface ValidateUserOutcome {
+	user?: Omit<DbUser, 'password'>;
+	error?: string;
 }
-
-export type ValidateUserOutcome = User | Error;

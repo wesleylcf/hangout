@@ -1,33 +1,33 @@
-import axios from 'axios';
+import axios from 'axios'
 import {
 	SignUpRes,
 	LoginRes,
-	AuthUserReq,
-} from '../../sc2006-common/src/api-models';
-
-interface Response<T> {
-	data: T;
-}
+	AuthUserReq
+} from '../../sc2006-common/src/api-models'
 
 export class MeService {
-	async signup(user: AuthUserReq) {
-		const { data } = await axios.post<Response<SignUpRes>>(
+	async signup (user: AuthUserReq) {
+		const { data } = await axios.post<SignUpRes>(
 			`${process.env.API_URL}/auth/signup`,
-			user,
-		);
-		return data;
+			user
+		)
+		const { error } = data
+		if (error) {
+			throw new Error('There was an error signing up')
+		}
 	}
 
-	async login(req: AuthUserReq) {
-		const { data } = await axios.post<Response<LoginRes>>(
-			`http://localhost:3100/auth/login`,
-			req,
-		);
-		const { user, access_token, error } = data.data;
+	async login (req: AuthUserReq) {
+		const { data } = await axios.post<LoginRes>(
+			`${process.env.API_URL}/auth/login`,
+			req
+		)
+		const { user, error } = data
 		if (error) {
-			throw new Error(error);
+			throw new Error(error)
 		}
-		// TODO set acccess_token to session
-		return user!;
+
+		// set token
+		return user!
 	}
 }

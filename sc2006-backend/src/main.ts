@@ -6,13 +6,15 @@ import {
 	utilities as nestWinstonModuleUtilities,
 } from 'nest-winston';
 import * as winston from 'winston';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
+	app.enableCors();
+	app.use(cookieParser());
 	/*
     This applies input validation on all routes
   */
-	app.enableCors();
 	app.useGlobalPipes(
 		new ValidationPipe({
 			whitelist: true,
@@ -35,6 +37,6 @@ async function bootstrap() {
 			// other options
 		}),
 	);
-	await app.listen(3100);
+	await app.listen(process.env.PORT);
 }
 bootstrap();

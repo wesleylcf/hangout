@@ -1,7 +1,6 @@
-import { createContext } from 'react';
-import { LoginRes } from '../../sc2006-common/src/api-models';
-import { User } from '../../sc2006-common/src/constants';
-import { UpdateState } from '../hooks/useUpdateState';
+import { createContext } from 'react'
+import { User } from '../../sc2006-common/src/constants'
+import { UpdateState } from '../hooks/useUpdateState'
 export interface Me extends User {
 	// other stuff
 }
@@ -13,5 +12,5 @@ export interface GlobalContextProps {
 }
 
 export const GlobalContext = createContext<GlobalContextProps>(
-	undefined as any,
-);
+	undefined as any
+)

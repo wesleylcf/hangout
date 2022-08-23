@@ -1,33 +1,33 @@
-import React, { useState, useContext } from 'react';
-import { TextInput, InputLabel, Card, Button } from '../components/common';
-import { Form, Input } from 'antd';
-import { meService } from '../services';
-import { GlobalContext, Me } from '../contexts/GlobalContext';
-import { Regex } from '../../sc2006-common/';
-import { PasswordInput } from '../components/common/PasswordInput';
-import { useRouter } from 'next/router';
+import React, { useContext } from 'react'
+import { TextInput, InputLabel, Card } from '../components/common'
+import { Form, Input } from 'antd'
+import { meService } from '../services'
+import { GlobalContext } from '../contexts/GlobalContext'
+import { Regex } from '../../sc2006-common/'
+import { PasswordInput } from '../components/common/PasswordInput'
+import { useRouter } from 'next/router'
 
-interface Form {
+interface IForm {
 	email: string;
 	password: string;
 }
 
-const login = () => {
-	const [form] = Form.useForm<Form>();
-	const { setFieldValue, getFieldValue } = form;
-	const { setMe } = useContext(GlobalContext);
-	const router = useRouter();
+const Login = () => {
+	const [form] = Form.useForm<IForm>()
+	const { setFieldValue, getFieldValue } = form
+	const { setMe } = useContext(GlobalContext)
+	const router = useRouter()
 
-	const onSubmit = async (form: Form) => {
-		const { email, password } = form;
+	const onSubmit = async (form: IForm) => {
+		const { email, password } = form
 		try {
-			const user = await meService.login({ username: email, password });
-			setMe(user);
-			router.push('/');
+			const user = await meService.login({ username: email, password })
+			setMe(user)
+			router.push('/')
 		} catch (e) {
 			// toast notification
 		}
-	};
+	}
 	return (
 		<Card className="p-5 w-3/6 flex flex-col justify-center items-start space-y-2">
 			<Form
@@ -42,12 +42,12 @@ const login = () => {
 					rules={[
 						{
 							required: true,
-							message: 'Email cannot be empty',
+							message: 'Email cannot be empty'
 						},
 						{
 							pattern: Regex.EMAIL,
-							message: 'Invalid email entered',
-						},
+							message: 'Invalid email entered'
+						}
 					]}
 				>
 					<TextInput
@@ -62,12 +62,12 @@ const login = () => {
 					rules={[
 						{
 							required: true,
-							message: 'Password cannot be empty',
+							message: 'Password cannot be empty'
 						},
 						{
 							min: 8,
-							message: 'Password must be at least 8 characters',
-						},
+							message: 'Password must be at least 8 characters'
+						}
 					]}
 				>
 					<PasswordInput
@@ -91,7 +91,7 @@ const login = () => {
 				</div>
 			</Form>
 		</Card>
-	);
-};
+	)
+}
 
-export default login;
+export default Login

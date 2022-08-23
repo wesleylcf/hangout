@@ -6,7 +6,7 @@ export interface User {
 	eventIds: string[];
 	schedule: DateTime[];
 	notifications: Notification[];
-	address: string | null;
+	address: number | null;
 	friendIds: string[];
 }
 

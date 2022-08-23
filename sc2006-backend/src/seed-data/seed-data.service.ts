@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { DbUser } from 'src/constants';
+import { DbUser } from '../../../sc2006-common/src';
 const bcrypt = require('bcrypt'); // eslint-disable-line
 
 interface SeedUser extends Omit<DbUser, 'createdAt'> {
@@ -35,7 +35,7 @@ export class SeedDataService {
 		const passwords = await this.authService.hashPasswords(this.users);
 		const hashedUsers = passwords.map((hash, index) => ({
 			...this.users[index],
-			password: hash,
+			password: hash as string,
 		}));
 		return hashedUsers;
 	}

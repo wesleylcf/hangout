@@ -1,12 +1,12 @@
-import { InputProps } from 'antd/lib/input';
-import { Input as AntdInput, InputRef } from 'antd';
+import { InputProps } from 'antd/lib/input'
+import { Input as AntdInput, InputRef } from 'antd'
 import React, {
 	ChangeEventHandler,
 	RefObject,
 	useState,
-	ChangeEvent,
-} from 'react';
-import { useUpdateEffect } from '../../hooks';
+	ChangeEvent
+} from 'react'
+import { useUpdateEffect } from '../../hooks'
 
 export type TextInputProps = Omit<InputProps, 'size'> & {
 	inputRef?: RefObject<InputRef>;
@@ -24,16 +24,16 @@ export const TextInput = ({
 	style,
 	...restProps
 }: TextInputProps) => {
-	const [internalValue, setInternalValue] = useState(value || '');
+	const [internalValue, setInternalValue] = useState(value || '')
 
 	useUpdateEffect(() => {
-		setInternalValue(value || '');
-	}, [value]);
+		setInternalValue(value || '')
+	}, [value])
 
 	const internalOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-		setInternalValue(e.target.value);
-		onChange?.(e);
-	};
+		setInternalValue(e.target.value)
+		onChange?.(e)
+	}
 
 	return (
 		<AntdInput
@@ -44,5 +44,5 @@ export const TextInput = ({
 			value={internalValue}
 			onChange={internalOnChange}
 		/>
-	);
-};
+	)
+}

@@ -16,7 +16,8 @@ module.exports = {
 	plugins: ['react', '@typescript-eslint'],
 	rules: {
 		indent: [2, 'tab'],
-		'no-tabs': 0
+		'no-tabs': 0,
+		'react/display-name': 'off'
 	},
 	settings: {
 		react: {

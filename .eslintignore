@@ -1,4 +1,11 @@
-*.config.js
+<!-- prettier-ignore-start -->
+**.*.js
 
-# built nestjs files
+/sc2006-common/dist
+
 /sc2006-backend/dist
+
+/sc2006-web/.next
+/sc2006-web/*.config.js
+
+<!-- prettier-ignore-end -->

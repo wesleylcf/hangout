@@ -13,7 +13,7 @@ export class AppService {
 	async seedData() {
 		const users = await this.seedDataService.getUsers();
 		try {
-			await this.userService.bulkCreate(users as unknown as any);
+			await this.userService.bulkCreate(users);
 			this.logger.log('USER data seeded: SUCCESS', 'AppService');
 		} catch (e) {
 			this.logger.log(`USER data seeded: FAILURE - ${e.message}`, 'AppService');
