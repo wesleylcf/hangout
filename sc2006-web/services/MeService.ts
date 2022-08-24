@@ -1,33 +1,47 @@
-import axios from 'axios'
-import {
-	SignUpRes,
-	LoginRes,
-	AuthUserReq
-} from '../../sc2006-common/src/api-models'
+import { SignUpRes, LoginRes, AuthUserReq } from '../types';
 
 export class MeService {
-	async signup (user: AuthUserReq) {
-		const { data } = await axios.post<SignUpRes>(
-			`${process.env.API_URL}/auth/signup`,
-			user
-		)
-		const { error } = data
+	async signup(user: AuthUserReq) {
+		const response = await fetch(`${process.env.API_URL}/auth/signup`, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(user),
+		});
+		const data: SignUpRes = await response.json();
+		const { error } = data;
 		if (error) {
-			throw new Error('There was an error signing up')
+			throw new Error('There was an error signing up');
 		}
 	}
 
-	async login (req: AuthUserReq) {
-		const { data } = await axios.post<LoginRes>(
-			`${process.env.API_URL}/auth/login`,
-			req
-		)
-		const { user, error } = data
+	async login(req: AuthUserReq) {
+		const response = await fetch(`${process.env.API_URL}/auth/login`, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(req),
+		});
+		const data: LoginRes = await response.json();
+		const { user, error } = data;
 		if (error) {
-			throw new Error(error)
+			throw new Error(error);
 		}
+		return user!;
+	}
 
-		// set token
-		return user!
+	async revalidate() {
+		const response = await fetch(`${process.env.API_URL}/auth/revalidate`, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+		});
+		return response;
 	}
 }
