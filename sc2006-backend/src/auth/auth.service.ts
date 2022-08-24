@@ -1,4 +1,4 @@
-import { Injectable, Logger, Res } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt'); // eslint-disable-line
@@ -31,13 +31,14 @@ export class AuthService {
 		}
 	}
 
-	async login(
+	async signToken(
 		outcome: ValidateUserOutcome,
 	): Promise<ValidateUserOutcome & { access_token: string | null }> {
 		const { user, error } = outcome;
+		const { username, createdAt } = user;
 		let access_token = null;
 		if (!error) {
-			access_token = this.jwtService.sign(user);
+			access_token = this.jwtService.sign({ username, createdAt });
 		}
 		return { ...outcome, access_token };
 	}
@@ -70,7 +71,7 @@ export class AuthService {
 	/* 
     Promise.all takes iterable of promises, and returns a single promise.
   */
-	async hashPasswords(users: { password: string }[]): Promise<String[]> {
+	async hashPasswords(users: { password: string }[]): Promise<string[]> {
 		return Promise.all(
 			users.map(async (user) => {
 				return await bcrypt.hash(user.password, 10);
