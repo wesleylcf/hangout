@@ -1,4 +1,6 @@
 import { SignUpRes, LoginRes, AuthUserReq } from '../types';
+import axios from 'axios';
+import { response } from 'express';
 
 export class MeService {
 	async signup(user: AuthUserReq) {
@@ -10,6 +12,7 @@ export class MeService {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(user),
+			credentials: 'include',
 		});
 		const data: SignUpRes = await response.json();
 		const { error } = data;
@@ -27,6 +30,7 @@ export class MeService {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(req),
+			credentials: 'include',
 		});
 		const data: LoginRes = await response.json();
 		const { user, error } = data;
@@ -41,7 +45,18 @@ export class MeService {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			mode: 'cors', // no-cors, *cors, same-origin
 			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+			credentials: 'include',
 		});
 		return response;
+	}
+
+	async getToken() {
+		// const response = await fetch(`${process.env.API_URL}/auth/token`, {
+		// 	method: 'GET', // *GET, POST, PUT, DELETE, etc.
+		// 	mode: 'cors', // no-cors, *cors, same-origin
+		// 	cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+		// 	credentials: 'include',
+		// });
+		await axios.get(`${process.env.API_URL}/auth/token`);
 	}
 }
