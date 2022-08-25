@@ -1,13 +1,13 @@
-import { Logger, Module } from '@nestjs/common'
-import { PassportModule } from '@nestjs/passport'
-import { UserModule } from 'src/user/user.module'
-import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
-import { LocalStrategy } from './local.stategy'
-import { JwtModule } from '@nestjs/jwt'
-import { JwtStrategy } from './jwt.strategy'
-import { ConfigService } from '@nestjs/config'
-import { UserService } from 'src/user/user.service'
+import { Logger, Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { UserModule } from 'src/user/user.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { LocalStrategy } from './local.stategy';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './jwt.strategy';
+import { ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
 
 /*
   AuthModule is dependent on ConfigModule, but it doesn't know that, so there is a race condition where
@@ -23,12 +23,11 @@ import { UserService } from 'src/user/user.service'
 			inject: [ConfigService],
 			useFactory: async (configService: ConfigService) => ({
 				secret: configService.get<string>('JWT_SECRET'),
-				signOptions: { expiresIn: process.env.AUTH_TOKEN_EXPIRY_MSEC }
-			})
-		})
+			}),
+		}),
 	],
 	controllers: [AuthController],
 	providers: [AuthService, LocalStrategy, JwtStrategy, Logger, UserService],
-	exports: [AuthService]
+	exports: [AuthService],
 })
 export class AuthModule {}

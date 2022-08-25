@@ -11,6 +11,7 @@ import {
 	UseInterceptors,
 	Req,
 	Res,
+	UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthUserDto } from './auth-user.dto';
@@ -47,10 +48,6 @@ export class AuthController {
 			httpOnly: true,
 			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
 		});
-		// TODO remove this cookie on logout
-		response.cookie('user', JSON.stringify(req.user), {
-			httpOnly: true,
-		});
 		return rest;
 	}
 
@@ -66,18 +63,22 @@ export class AuthController {
 	}
 
 	/* 
-		After log in, whenever he access a new page we will revalidate, that is refresh the jwtToken
-		using the user stored in httpOnly token after logging in.
+		After log in the token is attached to req with an expiry. When a User accesses a protected resource,
+		if his token has not expired, extend it's expiry, otherwise reject the request(auto handled by JwtAuthGuard)
 	*/
 	@UseGuards(JwtAuthGuard)
 	@Post('revalidate')
-	revalidate(@Request() req, @Res() res) {
-		const user = JSON.parse(req.cookies['user']);
-		const access_token = this.authService.signToken(user);
+	revalidate(@Request() req, @Res({ passthrough: true }) res) {
+		const access_token = req.cookies['jwtToken'];
+		if (!access_token) {
+			throw new UnauthorizedException(
+				'Your session has expired. Please log in again',
+			);
+		}
 		res.cookie('jwtToken', access_token, {
 			httpOnly: true,
 			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
 		});
-		res.sendStatus(200);
+		res.status(200).send();
 	}
 }

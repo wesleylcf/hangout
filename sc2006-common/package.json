@@ -14,10 +14,8 @@
 	"types": "src/index.ts",
 	"scripts": {
 		"preinstall": "npx npm-force-resolutions",
-		"postinstall": "rm -rf node_modules/protobufjs/cli",
 		"lint": "eslint '**/*.ts'",
 		"test": "jest",
-		"postbuild": "cp -r src/templates dist",
 		"build": "tsc",
 		"build:clean": "del-cli --force dist && npm run build",
 		"build:watch": "tsc -w"
