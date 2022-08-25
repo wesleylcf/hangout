@@ -3,6 +3,7 @@ import React, { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { MenuBar } from '.';
 import { Spin } from '../../components/common';
+import { useProtectRoutes } from '../../hooks';
 
 interface AppContainerProps {
 	children: React.ReactNode;
@@ -18,6 +19,7 @@ export const AppContainer: React.FC<AppContainerProps> = ({ children }) => (
 const PageWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
+	const finished = useProtectRoutes();
 
 	useEffect(() => {
 		const handleStart = (url: string) =>
@@ -38,7 +40,7 @@ const PageWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 	return (
 		<div className="flex flex-row items-center justify-center w-full h-full">
-			{loading ? <Spin size="large" center /> : children}
+			{loading || !finished ? <Spin size="large" center /> : children}
 		</div>
 	);
 };

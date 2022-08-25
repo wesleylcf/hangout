@@ -9,7 +9,6 @@ import {
 	GlobalContext,
 } from '../contexts/GlobalContext';
 import { useUpdateState } from '../hooks';
-import axios from 'axios';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, updateMe, setMe] = useUpdateState<Me>(undefined as any);

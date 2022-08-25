@@ -18,6 +18,8 @@ import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { LoggingInterceptor } from 'src/logging.interceptor';
 import { LoginRes } from '../../../sc2006-common';
+import { UserService } from 'src/user/user.service';
+import { GetUserFromTokenReq } from 'src/constants';
 
 /*
 Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransformInterCeptor
@@ -28,6 +30,7 @@ export class AuthController {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly logger: Logger,
+		private readonly userService: UserService,
 	) {}
 
 	/*
@@ -68,17 +71,22 @@ export class AuthController {
 	*/
 	@UseGuards(JwtAuthGuard)
 	@Post('revalidate')
-	revalidate(@Request() req, @Res({ passthrough: true }) res) {
+	async revalidate(
+		@Request() req,
+		@Res() res,
+		@Body() body: GetUserFromTokenReq,
+	) {
 		const access_token = req.cookies['jwtToken'];
-		if (!access_token) {
-			throw new UnauthorizedException(
-				'Your session has expired. Please log in again',
-			);
-		}
 		res.cookie('jwtToken', access_token, {
 			httpOnly: true,
 			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
 		});
+		// valid JWT token, but edge case where user is loaded to app state
+		if (!body.username) {
+			const user = await this.authService.decodeToken(access_token);
+			res.json(user);
+			return;
+		}
 		res.status(200).send();
 	}
 }

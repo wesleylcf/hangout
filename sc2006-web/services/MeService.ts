@@ -1,6 +1,4 @@
-import { SignUpRes, LoginRes, AuthUserReq } from '../types';
-import axios from 'axios';
-import { response } from 'express';
+import { SignUpRes, LoginRes, AuthUserReq, DbUser } from '../types';
 
 export class MeService {
 	async signup(user: AuthUserReq) {
@@ -37,26 +35,26 @@ export class MeService {
 		if (error) {
 			throw new Error(error);
 		}
-		return user!;
+		return user;
 	}
 
-	async revalidate() {
+	async revalidate(
+		username?: string,
+	): Promise<Omit<DbUser, 'password'> & { status: string }> {
 		const response = await fetch(`${process.env.API_URL}/auth/revalidate`, {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			mode: 'cors', // no-cors, *cors, same-origin
 			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
 			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				username,
+			}),
 		});
-		return response;
-	}
-
-	async getToken() {
-		// const response = await fetch(`${process.env.API_URL}/auth/token`, {
-		// 	method: 'GET', // *GET, POST, PUT, DELETE, etc.
-		// 	mode: 'cors', // no-cors, *cors, same-origin
-		// 	cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
-		// 	credentials: 'include',
-		// });
-		await axios.get(`${process.env.API_URL}/auth/token`);
+		const status = response.status;
+		const data = await response.json();
+		return { ...data, status };
 	}
 }

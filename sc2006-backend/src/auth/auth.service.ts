@@ -3,7 +3,8 @@ import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt'); // eslint-disable-line
 import { AuthUserDto } from './auth-user.dto';
-import { ValidateUserOutcome } from '../constants/auth';
+import { ValidateUserOutcome, TokenInput } from '../constants/auth';
+import { Timestamp } from 'firebase/firestore';
 
 @Injectable()
 export class AuthService {
@@ -35,12 +36,30 @@ export class AuthService {
 		outcome: ValidateUserOutcome,
 	): Promise<ValidateUserOutcome & { access_token: string | null }> {
 		const { user, error } = outcome;
-		const { username, createdAt } = user;
+		const tokenInput: TokenInput = {
+			username: user.username,
+			createdAt: user.createdAt,
+		};
 		let access_token = null;
 		if (!error) {
-			access_token = this.jwtService.sign({ username, createdAt });
+			access_token = this.jwtService.sign(tokenInput);
 		}
 		return { ...outcome, access_token };
+	}
+
+	async decodeToken(token: string) {
+		const decoded = this.jwtService.decode(token) as TokenInput;
+		const { username } = decoded;
+		const user = await this.userService.findOne(username);
+		if (!user) {
+			this.logger.log(
+				'User could not be found from decoded token',
+				'AuthService',
+			);
+		}
+		const { password, ...rest } = user;
+
+		return { user: rest };
 	}
 
 	async validateUser(

@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { SeedDataService } from './seed-data/seed-data.service';
 import { SeedDataModule } from './seed-data/seed-data.module';
 import * as Joi from 'joi';
+import { UserController } from './user/user.controller';
 
 /*
   Joi used to define an Object Schema which is compared to Config Object,
@@ -30,7 +31,7 @@ import * as Joi from 'joi';
 		UserModule,
 		SeedDataModule,
 	],
-	controllers: [AppController, AuthController],
+	controllers: [AppController, AuthController, UserController],
 	providers: [AppService, Logger, SeedDataService],
 })
 export class AppModule {}

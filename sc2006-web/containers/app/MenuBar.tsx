@@ -1,92 +1,106 @@
-import React, { ReactNode, useContext } from 'react'
-import { Menu } from 'antd'
+import React, { ReactNode, useContext } from 'react';
+import { Menu } from 'antd';
 import {
 	MenuOutlined,
-	PlusSquareOutlined,
+	LogoutOutlined,
 	CalendarOutlined,
 	SettingOutlined,
 	LoginOutlined,
-	UserAddOutlined
-} from '@ant-design/icons'
-import { useRouter } from 'next/router'
-import { Logo } from '.'
-import { GlobalContext } from '../../contexts/GlobalContext'
+	UserAddOutlined,
+	HomeOutlined,
+} from '@ant-design/icons';
+import { useRouter } from 'next/router';
+import { Logo } from '.';
+import { GlobalContext } from '../../contexts/GlobalContext';
 
 interface MenuBarItem {
-  label?: ReactNode;
-  key: string;
-  icon?: ReactNode;
-  title?: string;
+	label?: ReactNode;
+	key: string;
+	icon?: ReactNode;
+	title?: string;
 }
 
 const ProtectedItems: MenuBarItem[] = [
 	{
 		label: (
 			<div className="flex flex-row items-center justify-center">
-				<PlusSquareOutlined className="pr-1" />
-        CreateEvent
+				<HomeOutlined className="pr-1" />
+				Home
 			</div>
 		),
-		key: 'create-event'
+		key: '',
 	},
 	{
 		label: (
 			<div className="flex flex-row items-center justify-center">
 				<CalendarOutlined className="pr-1" />
-        Events
+				Events
 			</div>
 		),
-		key: 'list-events'
+		key: 'events',
 	},
 	{
 		label: (
 			<div className="flex flex-row items-center justify-center">
 				<SettingOutlined className="pr-1" />
-        Settings
+				Profile
 			</div>
 		),
-		key: 'user-settings'
-	}
-]
+		key: 'profile',
+	},
+];
 
-export function MenuBar () {
-	const { me } = useContext(GlobalContext)
-	const router = useRouter()
+export function MenuBar() {
+	const { me } = useContext(GlobalContext);
+	const router = useRouter();
 
-	const PublicItems: MenuBarItem[] = [getLoginOrSignup(router.asPath)]
+	const AuthItems: MenuBarItem[] = [getLoginOrSignup(router.asPath)];
 
 	return (
 		<nav className="flex flew-row bg-white justify-between">
 			<Logo />
-			<Menu
-				items={me ? ProtectedItems : PublicItems}
-				mode="horizontal"
-				className="w-3/6 justify-end"
-				expandIcon={<MenuOutlined />}
-				onClick={({ key }) => router.push(`/${key}`)}
-			/>
+			<div className="w-3/6 flex flex-row justify-end">
+				<Menu
+					items={me ? ProtectedItems : AuthItems}
+					mode="horizontal"
+					className="w-4/5 justify-end"
+					expandIcon={<MenuOutlined />}
+					onClick={({ key }) => router.push(`/${key}`)}
+				/>
+				{me && (
+					<button
+						onClick={() => router.push('/')}
+						className="flex justify-start items-center px-5 text-black hover:text-sky-600 w1/5"
+					>
+						<LogoutOutlined className="pr-1" />
+						Logout
+					</button>
+				)}
+			</div>
 		</nav>
-	)
+	);
 }
 
-function getLoginOrSignup (path: string) {
+/* eslint-disable no-mixed-spaces-and-tabs */
+function getLoginOrSignup(path: string) {
 	return path === '/signup' || path === '/'
 		? {
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<LoginOutlined className="pr-1" />
-            Login
-				</div>
-			),
-			key: 'login'
-		}
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<LoginOutlined className="pr-1" />
+						Login
+					</div>
+				),
+				key: 'login',
+		  }
 		: {
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<UserAddOutlined className="pr-1" />
-            Sign Up
-				</div>
-			),
-			key: 'signup'
-		}
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<UserAddOutlined className="pr-1" />
+						Sign Up
+					</div>
+				),
+				key: 'signup',
+		  };
+	/* eslint-enable no-mixed-spaces-and-tabs */
 }

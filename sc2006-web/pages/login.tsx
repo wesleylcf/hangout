@@ -19,7 +19,7 @@ const Login = () => {
 		const { email, password } = form;
 		try {
 			const user = await meService.login({ username: email, password });
-			setMe(user);
+			setMe(user!);
 			router.push('/');
 		} catch (e) {
 			// toast notification
