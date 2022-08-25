@@ -1,6 +1,6 @@
-import { Strategy } from 'passport-jwt'
-import { PassportStrategy } from '@nestjs/passport'
-import { Injectable } from '@nestjs/common'
+import { Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
 
 /*
   Since we extended PassportStrategy without specifying a name, it defaults to the string
@@ -8,18 +8,18 @@ import { Injectable } from '@nestjs/common'
 */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor () {
+	constructor() {
 		super({
 			jwtFromRequest: function (req, res) {
-				let jwtToken = null
+				let jwtToken = null;
 				if (req && req.cookies) {
-					jwtToken = req.cookies.jwtToken
+					jwtToken = req.cookies.jwtToken;
 				}
-				return jwtToken
+				return jwtToken;
 			},
 			ignoreExpiration: false,
-			secretOrKey: process.env.JWT_SECRET
-		})
+			secretOrKey: process.env.JWT_SECRET,
+		});
 	}
 
 	/*
@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     Passport will build a user object based on the return value of our validate() method,
     and attach it as a property on the Request object sent to the Controller
   */
-	async validate (payload) {
-		return { username: payload.username }
+	async validate(payload) {
+		return { username: payload.username };
 	}
 }
