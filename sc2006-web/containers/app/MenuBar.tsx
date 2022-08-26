@@ -4,14 +4,16 @@ import {
 	MenuOutlined,
 	LogoutOutlined,
 	CalendarOutlined,
-	SettingOutlined,
+	UserOutlined,
 	LoginOutlined,
 	UserAddOutlined,
 	HomeOutlined,
 } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { Logo } from '.';
+import { NotificationBell } from '../../components/common';
 import { GlobalContext } from '../../contexts/GlobalContext';
+import { meService } from '../../services';
 
 interface MenuBarItem {
 	label?: ReactNode;
@@ -42,7 +44,7 @@ const ProtectedItems: MenuBarItem[] = [
 	{
 		label: (
 			<div className="flex flex-row items-center justify-center">
-				<SettingOutlined className="pr-1" />
+				<UserOutlined className="pr-1" />
 				Profile
 			</div>
 		),
@@ -51,10 +53,20 @@ const ProtectedItems: MenuBarItem[] = [
 ];
 
 export function MenuBar() {
-	const { me } = useContext(GlobalContext);
+	const { me, setMe } = useContext(GlobalContext);
 	const router = useRouter();
 
 	const AuthItems: MenuBarItem[] = [getLoginOrSignup(router.asPath)];
+
+	const onLogout = async () => {
+		try {
+			await meService.logout();
+			setMe(undefined);
+		} catch (e) {
+			// TODO fire toast notification
+			console.log(e.message);
+		}
+	};
 
 	return (
 		<nav className="flex flew-row bg-white justify-between">
@@ -68,13 +80,16 @@ export function MenuBar() {
 					onClick={({ key }) => router.push(`/${key}`)}
 				/>
 				{me && (
-					<button
-						onClick={() => router.push('/')}
-						className="flex justify-start items-center px-5 text-black hover:text-sky-600 w1/5"
-					>
-						<LogoutOutlined className="pr-1" />
-						Logout
-					</button>
+					<>
+						<NotificationBell />
+						<button
+							onClick={onLogout}
+							className="flex justify-start items-center px-5 text-black border-b-3 border-red-500 hover:text-red-500  w-1/5"
+						>
+							<LogoutOutlined className="pr-1" />
+							Logout
+						</button>
+					</>
 				)}
 			</div>
 		</nav>

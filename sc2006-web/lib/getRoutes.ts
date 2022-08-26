@@ -6,10 +6,9 @@ export type Routes =
 	| '/events'
 	| '/profile';
 
-import { useState, useEffect, useContext } from 'react';
-import { GlobalContext } from '../contexts/GlobalContext';
+import { Me } from '../contexts/GlobalContext';
 
-export function useRoutes() {
+export function getRoutes(me?: Me) {
 	const publicRoutes = {
 		'/': true,
 		'/login': true,
@@ -28,16 +27,7 @@ export function useRoutes() {
 		'/profile': true,
 	};
 
-	const [allowedRoutes, setRoutes] =
-		useState<Record<Routes, boolean>>(publicRoutes);
-	const { me } = useContext(GlobalContext);
-	useEffect(() => {
-		if (me?.username) {
-			setRoutes(authRoutes);
-		} else {
-			setRoutes(publicRoutes);
-		}
-	}, [me]);
+	const allowedRoutes = me ? authRoutes : publicRoutes;
 
 	return {
 		allowedRoutes,

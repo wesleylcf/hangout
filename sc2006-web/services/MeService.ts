@@ -38,6 +38,18 @@ export class MeService {
 		return user;
 	}
 
+	async logout() {
+		const response = await fetch(`${process.env.API_URL}/auth/logout`, {
+			method: 'POST',
+			mode: 'cors',
+			cache: 'no-cache',
+			credentials: 'include',
+		});
+		if (response.status > 204) {
+			throw new Error('Logout failed please try again later');
+		}
+	}
+
 	async revalidate(
 		username?: string,
 	): Promise<Omit<DbUser, 'password'> & { status: string }> {

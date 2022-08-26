@@ -54,6 +54,15 @@ export class AuthController {
 		return rest;
 	}
 
+	@UseGuards(JwtAuthGuard)
+	@Post('logout')
+	async logout(@Res({ passthrough: true }) res) {
+		res.cookie('jwtToken', null, {
+			httpOnly: true,
+		});
+		res.status(200);
+	}
+
 	@Post('signup')
 	signup(@Body() user: AuthUserDto) {
 		return this.authService.signup(user);

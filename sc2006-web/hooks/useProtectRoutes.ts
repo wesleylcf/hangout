@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import { meService } from '../services';
 import { useRouter } from 'next/router';
 import { GlobalContext } from '../contexts/GlobalContext';
-import { useRoutes, Routes } from '.';
+import { getRoutes, Routes } from '../lib';
 
 interface ProtectRouteResult {
 	finished: boolean;
@@ -16,7 +16,7 @@ export function useProtectRoutes(
 	const router = useRouter();
 	const { me, setMe } = useContext(GlobalContext);
 	const username = me?.username;
-	const { allowedRoutes } = useRoutes();
+	const { allowedRoutes } = getRoutes(me);
 	const fetcher = async () => await meService.revalidate(username);
 	const { data, error } = useSWR('/revalidate', fetcher) as any;
 
@@ -26,34 +26,20 @@ export function useProtectRoutes(
 	const authenticated = status < 205;
 
 	useEffect(() => {
-		if (!finished || me || allowedRoutes[router.asPath as Routes]) return;
+		if (!finished) return;
 
 		if (authenticated) {
 			if (!me && user) {
 				setMe(user);
-				return;
-			}
-			if (!allowedRoutes[router.asPath as Routes]) {
+			} else if (!allowedRoutes[router.asPath as Routes]) {
 				router.push(redirectToIfAuthenticated);
 			}
-		} else {
+		} else if (!me) {
 			if (!allowedRoutes[router.asPath as Routes]) {
 				router.push(redirectToIfUnauthenticated);
 			}
-			if (me) {
-				setMe(undefined as any);
-			}
 		}
-	}, [
-		redirectToIfUnauthenticated,
-		redirectToIfAuthenticated,
-		finished,
-		authenticated,
-		me,
-		allowedRoutes,
-		user,
-		router.asPath,
-	]);
+	}, [finished, authenticated, me, allowedRoutes, user, router.asPath]);
 
 	return { finished };
 }
