@@ -7,18 +7,15 @@ import {
 	UseGuards,
 	Get,
 	Request,
-	Logger,
 	UseInterceptors,
 	Req,
 	Res,
-	UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthUserDto } from './auth-user.dto';
 import { JwtAuthGuard, LocalAuthGuard } from './guards';
 import { LoggingInterceptor } from 'src/logging.interceptor';
 import { LoginRes } from '../../../sc2006-common';
-import { UserService } from 'src/user/user.service';
 import { GetUserFromTokenReq } from 'src/constants';
 
 /*
@@ -27,11 +24,7 @@ Interceptors are called top-down, i.e. Logging Interceptor runs before ResTransf
 @UseInterceptors(LoggingInterceptor)
 @Controller('auth')
 export class AuthController {
-	constructor(
-		private readonly authService: AuthService,
-		private readonly logger: Logger,
-		private readonly userService: UserService,
-	) {}
+	constructor(private readonly authService: AuthService) {}
 
 	/*
     LocalAuthGuard calls ValidateUser which reads in from Body,
@@ -44,14 +37,12 @@ export class AuthController {
 		@Req() req,
 		@Res({ passthrough: true }) response,
 	): Promise<LoginRes> {
-		const { access_token, ...rest } = await this.authService.signToken(
-			req.user,
-		);
+		const { access_token } = await this.authService.signToken(req.user);
 		response.cookie('jwtToken', access_token, {
 			httpOnly: true,
 			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
 		});
-		return rest;
+		return req.user;
 	}
 
 	@UseGuards(JwtAuthGuard)
