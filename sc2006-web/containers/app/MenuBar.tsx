@@ -1,5 +1,5 @@
 import React, { ReactNode, useContext } from 'react';
-import { Menu } from 'antd';
+import { Menu, notification } from 'antd';
 import {
 	MenuOutlined,
 	LogoutOutlined,
@@ -12,8 +12,9 @@ import {
 import { useRouter } from 'next/router';
 import { Logo } from '.';
 import { NotificationBell } from '../../components/common';
-import { GlobalContext } from '../../contexts/GlobalContext';
+import { GlobalContext } from '../../contexts/';
 import { meService } from '../../services';
+import { useNotification } from '../../hooks';
 
 interface MenuBarItem {
 	label?: ReactNode;
@@ -55,6 +56,7 @@ const ProtectedItems: MenuBarItem[] = [
 export function MenuBar() {
 	const { me, setMe } = useContext(GlobalContext);
 	const router = useRouter();
+	const notification = useNotification();
 
 	const AuthItems: MenuBarItem[] = [getLoginOrSignup(router.asPath)];
 
@@ -62,9 +64,10 @@ export function MenuBar() {
 		try {
 			await meService.logout();
 			setMe(undefined);
-		} catch (e) {
+			notification.success('Logged out successfully');
+		} catch (e: any) {
 			// TODO fire toast notification
-			console.log(e.message);
+			notification.apiError(e);
 		}
 	};
 

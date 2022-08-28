@@ -1,19 +1,28 @@
 import { Layout as AntdLayout } from 'antd';
 import React, { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { MenuBar, PageWrapper } from '.';
+import { MenuBar, PageTransitionWrapper } from '.';
 import { useProtectRoutes } from '../../hooks';
+import { Me, GlobalContextProps, GlobalContext } from '../../contexts/';
+import { NotificationContainer } from '../notification';
 
 interface AppContainerProps {
 	children: React.ReactNode;
+	meContext: GlobalContextProps;
 }
 
-export const AppContainer: React.FC<AppContainerProps> = ({ children }) => {
-	const { finished } = useProtectRoutes();
+export const AppContainer: React.FC<AppContainerProps> = ({
+	children,
+	meContext,
+}) => {
 	return (
 		<AntdLayout className="w-screen h-screen relative">
-			<MenuBar />
-			<PageWrapper isLoading={!finished}>{children}</PageWrapper>
+			<GlobalContext.Provider value={meContext}>
+				<NotificationContainer>
+					<MenuBar />
+					<PageTransitionWrapper>{children}</PageTransitionWrapper>
+				</NotificationContainer>
+			</GlobalContext.Provider>
 		</AntdLayout>
 	);
 };

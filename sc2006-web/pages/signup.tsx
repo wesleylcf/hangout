@@ -3,6 +3,7 @@ import { Form } from 'antd';
 import { meService } from '../services';
 import { useRouter } from 'next/router';
 import { AuthForm, AuthFormType } from '../components/auth/';
+import { useNotification } from '../hooks';
 
 interface SignupForm {
 	email: string;
@@ -11,7 +12,7 @@ interface SignupForm {
 
 const Login = () => {
 	const [form] = Form.useForm<SignupForm>();
-
+	const notification = useNotification();
 	const router = useRouter();
 
 	const onSubmit = async (form: SignupForm) => {
@@ -19,9 +20,11 @@ const Login = () => {
 		try {
 			await meService.signup({ username: email, password });
 			// toast notification you have signed up
+			notification.success('You have successfully signed up!');
 			router.push('/login');
-		} catch (e) {
+		} catch (e: any) {
 			// toast notification
+			notification.apiError(e);
 		}
 	};
 	return (

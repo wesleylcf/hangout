@@ -6,7 +6,7 @@ export type Routes =
 	| '/events'
 	| '/profile';
 
-import { Me } from '../contexts/GlobalContext';
+import { Me } from '../../contexts/GlobalContext';
 
 export function getRoutes(me?: Me) {
 	const publicRoutes = {
