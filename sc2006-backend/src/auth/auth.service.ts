@@ -4,7 +4,10 @@ import { JwtService } from '@nestjs/jwt';
 const bcrypt = require('bcrypt'); // eslint-disable-line
 import { AuthUserDto } from './auth-user.dto';
 import { ValidateUserOutcome, TokenInput } from '../constants/auth';
-import { Timestamp } from 'firebase/firestore';
+import {
+	PresentableError,
+	defaultApiErrMessage,
+} from '../../../sc2006-common/src';
 
 @Injectable()
 export class AuthService {
@@ -15,12 +18,15 @@ export class AuthService {
 		private logger: Logger,
 	) {}
 
-	async signup({ username, password }: AuthUserDto) {
-		const storedUser = await this.userService.findOne(username);
-		if (storedUser) {
-			return { error: 'Unable to sign up user: User already exists' };
-		}
+	async signup({
+		username,
+		password,
+	}: AuthUserDto): Promise<{ error?: Omit<PresentableError, 'name'> }> {
 		try {
+			const storedUser = await this.userService.findOne(username);
+			if (storedUser) {
+				throw new Error('User already exists');
+			}
 			const hashedPassword = await bcrypt.hash(password, this.saltRounds);
 			await this.userService.create({
 				username: username,
@@ -28,41 +34,54 @@ export class AuthService {
 			});
 			return { error: null };
 		} catch (e) {
-			return { error: e.message };
+			this.logger.warn(e.message, 'AuthService');
+			return {
+				error: {
+					message: 'Specified email is already in use.',
+					title: 'Sign up error',
+					level: 'error',
+				},
+			};
 		}
 	}
 
 	async signToken(
 		outcome: ValidateUserOutcome,
 	): Promise<ValidateUserOutcome & { access_token: string | null }> {
-		const { user, error } = outcome;
-		const tokenInput: TokenInput = {
-			username: user.username,
-			createdAt: user.createdAt,
-		};
-		let access_token = null;
-		if (!error) {
-			access_token = this.jwtService.sign(tokenInput);
+		try {
+			const { user, error } = outcome;
+			const tokenInput: TokenInput = {
+				username: user.username,
+				createdAt: user.createdAt,
+			};
+			let access_token = null;
+			if (!error) {
+				access_token = this.jwtService.sign(tokenInput);
+			}
+			return { access_token };
+		} catch (e) {
+			this.logger.warn(`Signing token failed: ${e.message}`, 'AuthService');
 		}
-		return { ...outcome, access_token };
 	}
 
 	async decodeToken(token: string) {
-		const decoded = this.jwtService.decode(token) as TokenInput;
-		const { username } = decoded;
-		const user = await this.userService.findOne(username);
-		if (!user) {
-			this.logger.log(
-				'User could not be found from decoded token',
-				'AuthService',
-			);
-		}
-		const { password, ...rest } = user;
+		try {
+			const decoded = this.jwtService.decode(token) as TokenInput;
+			const { username } = decoded;
+			const user = await this.userService.findOne(username);
+			if (!user) {
+				throw new Error('User could not be found from decoded token');
+			}
+			const { password, ...rest } = user;
 
-		return { user: rest };
+			return { user: rest };
+		} catch (e) {
+			this.logger.warn(`Decoding token failed: ${e.message}`, 'AuthService');
+			return { error: defaultApiErrMessage };
+		}
 	}
 
-	async validateUser(
+	async login(
 		username: string,
 		inputPassword: string,
 	): Promise<ValidateUserOutcome> {
@@ -82,7 +101,7 @@ export class AuthService {
 
 			return { user: rest };
 		} catch (e) {
-			this.logger.warn(`User validation failed: ${e.message}`, 'AuthService');
+			this.logger.warn(`User login failed: ${e.message}`, 'AuthService');
 			return { error: e.message };
 		}
 	}

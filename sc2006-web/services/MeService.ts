@@ -1,4 +1,5 @@
 import { SignUpRes, LoginRes, AuthUserReq, DbUser } from '../types';
+import { throwErrorOrGetData } from '../lib/error';
 
 export class MeService {
 	async signup(user: AuthUserReq) {
@@ -12,11 +13,9 @@ export class MeService {
 			body: JSON.stringify(user),
 			credentials: 'include',
 		});
-		const data: SignUpRes = await response.json();
-		const { error } = data;
-		if (error) {
-			throw new Error('There was an error signing up');
-		}
+		await throwErrorOrGetData(response, {
+			responseNotNeeded: true,
+		});
 	}
 
 	async login(req: AuthUserReq) {
@@ -30,11 +29,11 @@ export class MeService {
 			body: JSON.stringify(req),
 			credentials: 'include',
 		});
-		const data: LoginRes = await response.json();
+		const data = await throwErrorOrGetData<LoginRes>(response, {
+			fallbackMessage: 'Please check your email and password carefully',
+			fallbackTitle: 'Login error',
+		});
 		const { user, error } = data;
-		if (error) {
-			throw new Error(error);
-		}
 		return user;
 	}
 

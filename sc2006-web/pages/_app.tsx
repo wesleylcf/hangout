@@ -3,11 +3,7 @@ import type { AppProps } from 'next/app';
 import 'antd/dist/antd.css';
 import React, { useState } from 'react';
 import { AppContainer } from '../containers/app';
-import {
-	Me,
-	GlobalContextProps,
-	GlobalContext,
-} from '../contexts/GlobalContext';
+import { Me, GlobalContextProps, GlobalContext } from '../contexts/';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, setMe] = useState<Me | undefined>(undefined as any);
@@ -17,11 +13,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 	};
 
 	return (
-		<GlobalContext.Provider value={contextValue}>
-			<AppContainer>
-				<Component {...pageProps} />
-			</AppContainer>
-		</GlobalContext.Provider>
+		<AppContainer meContext={contextValue}>
+			<Component {...pageProps} />
+		</AppContainer>
 	);
 }
 

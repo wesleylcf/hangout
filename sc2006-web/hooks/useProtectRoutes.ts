@@ -2,8 +2,8 @@ import { useEffect, useContext } from 'react';
 import useSWR from 'swr';
 import { meService } from '../services';
 import { useRouter } from 'next/router';
-import { GlobalContext } from '../contexts/GlobalContext';
-import { getRoutes, Routes } from '../lib';
+import { GlobalContext } from '../contexts/';
+import { getRoutes, Routes } from '../lib/routes';
 
 interface ProtectRouteResult {
 	finished: boolean;

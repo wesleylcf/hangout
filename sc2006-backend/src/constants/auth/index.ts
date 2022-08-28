@@ -1,9 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
-import { DbUser } from '../../../../sc2006-common/src';
+import { DbUser, PresentableError } from '../../../../sc2006-common/src';
 
 export interface ValidateUserOutcome {
 	user?: Omit<DbUser, 'password'>;
-	error?: string;
+	error?: PresentableError;
 }
 
 export interface TokenInput {
