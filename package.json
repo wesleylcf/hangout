@@ -15,7 +15,8 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"husky": "^8.0.1",
 		"lint-staged": "^13.0.3",
-		"prettier": "2.7.1"
+		"prettier": "2.7.1",
+		"webpack": "^5.74.0"
 	},
 	"name": "sc2006-project",
 	"description": "[Project Guidelines](https://www.notion.so/Project-Guidelines-4042187136d74f5781c373eaf7509036) : Setting up + developer’s guide",
