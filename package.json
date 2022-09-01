@@ -15,7 +15,8 @@
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"husky": "^8.0.1",
 		"lint-staged": "^13.0.3",
-		"prettier": "2.7.1"
+		"prettier": "2.7.1",
+		"webpack": "^5.74.0"
 	},
 	"name": "sc2006-project",
 	"description": "[Project Guidelines](https://www.notion.so/Project-Guidelines-4042187136d74f5781c373eaf7509036) : Setting up + developer’s guide",
@@ -131,6 +132,9 @@
 		"start": "if [ $CLIENT_ENV ]; then npm run start:web; elif [ $SERVER_ENV ]; then npm run start:server; else echo no environment detected, please set CLIENT_ENV or SERVER_ENV; fi",
 		"start:web": "cd sc2006-web && npm run start",
 		"start:server": "cd sc2006-backend && npm run start:prod",
+		"dev": "if [ $CLIENT_ENV ]; then npm run dev:web; elif [ $SERVER_ENV ]; then npm run dev:server; else echo no environment detected, please set CLIENT_ENV or SERVER_ENV; fi",
+		"dev:web": "cd sc2006-web && npm run dev",
+		"dev:server": "cd sc2006-backend && npm run start:dev",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "eslint . --fix --max-warnings=0",
 		"format": "prettier . --write",

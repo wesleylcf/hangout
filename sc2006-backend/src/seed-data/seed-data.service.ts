@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
-import { DbUser } from '../../../sc2006-common/src';
+import { NotificationService } from 'src/notification/notification.service';
 const bcrypt = require('bcrypt'); // eslint-disable-line
-
-interface SeedUser extends Omit<DbUser, 'createdAt'> {
-	username: string;
-}
 
 @Injectable()
 export class SeedDataService {
 	private readonly emails: string[];
-	private users: SeedUser[];
-	constructor(private authService: AuthService) {
+	constructor(
+		private readonly authService: AuthService,
+		private readonly notificationService: NotificationService,
+	) {
 		this.emails = [
 			'wesleylim.work@gmail.com',
 			'anais.lengoc@gmail.com',
@@ -20,21 +18,24 @@ export class SeedDataService {
 			'lerlianping@hotmail.com',
 			'sufyanjais1@gmail.com',
 		];
-		this.users = this.emails.map((email) => ({
+	}
+
+	async getUsers() {
+		const users = this.emails.map((email) => ({
 			username: email,
 			password: 'password',
 			eventIds: [],
 			schedule: [],
-			notifications: [],
+			notifications: this.emails.map((email) => ({
+				title: `${email} has accepted your friend request`,
+				description: `You can now add him to your events!`,
+			})),
 			address: null,
 			friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
 		}));
-	}
-
-	async getUsers() {
-		const passwords = await this.authService.hashPasswords(this.users);
+		const passwords = await this.authService.hashPasswords(users);
 		const hashedUsers = passwords.map((hash, index) => ({
-			...this.users[index],
+			...users[index],
 			password: hash as string,
 		}));
 		return hashedUsers;

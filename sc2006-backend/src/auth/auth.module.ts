@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
+import { NotificationModule } from 'src/notification/notification.module';
 
 /*
   AuthModule is dependent on ConfigModule, but it doesn't know that, so there is a race condition where
@@ -25,6 +26,7 @@ import { UserService } from 'src/user/user.service';
 				secret: configService.get<string>('JWT_SECRET'),
 			}),
 		}),
+		NotificationModule,
 	],
 	controllers: [AuthController],
 	providers: [AuthService, LocalStrategy, JwtStrategy, Logger, UserService],

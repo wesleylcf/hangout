@@ -9,14 +9,18 @@ import {
 	writeBatch,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser } from '../../../sc2006-common/';
+import { DbUser, SeedUser } from '../../../sc2006-common/';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class UserService {
-	constructor(private readonly logger: Logger) {}
+	constructor(
+		private readonly logger: Logger,
+		private readonly notificationService: NotificationService,
+	) {}
 
 	/*
-    Returns User document if found, else null
+    Returns User document if found, else undefined
   */
 	async findOne(_username: string): Promise<DbUser | undefined> {
 		const docRef = doc(db, 'users', _username);
@@ -24,7 +28,6 @@ export class UserService {
 		if (!docSnap.exists) {
 			return undefined;
 		}
-		// TODO destructure docSnap.data() and return new object
 		return {
 			username: docSnap.id,
 			...(docSnap.data() as Omit<DbUser, 'username'>),
@@ -43,7 +46,7 @@ export class UserService {
 				createdAt: serverTimestamp() as Timestamp,
 				eventIds: [],
 				schedule: [],
-				notifications: [],
+				notificationIds: [],
 				address: null,
 				friendIds: [],
 			};
@@ -55,21 +58,33 @@ export class UserService {
 		}
 	}
 
-	async bulkCreate(users: Omit<DbUser, 'createdAt'>[]) {
-		// Get a new write batch
-		const batch = writeBatch(db);
+	async seedUsers(users: SeedUser[]) {
+		try {
+			const batch = writeBatch(db);
 
-		users.forEach((user) => {
-			const { username, ...rest } = user;
+			const usersNotifications = users.map((user) => user.notifications);
 
-			const docRef = doc(db, 'users', username);
-			batch.set(docRef, {
-				createdAt: serverTimestamp() as unknown as Date,
-				...rest,
+			const usersNotificationUuids = await Promise.all(
+				usersNotifications.map(
+					async (userNotification) =>
+						await this.notificationService.bulkCreate(userNotification),
+				),
+			);
+
+			users.forEach((user, index) => {
+				const { username, notifications, ...rest } = user;
+
+				const docRef = doc(db, 'users', username);
+				batch.set(docRef, {
+					createdAt: serverTimestamp(),
+					notificationIds: usersNotificationUuids[index].uuids,
+					...rest,
+				});
 			});
-		});
 
-		// Commit the batch
-		await batch.commit();
+			await batch.commit();
+		} catch (e) {
+			this.logger.warn('Could not batch write users', 'UserService');
+		}
 	}
 }

@@ -5,7 +5,16 @@ export interface User {
 	username: string;
 	eventIds: string[];
 	schedule: DateTime[];
-	notifications: Notification[];
+	notificationIds: string[];
+	address: number | null;
+	friendIds: string[];
+}
+
+export interface SeedUser {
+	username: string;
+	eventIds: string[];
+	schedule: DateTime[];
+	notifications: Pick<Notification, 'title' | 'description'>[];
 	address: number | null;
 	friendIds: string[];
 }
