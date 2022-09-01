@@ -1,7 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
 
 export interface Notification {
+	uuid: string;
 	createdAt: Timestamp;
-	message: string;
-	isNew: boolean;
+	title: string;
+	description: string;
+	seenAt: Timestamp | null;
 }
