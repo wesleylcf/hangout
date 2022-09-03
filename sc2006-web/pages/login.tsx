@@ -13,7 +13,7 @@ interface LoginForm {
 
 const Login = () => {
 	const [form] = Form.useForm<LoginForm>();
-	const { setMe, setNotifications } = useContext(GlobalContext);
+	const { setMe } = useContext(GlobalContext);
 	const router = useRouter();
 	const notification = useNotification();
 
@@ -22,10 +22,6 @@ const Login = () => {
 		try {
 			const user = await meService.login({ username: email, password });
 			setMe(user!);
-			const notifications = await notificationService.getUserNotifications({
-				notificationUuids: user.notificationIds,
-			});
-			setNotifications(notifications);
 			router.push('/');
 		} catch (e: any) {
 			notification.apiError(e);
