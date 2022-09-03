@@ -18,8 +18,8 @@ export const NotificationInbox = react.memo(
 		const [newCount, setNewCount] = useState(0);
 
 		useEffect(() => {
-			try {
-				const populateInbox = async () => {
+			const populateInbox = async () => {
+				try {
 					const notificationResult =
 						await notificationService.getUserNotifications({
 							notificationUuids: uuids,
@@ -33,11 +33,11 @@ export const NotificationInbox = react.memo(
 						0,
 					);
 					setNewCount(unseenCount);
-				};
-				populateInbox();
-			} catch (e: any) {
-				notification.apiError(e);
-			}
+				} catch (e: any) {
+					notification.apiError(e);
+				}
+			};
+			populateInbox();
 		}, []);
 
 		const onClickInbox = async () => {

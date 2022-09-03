@@ -16,7 +16,10 @@ export const AppContainer: React.FC<AppContainerProps> = ({
 	meContext,
 }) => {
 	return (
-		<AntdLayout className="w-screen h-screen relative">
+		<AntdLayout
+			className="w-screen h-screen relative"
+			style={{ background: 'none' }}
+		>
 			<GlobalContext.Provider value={meContext}>
 				<NotificationContainer>
 					<MenuBar />

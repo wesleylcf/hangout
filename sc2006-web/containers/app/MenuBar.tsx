@@ -65,6 +65,7 @@ export function MenuBar() {
 		try {
 			await meService.logout();
 			setMe(undefined);
+			router.push('/');
 			notification.success('Logged out successfully');
 		} catch (e: any) {
 			// TODO fire toast notification
@@ -73,7 +74,7 @@ export function MenuBar() {
 	};
 
 	return (
-		<nav className="flex flew-row bg-white justify-between">
+		<nav className="flex flew-row justify-between bg-white">
 			<Logo />
 			<div className="w-3/6 flex flex-row justify-end">
 				<Menu
@@ -82,6 +83,7 @@ export function MenuBar() {
 					className="w-4/5 justify-end"
 					expandIcon={<MenuOutlined />}
 					onClick={({ key }) => router.push(`/${key}`)}
+					style={{ border: 'none' }}
 				/>
 				{me && (
 					<>

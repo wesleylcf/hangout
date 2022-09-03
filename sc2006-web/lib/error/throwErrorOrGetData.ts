@@ -25,16 +25,12 @@ export async function throwErrorOrGetData<T>(
 	if (status < 205) {
 		return data;
 	}
-	console.log(data);
 	const error = data.error;
 	const message = data.message;
+
 	if (error) {
-		throw ErrorUtil.apiError(
-			error.message || message,
-			error.title,
-			error.level,
-		);
+		throw ErrorUtil.apiError(error.message, error.title, error.level);
 	} else {
-		throw ErrorUtil.apiError(fallbackMessage, fallbackTitle);
+		throw ErrorUtil.apiError(message || fallbackMessage, fallbackTitle);
 	}
 }
