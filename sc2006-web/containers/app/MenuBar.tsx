@@ -15,6 +15,7 @@ import { NotificationBell } from '../../components/common';
 import { GlobalContext } from '../../contexts/';
 import { meService } from '../../services';
 import { useNotification } from '../../hooks';
+import { NotificationInbox } from '../notification';
 
 interface MenuBarItem {
 	label?: ReactNode;
@@ -84,7 +85,7 @@ export function MenuBar() {
 				/>
 				{me && (
 					<>
-						<NotificationBell />
+						<NotificationInbox uuids={me.notificationIds} />
 						<button
 							onClick={onLogout}
 							className="flex justify-start items-center px-5 text-black border-b-3 border-red-500 hover:text-red-500  w-1/5"

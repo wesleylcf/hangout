@@ -18,7 +18,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 		const handleStart = (url: string) =>
 			url !== router.asPath && setInternalLoading(true);
 		// Removed url === router.asPath as it seems possible that url !== asPath
-		const handleEnd = () => setTimeout(() => setInternalLoading(false), 300);
+		const handleEnd = () => setTimeout(() => setInternalLoading(false), 100);
 
 		router.events.on('routeChangeStart', handleStart);
 		router.events.on('routeChangeComplete', handleEnd);

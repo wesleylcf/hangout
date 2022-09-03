@@ -17,17 +17,23 @@ interface ThrowErrorOrGetDataOptions {
 */
 export async function throwErrorOrGetData<T>(
 	response: ErrorResponse,
-	options: ThrowErrorOrGetDataOptions = { responseNotNeeded: false },
+	options: ThrowErrorOrGetDataOptions,
 ): Promise<T> {
 	const { status } = response;
 	const data = await response.json();
-	const { message, error } = data;
-	const { responseNotNeeded, fallbackTitle, fallbackMessage } = options;
-	if (status < 205 && !responseNotNeeded) {
+	const { fallbackTitle, fallbackMessage } = options;
+	if (status < 205) {
 		return data;
 	}
-	if (error.message) {
-		throw ErrorUtil.apiError(error.message, error.title, error.level);
+	console.log(data);
+	const error = data.error;
+	const message = data.message;
+	if (error) {
+		throw ErrorUtil.apiError(
+			error.message || message,
+			error.title,
+			error.level,
+		);
 	} else {
 		throw ErrorUtil.apiError(fallbackMessage, fallbackTitle);
 	}

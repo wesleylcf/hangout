@@ -5,8 +5,7 @@ export interface SignUpRes {
 }
 
 export interface LoginRes {
-	user?: Omit<DbUser, 'password'>;
-	error?: string;
+	user: Omit<DbUser, 'password'>;
 }
 
 export interface AuthUserReq {

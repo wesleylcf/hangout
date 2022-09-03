@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { Notification } from '.';
+import { DbNotification } from '.';
 
 export interface User {
 	username: string;
@@ -14,7 +14,7 @@ export interface SeedUser {
 	username: string;
 	eventIds: string[];
 	schedule: DateTime[];
-	notifications: Pick<Notification, 'title' | 'description'>[];
+	notifications: Pick<DbNotification, 'title' | 'description'>[];
 	address: number | null;
 	friendIds: string[];
 }

@@ -33,7 +33,7 @@ export class MeService {
 			fallbackMessage: 'Please check your email and password carefully',
 			fallbackTitle: 'Login error',
 		});
-		const { user, error } = data;
+		const { user } = data;
 		return user;
 	}
 

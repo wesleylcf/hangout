@@ -41,7 +41,6 @@ export class AuthController {
 		response.cookie('jwtToken', access_token, {
 			httpOnly: true,
 			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
-			secure: true,
 		});
 		return req.user;
 	}
