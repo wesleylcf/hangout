@@ -1,5 +1,4 @@
-import e from 'express';
-import { PresentableError, ErrorUtil, defaultApiErrMessage } from '.';
+import { ErrorUtil } from '.';
 
 type ErrorResponse = Response & {
 	message?: string;

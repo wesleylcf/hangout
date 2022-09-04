@@ -37,7 +37,7 @@ export class AuthService {
 			this.logger.warn(e.message, 'AuthService');
 			return {
 				error: {
-					message: 'Specified email is already in use.',
+					message: 'email is already in use.',
 					title: 'Sign up error',
 					level: 'error',
 				},
@@ -97,9 +97,9 @@ export class AuthService {
 			if (!response) {
 				throw new Error('Invalid password');
 			}
-			const { password, ...rest } = user;
+			const { password, uuid, ...rest } = user;
 
-			return { user: rest };
+			return { user: { username: uuid, ...rest } };
 		} catch (e) {
 			this.logger.warn(`User login failed: ${e.message}`, 'AuthService');
 			return { error: e.message };

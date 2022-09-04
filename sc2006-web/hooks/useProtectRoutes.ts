@@ -16,7 +16,7 @@ export function useProtectRoutes(
 	const router = useRouter();
 	const { me, setMe } = useContext(GlobalContext);
 	const username = me?.username;
-	const { allowedRoutes } = getRoutes(me);
+
 	const fetcher = async () => await meService.revalidate(username);
 	const { data, error } = useSWR('/revalidate', fetcher) as any;
 
@@ -27,7 +27,7 @@ export function useProtectRoutes(
 
 	useEffect(() => {
 		if (!finished) return;
-
+		const { allowedRoutes } = getRoutes(me);
 		if (authenticated) {
 			if (!me && user) {
 				setMe(user);
@@ -39,7 +39,7 @@ export function useProtectRoutes(
 				router.push(redirectToIfUnauthenticated);
 			}
 		}
-	}, [finished, authenticated, me, allowedRoutes, user, router.asPath]);
+	}, [finished, authenticated, me, user, router.asPath]);
 
 	return { finished };
 }

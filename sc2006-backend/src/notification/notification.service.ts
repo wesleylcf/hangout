@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DbNotification, NotificationRes } from '../../../sc2006-common/src';
+import { DbNotification, DbNotificationRes } from '../../../sc2006-common/src';
 import { db } from 'src/firebase.config';
 import {
 	doc,
@@ -13,6 +13,7 @@ import {
 	where,
 	getDocs,
 	documentId,
+	WriteBatch,
 } from 'firebase/firestore';
 
 @Injectable()
@@ -44,15 +45,15 @@ export class NotificationService {
 		}
 	}
 
-	async findOne(uuid: string): Promise<DbNotification | undefined> {
+	async findOne(uuid: string): Promise<DbNotificationRes | undefined> {
 		const docRef = doc(db, 'notifications', uuid);
 		const docSnap = await getDoc(docRef);
-		if (!docSnap.exists) {
+		if (!docSnap.exists()) {
 			return undefined;
 		}
 		return {
 			uuid: docSnap.id,
-			...(docSnap.data() as Omit<DbNotification, 'uuid'>),
+			...(docSnap.data() as Omit<DbNotificationRes, 'uuid'>),
 		};
 	}
 
@@ -61,9 +62,9 @@ export class NotificationService {
 		const docRefs = uuids.map((uuid) => doc(db, 'notifications', uuid));
 		const qry = query(notificationsRef, where(documentId(), 'in', docRefs));
 		const querySnapshot = await getDocs(qry);
-		const result: NotificationRes[] = [];
+		const result: DbNotificationRes[] = [];
 		querySnapshot.forEach((doc) => {
-			const { createdAt, title, description, seenAt } = doc.data() as Omit<
+			const { createdAt, seenAt, ...rest } = doc.data() as Omit<
 				DbNotification,
 				'uuid'
 			>;
@@ -71,8 +72,7 @@ export class NotificationService {
 				uuid: doc.id,
 				createdAt: createdAt.toDate(),
 				seenAt: seenAt ? seenAt.toDate() : null,
-				title,
-				description,
+				...rest,
 			});
 		});
 		return result;
@@ -80,9 +80,9 @@ export class NotificationService {
 
 	async bulkCreate(
 		notifications: Pick<DbNotification, 'title' | 'description'>[],
+		existingBatch?: WriteBatch,
 	) {
-		// Get a new write batch
-		const batch = writeBatch(db);
+		const batch = existingBatch ? existingBatch : writeBatch(db);
 		const uuids = [];
 		try {
 			notifications.forEach(({ title, description }) => {
@@ -97,12 +97,13 @@ export class NotificationService {
 				});
 			});
 
-			// Commit the batch
-			await batch.commit();
-			return { uuids };
+			if (!existingBatch) {
+				await batch.commit();
+			}
+			return uuids;
 		} catch (e) {
 			this.logger.warn(
-				'Could not batch write notifications',
+				`Could not batch write notifications: ${e.message}`,
 				'NotificationService',
 			);
 		}
@@ -113,18 +114,18 @@ export class NotificationService {
 			uuid: string;
 			updatedNotification: Partial<DbNotification>;
 		}[],
+		existingBatch?: WriteBatch,
 	) {
-		// Get a new write batch
-		const batch = writeBatch(db);
+		const batch = existingBatch ? existingBatch : writeBatch(db);
 		try {
 			notifications.forEach(({ uuid, updatedNotification }) => {
 				const ref = doc(db, 'notifications', uuid);
-
-				batch.set(ref, updatedNotification, { merge: true });
+				batch.update(ref, updatedNotification);
 			});
 
-			// Commit the batch
-			await batch.commit();
+			if (!existingBatch) {
+				await batch.commit();
+			}
 			return { error: null };
 		} catch (e) {
 			this.logger.warn(

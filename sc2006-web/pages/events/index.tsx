@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Layout, Divider } from 'antd';
+import { GlobalContext } from '../../contexts';
 
 function ListEventsPage() {
+	const { me } = useContext(GlobalContext);
 	return (
 		<Layout className="w-full h-full">
 			<Layout.Sider theme="light">

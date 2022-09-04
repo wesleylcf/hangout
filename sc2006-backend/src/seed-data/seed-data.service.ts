@@ -1,13 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
+import { db } from 'src/firebase.config';
 const bcrypt = require('bcrypt'); // eslint-disable-line
+import { WriteBatch, writeBatch } from 'firebase/firestore';
 
 @Injectable()
 export class SeedDataService {
 	private readonly emails: string[];
+	private readonly batch: WriteBatch;
 	constructor(
 		private readonly authService: AuthService,
+		private readonly userService: UserService,
+		private readonly logger: Logger,
 		private readonly notificationService: NotificationService,
 	) {
 		this.emails = [
@@ -18,18 +24,49 @@ export class SeedDataService {
 			'lerlianping@hotmail.com',
 			'sufyanjais1@gmail.com',
 		];
+		this.batch = writeBatch(db);
 	}
 
-	async getUsers() {
-		const users = this.emails.map((email) => ({
+	async seedData() {
+		try {
+			const notificationUuids = await this.seedNotifications();
+			const users = await this.seedUsers(notificationUuids);
+			await this.batch.commit();
+			this.logger.log('Data seeded: SUCCESS', 'AppService');
+		} catch (e) {
+			this.logger.log(`Data seeded: FAILURE - ${e.message}`, 'AppService');
+		}
+	}
+
+	private async seedNotifications(): Promise<Array<string[]>> {
+		const notificationBatch = this.emails.map((userEmail) => {
+			const friendEmails = this.emails.filter((email) => email !== userEmail);
+			return friendEmails.map((email) => ({
+				title: `${email} has accepted your friend request`,
+				description: `You can now add him to your events!`,
+			}));
+		});
+
+		const notificationUuids = await Promise.all(
+			notificationBatch.map(
+				async (userNotification) =>
+					await this.notificationService.bulkCreate(
+						userNotification,
+						this.batch,
+					),
+			),
+		);
+
+		return notificationUuids;
+	}
+
+	private async seedUsers(notificationIds: Array<string[]>) {
+		const users = this.emails.map((email, index) => ({
 			username: email,
 			password: 'password',
 			eventIds: [],
 			schedule: [],
-			notifications: this.emails.map((email) => ({
-				title: `${email} has accepted your friend request`,
-				description: `You can now add him to your events!`,
-			})),
+			notificationIds: notificationIds[index],
 			address: null,
 			friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
 		}));
@@ -38,6 +75,6 @@ export class SeedDataService {
 			...users[index],
 			password: hash as string,
 		}));
-		return hashedUsers;
+		await this.userService.bulkCreate(hashedUsers, this.batch);
 	}
 }

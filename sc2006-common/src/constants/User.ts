@@ -1,15 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import { DbNotification } from '.';
 
-export interface User {
-	username: string;
-	eventIds: string[];
-	schedule: DateTime[];
-	notificationIds: string[];
-	address: number | null;
-	friendIds: string[];
-}
-
 export interface SeedUser {
 	username: string;
 	eventIds: string[];
@@ -19,9 +10,23 @@ export interface SeedUser {
 	friendIds: string[];
 }
 
-export interface DbUser extends User {
-	password: string;
+export interface DbUser {
 	createdAt: Timestamp;
+	eventIds: string[];
+	friendIds: string[];
+	schedule: DateTime[];
+	notificationIds: string[];
+	address: number | null;
+	password: string;
+}
+
+export interface DbUserRes extends Omit<DbUser, 'createdAt'> {
+	createdAt: Date;
+}
+
+export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
+	username: string;
+	createdAt: Date;
 }
 
 export interface DateTime {
@@ -29,4 +34,4 @@ export interface DateTime {
 	timeRanges: TimeRange[];
 }
 
-type TimeRange = [start: string, end: string];
+type TimeRange = [start: Date, end: Date];

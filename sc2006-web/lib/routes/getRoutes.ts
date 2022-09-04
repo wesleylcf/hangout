@@ -1,5 +1,5 @@
 export type Routes =
-	| '/'
+	| '/home'
 	| '/login'
 	| '/signup'
 	| '/create-event'
@@ -10,7 +10,7 @@ import { Me } from '../../contexts/GlobalContext';
 
 export function getRoutes(me?: Me) {
 	const publicRoutes = {
-		'/': true,
+		'/home': true,
 		'/login': true,
 		'/signup': true,
 		'/create-event': false,
@@ -19,7 +19,7 @@ export function getRoutes(me?: Me) {
 	};
 
 	const authRoutes = {
-		'/': true,
+		'/home': true,
 		'/login': false,
 		'/signup': false,
 		'/create-event': true,

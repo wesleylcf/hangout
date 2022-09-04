@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Form } from 'antd';
-import { meService, notificationService } from '../services';
+import { meService } from '../services';
 import { GlobalContext } from '../contexts/';
 import { useRouter } from 'next/router';
 import { AuthForm, AuthFormType } from '../components/auth';
@@ -22,7 +22,7 @@ const Login = () => {
 		try {
 			const user = await meService.login({ username: email, password });
 			setMe(user!);
-			router.push('/');
+			router.push('/home');
 		} catch (e: any) {
 			notification.apiError(e);
 		}
