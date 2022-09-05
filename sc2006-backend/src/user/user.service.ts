@@ -70,8 +70,12 @@ export class UserService {
 		const batch = existingBatch ? existingBatch : writeBatch(db);
 		try {
 			users.forEach(({ username, ...rest }) => {
+				const user: DbUser = {
+					...rest,
+					createdAt: serverTimestamp() as Timestamp,
+				};
 				const newUserDocRef = doc(db, 'users', username);
-				batch.set(newUserDocRef, rest);
+				batch.set(newUserDocRef, user);
 			});
 			if (!existingBatch) {
 				await batch.commit();

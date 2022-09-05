@@ -28,14 +28,15 @@ export function useProtectRoutes(
 	useEffect(() => {
 		if (!finished) return;
 		const { allowedRoutes } = getRoutes(me);
+		const plainPath = router.asPath.split('#')[0];
 		if (authenticated) {
 			if (!me && user) {
 				setMe(user);
-			} else if (!allowedRoutes[router.asPath as Routes]) {
+			} else if (!allowedRoutes[plainPath as Routes]) {
 				router.push(redirectToIfAuthenticated);
 			}
 		} else if (!me) {
-			if (!allowedRoutes[router.asPath as Routes]) {
+			if (!allowedRoutes[plainPath as Routes]) {
 				router.push(redirectToIfUnauthenticated);
 			}
 		}

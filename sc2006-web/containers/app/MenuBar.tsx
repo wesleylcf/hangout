@@ -1,4 +1,10 @@
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
+import React, {
+	ReactNode,
+	useContext,
+	useEffect,
+	useState,
+	useMemo,
+} from 'react';
 import { Menu, notification } from 'antd';
 import {
 	MenuOutlined,
@@ -33,53 +39,59 @@ interface MenuBarItem {
 
 export function MenuBar() {
 	const router = useRouter();
-
-	const ProtectedItems: MenuBarItem[] = [
-		{
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<HomeOutlined className="pr-1" />
-					Home
-				</div>
-			),
-			key: 'home',
-		},
-		{
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<CalendarOutlined className="pr-1" />
-					Events
-				</div>
-			),
-			key: 'events',
-		},
-		{
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<UserOutlined className="pr-1" />
-					Profile
-				</div>
-			),
-			key: 'profile',
-		},
-	];
-	const PublicItems: MenuBarItem[] = [
-		{
-			label: (
-				<div className="flex flex-row items-center justify-center">
-					<HomeOutlined className="pr-1" />
-					Home
-				</div>
-			),
-			key: 'home',
-		},
-		getLoginOrSignupButton(router.asPath),
-	];
-
 	const { me, setMe } = useContext(GlobalContext);
 	const notification = useNotification();
-	const [menuItems, setMenuItems] = useState(PublicItems);
 	const [selectedMenuItem, setSelectedMenuItem] = useState('home');
+
+	const ProtectedItems: MenuBarItem[] = useMemo(
+		() => [
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<HomeOutlined className="pr-1" />
+						Home
+					</div>
+				),
+				key: 'home',
+			},
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<CalendarOutlined className="pr-1" />
+						Events
+					</div>
+				),
+				key: 'events',
+			},
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<UserOutlined className="pr-1" />
+						Profile
+					</div>
+				),
+				key: 'profile',
+			},
+		],
+		[me],
+	);
+	const PublicItems: MenuBarItem[] = useMemo(
+		() => [
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<HomeOutlined className="pr-1" />
+						Home
+					</div>
+				),
+				key: 'home',
+			},
+			getLoginOrSignupButton(router.asPath),
+		],
+		[me],
+	);
+
+	const [menuItems, setMenuItems] = useState(PublicItems);
 
 	useEffect(() => {
 		setMenuItems(me ? ProtectedItems : PublicItems);

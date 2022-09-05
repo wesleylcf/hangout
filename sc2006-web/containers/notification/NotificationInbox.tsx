@@ -105,7 +105,10 @@ export const NotificationInbox = react.memo(
 												<b className="text-sm">{title}</b>
 												<p className="text-sm">{description}</p>
 											</div>
-											<Divider style={{ margin: 0 }}></Divider>
+											<Divider
+												className="bg-sky-400"
+												style={{ margin: 0 }}
+											></Divider>
 										</react.Fragment>
 									) : (
 										<react.Fragment key={uuid}>
@@ -113,7 +116,7 @@ export const NotificationInbox = react.memo(
 												<b className="text-base">{title}</b>
 												<p className="text-sm">{description}</p>
 											</button>
-											<Divider style={{ margin: 0 }}></Divider>
+											<Divider style={{ margin: 0, width: '80%' }}></Divider>
 										</react.Fragment>
 									);
 								})}
