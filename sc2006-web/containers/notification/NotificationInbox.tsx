@@ -37,8 +37,10 @@ export const NotificationInbox = react.memo(
 					notification.apiError(e);
 				}
 			};
-			populateInbox();
-		}, []);
+			if (uuids && uuids.length) {
+				populateInbox();
+			}
+		}, [uuids]);
 
 		const onClickInbox = async () => {
 			const markNewNotificationsAsSeen = async () => {

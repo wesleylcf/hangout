@@ -1,5 +1,6 @@
 import { SignUpRes, LoginRes, AuthUserReq, DbUser } from '../types';
 import { throwErrorOrGetData } from '../lib/error';
+import { Me } from '../contexts';
 
 export class MeService {
 	async signup(user: AuthUserReq) {
@@ -67,5 +68,22 @@ export class MeService {
 		const status = response.status;
 		const data = await response.json();
 		return { ...data, status };
+	}
+
+	async reconstructUser(): Promise<Me> {
+		const response = await fetch(
+			`${process.env.API_URL}/auth/reconstruct-user`,
+			{
+				method: 'POST', // *GET, POST, PUT, DELETE, etc.
+				mode: 'cors', // no-cors, *cors, same-origin
+				cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			},
+		);
+		const data = await throwErrorOrGetData<LoginRes>(response, {});
+		return data.user;
 	}
 }

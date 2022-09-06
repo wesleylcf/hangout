@@ -21,8 +21,8 @@ const Login = () => {
 		const { email, password } = form;
 		try {
 			const user = await meService.login({ username: email, password });
-			setMe(user!);
 			router.push('/home');
+			setMe(user!);
 		} catch (e: any) {
 			notification.apiError(e);
 		}

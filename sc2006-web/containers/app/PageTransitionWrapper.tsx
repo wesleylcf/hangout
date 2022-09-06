@@ -12,13 +12,13 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 }) => {
 	const router = useRouter();
 	const [internalLoading, setInternalLoading] = useState(false);
-	const { finished } = useProtectRoutes();
+	const protect = useProtectRoutes();
 
 	useEffect(() => {
 		const handleStart = (url: string) =>
 			url !== router.asPath && setInternalLoading(true);
 		// Removed url === router.asPath as it seems possible that url !== asPath
-		const handleEnd = () => setTimeout(() => setInternalLoading(false), 100);
+		const handleEnd = () => setInternalLoading(false);
 
 		router.events.on('routeChangeStart', handleStart);
 		router.events.on('routeChangeComplete', handleEnd);
@@ -33,7 +33,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 
 	return (
 		<div className="flex flex-row items-center justify-center w-full h-full">
-			{internalLoading || !finished ? <Spin size="large" center /> : children}
+			{internalLoading ? <Spin size="large" center /> : children}
 		</div>
 	);
 };

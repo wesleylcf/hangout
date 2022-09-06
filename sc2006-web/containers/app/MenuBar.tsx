@@ -24,12 +24,12 @@ import { NotificationInbox } from '../notification';
 import { NAVIGATION_HEIGHT } from '../../constants';
 
 type MenuItemKey =
-	| 'home'
-	| 'events'
-	| 'profile'
-	| 'login'
-	| 'logout'
-	| 'signup';
+	| '/home'
+	| '/events'
+	| '/profile'
+	| '/login'
+	| '/logout'
+	| '/signup';
 interface MenuBarItem {
 	label?: ReactNode;
 	key: MenuItemKey;
@@ -41,7 +41,6 @@ export function MenuBar() {
 	const router = useRouter();
 	const { me, setMe } = useContext(GlobalContext);
 	const notification = useNotification();
-	const [selectedMenuItem, setSelectedMenuItem] = useState('home');
 
 	const ProtectedItems: MenuBarItem[] = useMemo(
 		() => [
@@ -52,7 +51,7 @@ export function MenuBar() {
 						Home
 					</div>
 				),
-				key: 'home',
+				key: '/home',
 			},
 			{
 				label: (
@@ -61,7 +60,7 @@ export function MenuBar() {
 						Events
 					</div>
 				),
-				key: 'events',
+				key: '/events',
 			},
 			{
 				label: (
@@ -70,7 +69,7 @@ export function MenuBar() {
 						Profile
 					</div>
 				),
-				key: 'profile',
+				key: '/profile',
 			},
 		],
 		[me],
@@ -84,7 +83,7 @@ export function MenuBar() {
 						Home
 					</div>
 				),
-				key: 'home',
+				key: '/home',
 			},
 			getLoginOrSignupButton(router.asPath),
 		],
@@ -95,7 +94,6 @@ export function MenuBar() {
 
 	useEffect(() => {
 		setMenuItems(me ? ProtectedItems : PublicItems);
-		setSelectedMenuItem('home');
 	}, [me]);
 
 	const onLogout = async () => {
@@ -118,13 +116,12 @@ export function MenuBar() {
 			<div className="w-3/6 flex flex-row justify-end">
 				<Menu
 					items={menuItems}
-					selectedKeys={[selectedMenuItem]}
+					selectedKeys={[router.asPath.split('#')[0]]}
 					mode="horizontal"
 					className="w-4/5 justify-end"
 					expandIcon={<MenuOutlined />}
-					onClick={({ key }) => router.push(`/${key}`)}
+					onClick={({ key }) => router.push(`${key}`)}
 					style={{ border: 'none' }}
-					onSelect={({ key }) => setSelectedMenuItem(key)}
 				/>
 				{me && (
 					<>
@@ -154,7 +151,7 @@ function getLoginOrSignupButton(path: string): MenuBarItem {
 						Login
 					</div>
 				),
-				key: 'login',
+				key: '/login',
 		  }
 		: {
 				label: (
@@ -163,7 +160,7 @@ function getLoginOrSignupButton(path: string): MenuBarItem {
 						Sign Up
 					</div>
 				),
-				key: 'signup',
+				key: '/signup',
 		  };
 	/* eslint-enable no-mixed-spaces-and-tabs */
 }

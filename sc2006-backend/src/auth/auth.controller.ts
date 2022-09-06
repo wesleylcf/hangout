@@ -100,4 +100,15 @@ export class AuthController {
 		}
 		res.status(200).send();
 	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('reconstruct-user')
+	async reconstructUser(@Request() req, @Res() res) {
+		const access_token = req.cookies['jwtToken'];
+		let user = null;
+		if (access_token) {
+			user = await this.authService.decodeToken(access_token);
+		}
+		res.json(user);
+	}
 }
