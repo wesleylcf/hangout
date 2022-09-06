@@ -1,4 +1,4 @@
-/* eslint camelcase:"off", no-useless-constructor: "off" */
+/* eslint camelcase:"off", no-useless-constructor: "off", no-mixed-spaces-and-tabs: "off" */
 
 import {
 	Controller,
@@ -27,9 +27,9 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	/*
-    LocalAuthGuard calls ValidateUser which reads in from Body,
-    And attaches onto Request, the user or error if either exists
-		If you have res as a param you cannot return an object, but instead use res
+    LocalAuthGuard calls ValidateUser which reads the user attached to Body and
+    if valid, attaches the User onto Request received by Router
+		If you have res as a param you cannot return an object, but instead make use of res
   */
 	@UseGuards(LocalAuthGuard)
 	@Post('/login')
@@ -38,10 +38,21 @@ export class AuthController {
 		@Res({ passthrough: true }) response,
 	): Promise<LoginRes> {
 		const { access_token } = await this.authService.signToken(req.user);
-		response.cookie('jwtToken', access_token, {
-			httpOnly: true,
-			maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
-		});
+		const tokenOptions =
+			process.env.NODE_ENV === 'development'
+				? {
+						path: '/',
+						httpOnly: true,
+						maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
+				  }
+				: {
+						path: '/',
+						httpOnly: true,
+						maxAge: process.env.AUTH_TOKEN_EXPIRY_MSEC,
+						sameSite: 'none',
+						secure: true,
+				  };
+		response.cookie('jwtToken', access_token, tokenOptions);
 		return req.user;
 	}
 

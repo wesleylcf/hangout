@@ -1,8 +1,5 @@
 import { createContext, ReactNode } from 'react';
-import AntdNotification, {
-	ArgsProps,
-	ConfigProps,
-} from 'antd/lib/notification';
+import { ArgsProps } from 'antd/lib/notification';
 import { PresentableError } from '../lib/error';
 
 export type NotificationProps = Omit<ArgsProps, 'type' | 'description'> & {

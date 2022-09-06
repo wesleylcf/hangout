@@ -1,10 +1,4 @@
-import {
-	SignUpRes,
-	LoginRes,
-	AuthUserReq,
-	DbUser,
-	NotificationRes,
-} from '../types';
+import { NotificationRes } from '../types';
 import { throwErrorOrGetData } from '../lib/error';
 
 export class NotificationService {

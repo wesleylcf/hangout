@@ -9,6 +9,7 @@ import React, {
 import { Layout, Divider, Menu } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { useRouter } from 'next/router';
+import { NAVIGATION_HEIGHT } from '../../constants';
 
 enum EventMenuItemType {
 	CREATED_EVENTS = '#created',
@@ -123,12 +124,12 @@ function ListEventsPage() {
 				type="vertical"
 				style={{
 					marginLeft: 270,
-					height: '100%',
+					height: `calc(100vh - ${2 * NAVIGATION_HEIGHT}px)`,
 					overflow: 'auto',
 					position: 'fixed',
 					left: 0,
-					top: 45,
-					bottom: 0,
+					top: NAVIGATION_HEIGHT,
+					bottom: NAVIGATION_HEIGHT,
 				}}
 				className="bg-sky-400 inline-block"
 			></Divider>

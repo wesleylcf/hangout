@@ -1,6 +1,5 @@
 import { createContext } from 'react';
-import { NotificationRes, User } from '../types';
-import { UpdateState } from '../hooks/useUpdateState';
+import { User } from '../types';
 export type Me = User;
 
 export interface GlobalContextProps {

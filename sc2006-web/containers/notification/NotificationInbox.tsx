@@ -1,6 +1,6 @@
-import react, { useState, useMemo, useContext, useEffect } from 'react';
+import react, { useState, useEffect } from 'react';
 import { GlobalContext } from '../../contexts';
-import { Tooltip, Divider, notification } from 'antd';
+import { Tooltip, Divider } from 'antd';
 import { NotificationBell } from '../../components/common';
 import { NotificationRes } from '../../types';
 import { notificationService } from '../../services';

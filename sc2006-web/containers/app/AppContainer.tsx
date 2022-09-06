@@ -1,9 +1,7 @@
 import { Layout as AntdLayout } from 'antd';
-import React, { useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import { MenuBar, PageTransitionWrapper } from '.';
-import { useProtectRoutes } from '../../hooks';
-import { Me, GlobalContextProps, GlobalContext } from '../../contexts/';
+import { GlobalContextProps, GlobalContext } from '../../contexts/';
 import { NotificationContainer } from '../notification';
 
 interface AppContainerProps {

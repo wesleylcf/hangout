@@ -24,6 +24,9 @@ import { NotificationModule } from 'src/notification/notification.module';
 			inject: [ConfigService],
 			useFactory: async (configService: ConfigService) => ({
 				secret: configService.get<string>('JWT_SECRET'),
+				signOptions: {
+					expiresIn: '1d',
+				},
 			}),
 		}),
 		NotificationModule,

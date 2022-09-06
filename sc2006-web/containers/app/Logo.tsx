@@ -1,6 +1,5 @@
 import React from 'react';
 import { ShareAltOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/router';
 
 export function Logo() {
 	return (

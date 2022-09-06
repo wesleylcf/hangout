@@ -5,7 +5,7 @@ import React, {
 	useState,
 	useMemo,
 } from 'react';
-import { Menu, notification } from 'antd';
+import { Menu } from 'antd';
 import {
 	MenuOutlined,
 	LogoutOutlined,
@@ -17,11 +17,11 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/router';
 import { Logo } from '.';
-import { NotificationBell } from '../../components/common';
 import { GlobalContext } from '../../contexts/';
 import { meService } from '../../services';
 import { useNotification } from '../../hooks';
 import { NotificationInbox } from '../notification';
+import { NAVIGATION_HEIGHT } from '../../constants';
 
 type MenuItemKey =
 	| 'home'
@@ -110,7 +110,10 @@ export function MenuBar() {
 	};
 
 	return (
-		<nav className="flex flew-row justify-between bg-white">
+		<nav
+			className="flex flew-row justify-between bg-white"
+			style={{ height: NAVIGATION_HEIGHT }}
+		>
 			<Logo />
 			<div className="w-3/6 flex flex-row justify-end">
 				<Menu

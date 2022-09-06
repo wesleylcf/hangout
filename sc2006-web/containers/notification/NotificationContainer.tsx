@@ -6,7 +6,7 @@ import {
 
 import React, { ReactNode } from 'react';
 import { notification } from 'antd';
-import { PresentableError, PresentableErrorOptions } from '../../lib/error';
+import { PresentableError } from '../../lib/error';
 
 export interface NotificationContainerProps {
 	children: ReactNode;
