@@ -25,7 +25,7 @@ export class EventService {
 	constructor(private readonly logger: Logger) {}
 
 	async createOne(
-		event: Omit<DbEvent, 'createdAt' | 'creatorId'>,
+		event: Omit<DbEvent, 'createdAt' | 'creatorId' | 'eventResultIds'>,
 		creatorId: string,
 	): Promise<{ uuid: string }> {
 		try {
@@ -34,6 +34,7 @@ export class EventService {
 				createdAt: serverTimestamp() as Timestamp,
 				...event,
 				creatorId,
+				eventResultIds: [],
 			};
 			const newEventDocRef = doc(collection(db, 'events'));
 			const creatorDocRef = doc(db, 'users', creatorId);

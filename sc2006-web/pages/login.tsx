@@ -16,12 +16,13 @@ const Login = () => {
 	const { setMe } = useContext(GlobalContext);
 	const router = useRouter();
 	const notification = useNotification();
+	const { postLoginPath } = useContext(GlobalContext);
 
 	const onSubmit = async (form: LoginForm) => {
 		const { email, password } = form;
 		try {
 			const user = await meService.login({ username: email, password });
-			router.push('/home');
+			router.push(postLoginPath);
 			setMe(user!);
 		} catch (e: any) {
 			notification.apiError(e);

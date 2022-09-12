@@ -12,7 +12,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 }) => {
 	const router = useRouter();
 	const [internalLoading, setInternalLoading] = useState(false);
-	const protect = useProtectRoutes();
+	useProtectRoutes();
 
 	useEffect(() => {
 		const handleStart = (url: string) =>

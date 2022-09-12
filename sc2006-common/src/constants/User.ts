@@ -25,8 +25,8 @@ export interface DbUserRes extends Omit<DbUser, 'createdAt'> {
 }
 
 export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
-	username: string;
 	createdAt: Date;
+	uuid: string;
 }
 
 export interface DateTime {
@@ -35,3 +35,9 @@ export interface DateTime {
 }
 
 type TimeRange = [start: Date, end: Date];
+
+export interface PublicUser {
+	schedule: DateTime;
+	address: string;
+	preferences: string[];
+}

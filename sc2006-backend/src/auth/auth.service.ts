@@ -51,7 +51,7 @@ export class AuthService {
 		try {
 			const { user, error } = outcome;
 			const tokenInput: TokenInput = {
-				username: user.username,
+				username: user.uuid,
 				createdAt: user.createdAt,
 			};
 			let access_token = null;
@@ -72,7 +72,7 @@ export class AuthService {
 			if (!user) {
 				throw new Error('User could not be found from decoded token');
 			}
-			const { password, ...rest } = user;
+			const { password, createdAt, ...rest } = user;
 
 			return { user: rest };
 		} catch (e) {
@@ -97,9 +97,9 @@ export class AuthService {
 			if (!response) {
 				throw new Error('Invalid password');
 			}
-			const { password, uuid, ...rest } = user;
+			const { password, ...rest } = user;
 
-			return { user: { username: uuid, ...rest } };
+			return { user: rest };
 		} catch (e) {
 			this.logger.warn(`User login failed: ${e.message}`, 'AuthService');
 			return { error: e.message };

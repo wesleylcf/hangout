@@ -1,4 +1,4 @@
-import { NotificationRes } from '../types';
+import { DbNotificationRes } from '../types';
 import { throwErrorOrGetData } from '../lib/error';
 
 export class NotificationService {
@@ -14,7 +14,7 @@ export class NotificationService {
 			credentials: 'include',
 		});
 
-		const data = await throwErrorOrGetData<NotificationRes[]>(response, {
+		const data = await throwErrorOrGetData<DbNotificationRes[]>(response, {
 			fallbackMessage: 'Please try again later or send us an alert',
 			fallbackTitle: 'Error fetching notifications',
 		});
@@ -36,7 +36,7 @@ export class NotificationService {
 			},
 		);
 
-		await throwErrorOrGetData<NotificationRes[]>(response, {
+		await throwErrorOrGetData<DbNotificationRes[]>(response, {
 			fallbackMessage: 'Please try again later or send us an alert',
 			fallbackTitle: 'Error fetching notifications',
 		});

@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, Dispatch, useState } from 'react';
 import useSWR from 'swr';
 import { meService } from '../services';
 import { useRouter } from 'next/router';
@@ -6,17 +6,18 @@ import { GlobalContext } from '../contexts/';
 import { getRoutes, Routes } from '../lib/routes';
 import { useNotification } from './useNotification';
 
-interface ProtectRouteResult {
-	finished: boolean;
-}
+// interface useProtectRoutesProps {
+// 	setLoading: () => void;
+// }
 
-export function useProtectRoutes(
-	redirectToIfUnauthenticated = '/login',
-	redirectToIfAuthenticated = '/home',
-) {
+export function useProtectRoutes() {
+	const redirectToIfUnauthenticated = '/login';
+	const redirectToIfAuthenticated = '/home';
 	const router = useRouter();
-	const { me, wasLoggedIn, setWasLoggedIn } = useContext(GlobalContext);
+	const { me, wasLoggedIn, setWasLoggedIn, postLoginPath, setPostLoginPath } =
+		useContext(GlobalContext);
 	const notification = useNotification();
+	const [redirected, setRedirected] = useState(false);
 	// const username = me?.username;
 
 	// const fetcher = async () => await meService.revalidate(username);
@@ -27,6 +28,23 @@ export function useProtectRoutes(
 	// const finished = Boolean(data);
 	// const authenticated = status < 205;
 
+	/*
+		Push notification once per redirect
+	*/
+	const onUnauthorized = (path: string) => {
+		setRedirected((prevRedirect) => {
+			// first instance of redirect, push a notification
+			if (!prevRedirect) {
+				notification.warning(
+					'You do not have permission to access that page',
+					'Unauthorized',
+				);
+				setPostLoginPath(path);
+			}
+			return true;
+		});
+	};
+
 	useEffect(() => {
 		// if (!finished) return;
 		const plainPath = router.asPath.split('#')[0];
@@ -34,25 +52,18 @@ export function useProtectRoutes(
 		if (me) {
 			if (wasLoggedIn) {
 				if (!allowedRoutes[plainPath as Routes]) {
+					onUnauthorized(plainPath);
 					router.push(redirectToIfAuthenticated);
-					notification.warning(
-						'You do not have permissions to access that page',
-						'Unauthorized',
-					);
 				}
 			} else {
 				setWasLoggedIn(true);
 			}
 		} else {
 			if (!allowedRoutes[plainPath as Routes]) {
-				notification.warning(
-					'You do not have permissions to access that page',
-					'Unauthorized',
-				);
+				onUnauthorized(plainPath);
 				router.push(redirectToIfUnauthenticated);
 			}
 		}
-
 		// if (authenticated) {
 		// 	if (!me && user) {
 		// 		setMe(user);
@@ -66,5 +77,5 @@ export function useProtectRoutes(
 		// }
 	}, [me, router.asPath]);
 
-	// return { finished };
+	return { postLoginPath };
 }

@@ -2,7 +2,7 @@ import react, { useState, useEffect } from 'react';
 import { GlobalContext } from '../../contexts';
 import { Tooltip, Divider } from 'antd';
 import { NotificationBell } from '../../components/common';
-import { NotificationRes } from '../../types';
+import { DbNotificationRes } from '../../types';
 import { notificationService } from '../../services';
 import { useNotification } from '../../hooks';
 
@@ -12,7 +12,7 @@ interface NotificationInboxProps {
 
 export const NotificationInbox = ({ uuids }: NotificationInboxProps) => {
 	const notification = useNotification();
-	const [notifications, setNotifications] = useState<NotificationRes[]>([]);
+	const [notifications, setNotifications] = useState<DbNotificationRes[]>([]);
 	const [isInboxOpen, setIsInboxOpen] = useState(false);
 	const [newCount, setNewCount] = useState(0);
 
@@ -25,7 +25,7 @@ export const NotificationInbox = ({ uuids }: NotificationInboxProps) => {
 					});
 				setNotifications(notificationResult);
 				const unseenCount = notificationResult.reduce(
-					(previousValue: number, nextNotification: NotificationRes) =>
+					(previousValue: number, nextNotification: DbNotificationRes) =>
 						nextNotification.seenAt !== null
 							? previousValue
 							: previousValue + 1,

@@ -2,7 +2,7 @@ export type Routes =
 	| '/home'
 	| '/login'
 	| '/signup'
-	| '/create-event'
+	| '/events/create'
 	| '/events'
 	| '/profile';
 
@@ -13,7 +13,7 @@ export function getRoutes(me?: Me) {
 		'/home': true,
 		'/login': true,
 		'/signup': true,
-		'/create-event': false,
+		'/events/create': false,
 		'/events': false,
 		'/profile': false,
 	};
@@ -22,7 +22,7 @@ export function getRoutes(me?: Me) {
 		'/home': true,
 		'/login': false,
 		'/signup': false,
-		'/create-event': true,
+		'/events/create': true,
 		'/events': true,
 		'/profile': true,
 	};

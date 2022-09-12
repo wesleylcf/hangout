@@ -10,6 +10,7 @@ import { Layout, Divider, Menu } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { useRouter } from 'next/router';
 import { NAVIGATION_HEIGHT } from '../../constants';
+import { PlusCircleFilled } from '@ant-design/icons';
 
 enum EventMenuItemType {
 	CREATED_EVENTS = '#created',
@@ -37,6 +38,9 @@ function ListEventsPage() {
 		],
 		[],
 	);
+	const onCreateEvent = () => {
+		router.push('/events/create');
+	};
 
 	const [selectedMenuItem, setSelectedMenuItem] = useState(
 		EventMenuItemType.CREATED_EVENTS,
@@ -48,6 +52,7 @@ function ListEventsPage() {
 		active: useRef(null as any),
 		expired: useRef(null as any),
 	};
+	const router = useRouter();
 
 	useEffect(() => {
 		switch (selectedMenuItem) {
@@ -144,6 +149,16 @@ function ListEventsPage() {
 					</h2>
 				</Layout.Content>
 			</Layout>
+			<PlusCircleFilled
+				style={{
+					color: 'rgb(34 211 238)',
+					position: 'fixed',
+					bottom: 45,
+					right: 45,
+					fontSize: '4rem',
+				}}
+				onClick={onCreateEvent}
+			/>
 		</Layout>
 	);
 }
