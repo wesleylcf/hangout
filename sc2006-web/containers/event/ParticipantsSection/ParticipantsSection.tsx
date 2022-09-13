@@ -1,4 +1,4 @@
-import React, { Dispatch, useEffect, useState } from 'react';
+import React, { Dispatch, useState } from 'react';
 import { Collapse, FormInstance, Form } from 'antd';
 import {
 	UserOutlined,
@@ -15,32 +15,68 @@ import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 interface ParticipantsSectionProps {
 	setIsFriendsModalOpen: Dispatch<boolean>;
 	onRemoveParticipant: (id: string) => void;
-	onManualAddParticipant: () => void;
 	formInstance: FormInstance;
 }
 
 export const ParticipantsSection = ({
 	setIsFriendsModalOpen,
 	onRemoveParticipant,
-	onManualAddParticipant,
 	formInstance,
 }: ParticipantsSectionProps) => {
 	const [form] = Form.useForm(formInstance);
-	const participants: Participant[] = form.getFieldValue('users');
+	const { getFieldValue, setFieldValue } = form;
+	const participants: Participant[] = getFieldValue('users');
 	const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
+
+	const onUpdateParticipant = (participant: Participant, index: number) => {
+		const currentParticipants: Participant[] = form.getFieldValue('users');
+		const newParticipants = [
+			...currentParticipants.slice(0, index),
+			participant,
+			...currentParticipants.slice(index + 1, currentParticipants.length),
+		];
+		form.setFieldValue('users', newParticipants);
+	};
+
+	const onManualAddParticipant = () => {
+		const currentParticipants = getFieldValue('users');
+		const newParticipant: Participant = {
+			name: `New Participant ${currentParticipants.length + 1}`,
+			preferences: [],
+			schedule: [],
+			address: '',
+			isCreator: false,
+		};
+		const newParticipants = [...currentParticipants, newParticipant];
+		setFieldValue('users', newParticipants);
+	};
+
 	return (
 		<>
-			<InputLabel>Participants</InputLabel>
+			<div className="flex flew-row justify-between items-center">
+				<InputLabel>Participants</InputLabel>
+				<div className="flex flew-row items-center">
+					<a
+						onClick={() => {
+							setExpandedPanels(new Set());
+						}}
+						className="text-sky-400"
+					>
+						Minimize all
+					</a>
+				</div>
+			</div>
 			<Collapse
 				bordered={false}
 				ghost={true}
 				onChange={(key) => setExpandedPanels(new Set(key))}
+				activeKey={Array.from(expandedPanels)}
 			>
 				{participants &&
 					participants.map((participant, index) => {
 						if ('uuid' in participant) {
 							return (
-								<div className="p-4">
+								<div className="p-4" key={participant.uuid + index}>
 									<Card className="p-5 flex flex-row justify-between">
 										<div className="w-5/6 flex flex-row items-center">
 											{participant.isCreator ? (
@@ -73,8 +109,11 @@ export const ParticipantsSection = ({
 						} else {
 							return (
 								<PublicParticipantCard
+									key={index}
 									participant={participant}
 									isExpanded={expandedPanels.has(index.toString())}
+									onUpdateParticipant={onUpdateParticipant}
+									index={index}
 								/>
 							);
 						}

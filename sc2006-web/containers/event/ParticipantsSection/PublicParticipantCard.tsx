@@ -1,5 +1,8 @@
-import React, { useMemo } from 'react';
-import { PublicEventParticipant } from '../../../pages/events/create';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+	Participant,
+	PublicEventParticipant,
+} from '../../../pages/events/create';
 import { Card, TextInput } from '../../../components/common';
 import {
 	CaretUpFilled,
@@ -9,18 +12,21 @@ import {
 	CrownFilled,
 	UserOutlined,
 } from '@ant-design/icons';
-import { FieldRow, FieldRowProps } from '../../../components/common/FieldRow';
-import { Collapse } from 'antd';
-import { ArrayUtil, StringUtil } from '../../../lib';
+import { FieldRow } from '../../../components/common/FieldRow';
+import { Collapse, Form } from 'antd';
 
 interface PublicParticipantCardProps {
 	participant: PublicEventParticipant;
 	isExpanded: boolean;
+	onUpdateParticipant: (participant: Participant, index: number) => void;
+	index: number;
 }
 
 export const PublicParticipantCard = ({
 	participant,
 	isExpanded,
+	onUpdateParticipant,
+	index,
 	...props
 }: PublicParticipantCardProps) => {
 	const ParticipantCardHeader = ({ title }: { title: string }) => {
@@ -63,57 +69,82 @@ export const PublicParticipantCard = ({
 		);
 	};
 
-	const { name, preferences, schedule, address } = participant;
+	const [form] = Form.useForm();
+	const { getFieldValue, setFieldValue, setFieldsValue } = form;
 
-	const participantItems: FieldRowProps[] = useMemo(
+	const participantItems = useMemo(
 		() => [
 			{
+				name: 'name',
 				label: 'Name:',
-				value: name,
 			},
 			{
+				name: 'preferences',
 				label: 'Preferences:',
-				value: ArrayUtil.replaceEmpty(preferences),
 			},
 			{
+				name: 'preferences',
 				label: 'Schedule:',
-				value: ArrayUtil.replaceEmpty(schedule),
 			},
 			{
+				name: 'address',
 				label: 'Address:',
-				value: StringUtil.replaceEmpty(address?.toString()),
 			},
 		],
-		[participant],
+		[],
 	);
+
+	useEffect(() => {
+		setFieldsValue(participant);
+	}, [participant]);
+
+	const onEditFinish = (key: string, value: string) => {
+		const newParticipant = { ...participant, [key]: value };
+		onUpdateParticipant(newParticipant, index);
+	};
 
 	return (
 		<Collapse.Panel
-			key={name}
-			header={<ParticipantCardHeader title={name} />}
+			key={form.getFieldValue('name')}
+			header={<ParticipantCardHeader title={participant.name} />}
 			forceRender
 			showArrow={false}
 			{...props}
 		>
-			<div className="pl-4">
-				{participantItems.map(({ label, value }, index) => {
+			<Form className="pl-4" form={form} initialValues={participant}>
+				{participantItems.map(({ label, name }, index) => {
 					const textLabels = ['Name:', 'Address:'];
 					return (
-						<FieldRow
+						<Form.Item
 							key={name + label}
-							label={label}
-							value={value}
-							highlight={index % 2 == 0}
-							allowEdit={true}
-							CancelEditIcon={CheckOutlined}
-							AllowEditIcon={EditOutlined}
-							Editable={
-								textLabels.includes(label as string) ? TextInput : undefined
-							}
-						/>
+							name={name}
+							rules={[
+								{
+									required: true,
+									message: `${name} cannot be empty`,
+								},
+								{
+									min: 6,
+									message: `${name} must be at least 6 characters`,
+								},
+							]}
+						>
+							<FieldRow
+								label={label}
+								value={getFieldValue(name)}
+								highlight={index % 2 == 0}
+								allowEdit={true}
+								CancelEditIcon={CheckOutlined}
+								AllowEditIcon={EditOutlined}
+								Editable={
+									textLabels.includes(label as string) ? TextInput : undefined
+								}
+								onEditFinish={(value: string) => onEditFinish(name, value)}
+							/>
+						</Form.Item>
 					);
 				})}
-			</div>
+			</Form>
 		</Collapse.Panel>
 	);
 };

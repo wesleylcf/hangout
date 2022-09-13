@@ -1,13 +1,5 @@
-import React, {
-	useContext,
-	useState,
-	ReactNode,
-	useMemo,
-	useRef,
-	useEffect,
-} from 'react';
+import React, { useState, ReactNode, useMemo, useRef, useEffect } from 'react';
 import { Layout, Divider, Menu } from 'antd';
-import { GlobalContext } from '../../contexts';
 import { useRouter } from 'next/router';
 import { NAVIGATION_HEIGHT } from '../../constants';
 import { PlusCircleFilled } from '@ant-design/icons';
@@ -45,7 +37,6 @@ function ListEventsPage() {
 	const [selectedMenuItem, setSelectedMenuItem] = useState(
 		EventMenuItemType.CREATED_EVENTS,
 	);
-	const { me } = useContext(GlobalContext);
 	const refs = {
 		created: useRef(null as any),
 		invitations: useRef(null as any),

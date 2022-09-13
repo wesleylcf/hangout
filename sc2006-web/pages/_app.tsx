@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { AppContainer } from '../containers/app';
 import { Me, GlobalContextProps } from '../contexts/';
 import { meService } from '../services';
-import { useNotification, useProtectRoutes } from '../hooks';
 import { Spin } from '../components/common';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -13,7 +12,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 	const [wasLoggedIn, setWasLoggedIn] = useState(false);
 	const [isAppLoading, setIsAppLoading] = useState(true);
 	const [postLoginPath, setPostLoginPath] = useState('/home');
-	const notification = useNotification();
 	const contextValue: GlobalContextProps = {
 		wasLoggedIn,
 		setWasLoggedIn: (bool: boolean) => setWasLoggedIn(bool),

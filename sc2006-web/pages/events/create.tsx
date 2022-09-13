@@ -1,9 +1,9 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { Card, InputLabel, TextInput } from '../../components/common';
 import { Form, Input } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { AddFriendToEventModal } from '../../containers/event/AddFriendToEventModal';
-import { ParticipantsSection } from '../../containers/event/ParticipantsSection';
+import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
 
 enum Preference {
 	OUTDOOR = 'outdoor',
@@ -39,16 +39,11 @@ const CreateEventPage = () => {
 		// call eventService.createEvent(form)
 	};
 
-	const [updatedParticipants, setUpdatedParticipants] = useState(false);
 	const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
 	const [selectedFriends, setSelectedFriends] = useState<Set<string>>(
 		new Set(),
 	);
 	const [addedFriends, setAddedFriends] = useState<Set<string>>(new Set());
-
-	useEffect(() => {
-		setUpdatedParticipants(false);
-	}, [updatedParticipants == true]);
 
 	if (!me) {
 		return null;
@@ -64,20 +59,6 @@ const CreateEventPage = () => {
 				isCreator: true,
 			},
 		],
-	};
-
-	const onManualAddParticipant = () => {
-		const currentParticipants = getFieldValue('users');
-		const newParticipant: Participant = {
-			name: `New Participant ${currentParticipants.length + 1}`,
-			preferences: [],
-			schedule: [],
-			address: '',
-			isCreator: false,
-		};
-		const newParticipants = [...currentParticipants, newParticipant];
-		setFieldValue('users', newParticipants);
-		setUpdatedParticipants(true);
 	};
 
 	const onAddFriends = (friendIds: string[]) => {
@@ -106,7 +87,7 @@ const CreateEventPage = () => {
 
 	return (
 		<>
-			<Card className="p-5 w-5/6 h-5/6 flex flex-col justify-center items-start space-y-2">
+			<Card className="p-8 w-5/6 h-5/6 flex flex-col justify-center items-start space-y-2 overflow-auto">
 				<Form
 					className="w-full h-full"
 					initialValues={initialFormValues}
@@ -140,7 +121,6 @@ const CreateEventPage = () => {
 						<ParticipantsSection
 							setIsFriendsModalOpen={setIsFriendsModalOpen}
 							onRemoveParticipant={onRemoveParticipant}
-							onManualAddParticipant={onManualAddParticipant}
 							formInstance={form}
 						/>
 					</Form.Item>

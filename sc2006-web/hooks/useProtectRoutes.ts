@@ -1,14 +1,8 @@
 import { useEffect, useContext, Dispatch, useState } from 'react';
-import useSWR from 'swr';
-import { meService } from '../services';
 import { useRouter } from 'next/router';
 import { GlobalContext } from '../contexts/';
 import { getRoutes, Routes } from '../lib/routes';
 import { useNotification } from './useNotification';
-
-// interface useProtectRoutesProps {
-// 	setLoading: () => void;
-// }
 
 export function useProtectRoutes() {
 	const redirectToIfUnauthenticated = '/login';
@@ -18,15 +12,6 @@ export function useProtectRoutes() {
 		useContext(GlobalContext);
 	const notification = useNotification();
 	const [redirected, setRedirected] = useState(false);
-	// const username = me?.username;
-
-	// const fetcher = async () => await meService.revalidate(username);
-	// const { data, error } = useSWR('/revalidate', fetcher) as any;
-
-	// const status = data?.status;
-	// const user = data?.user;
-	// const finished = Boolean(data);
-	// const authenticated = status < 205;
 
 	/*
 		Push notification once per redirect
@@ -46,7 +31,6 @@ export function useProtectRoutes() {
 	};
 
 	useEffect(() => {
-		// if (!finished) return;
 		const plainPath = router.asPath.split('#')[0];
 		const { allowedRoutes } = getRoutes(me);
 		if (me) {
@@ -64,17 +48,6 @@ export function useProtectRoutes() {
 				router.push(redirectToIfUnauthenticated);
 			}
 		}
-		// if (authenticated) {
-		// 	if (!me && user) {
-		// 		setMe(user);
-		// 	} else if (!allowedRoutes[plainPath as Routes]) {
-		// 		router.push(redirectToIfAuthenticated);
-		// 	}
-		// } else if (!me) {
-		// 	if (!allowedRoutes[plainPath as Routes]) {
-		// 		router.push(redirectToIfUnauthenticated);
-		// 	}
-		// }
 	}, [me, router.asPath]);
 
 	return { postLoginPath };

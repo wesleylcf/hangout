@@ -1,5 +1,4 @@
 import react, { useState, useEffect } from 'react';
-import { GlobalContext } from '../../contexts';
 import { Tooltip, Divider } from 'antd';
 import { NotificationBell } from '../../components/common';
 import { DbNotificationRes } from '../../types';

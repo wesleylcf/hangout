@@ -1,7 +1,7 @@
 import { Modal, ModalProps } from 'antd';
 import { Me } from '../../contexts';
 import { FieldRow } from '../../components/common/FieldRow';
-import { useRef, useState, useMemo, Dispatch, SetStateAction } from 'react';
+import { useMemo, Dispatch, SetStateAction } from 'react';
 
 type AddFriendToEventModalProps = Omit<ModalProps, 'onOk'> & {
 	me: Me;

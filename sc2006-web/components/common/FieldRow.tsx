@@ -1,19 +1,21 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useState, RefObject } from 'react';
+import { useState, RefObject, useEffect } from 'react';
+import { StringUtil } from '../../lib';
 
 type FieldRowType = 'text';
 
 export interface FieldRowProps {
 	ref?: RefObject<any>;
 	label?: string;
-	value: string | string[];
+	value: string;
 	onClick?: () => void;
 	isClickDisabled?: boolean;
 	highlight?: boolean;
 	isSelected?: boolean;
 	allowEdit?: boolean;
-	Editable?: React.ElementType;
 	onEdit?: (value: string) => void;
+	Editable?: React.ElementType;
+	onEditFinish?: (value: string) => void;
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
 }
@@ -27,12 +29,14 @@ export const FieldRow = ({
 	isClickDisabled,
 	isSelected,
 	allowEdit = false,
-	Editable,
 	onEdit,
+	Editable,
+	onEditFinish,
 	AllowEditIcon,
 	CancelEditIcon,
 }: FieldRowProps) => {
 	const [isEditing, setIsEditing] = useState(false);
+	const [internalValue, setInternalValue] = useState(value || '');
 
 	const iconStyle = {
 		fontSize: '1.25rem',
@@ -40,13 +44,9 @@ export const FieldRow = ({
 	};
 
 	const onChangeHandler = (e: any) => {
-		if (allowEdit && !onEdit) {
-			throw new Error(
-				`FieldRow component was not passed onEdit prop but allowEdit was set to true`,
-			);
-		}
-		if (onEdit) {
-			onEdit(e.target.value);
+		if (allowEdit) {
+			setInternalValue(e.target.value);
+			onEdit && onEdit(e.target.value);
 		}
 	};
 
@@ -56,6 +56,10 @@ export const FieldRow = ({
 		}
 	};
 
+	useEffect(() => {
+		setInternalValue(value);
+	}, [value]);
+
 	const getClassName = () => {
 		if (isClickDisabled) return 'text-black bg-neutral-400';
 		if (isSelected) return 'text-white bg-cyan-400';
@@ -63,13 +67,24 @@ export const FieldRow = ({
 		return '';
 	};
 
-	const FixedField = <div className="w-5/6">{value}</div>;
+	const FixedField = <div className="w-5/6">{internalValue}</div>;
 	const EditableField = (
 		<div className="w-5/6 flex flex-row justify-between items-center">
 			<div className="w-5/6">
 				{isEditing
-					? Editable && <Editable value={value} onChange={onChangeHandler} />
-					: value}
+					? Editable && (
+							<Editable
+								value={internalValue}
+								onChange={onChangeHandler}
+								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+									if (event.code === 'Enter') {
+										setIsEditing(false);
+										onEditFinish && onEditFinish(internalValue);
+									}
+								}}
+							/>
+					  )
+					: StringUtil.replaceEmpty(internalValue)}
 			</div>
 			<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
 				{isEditing
@@ -77,6 +92,7 @@ export const FieldRow = ({
 							<CancelEditIcon
 								onClick={() => {
 									setIsEditing(false);
+									onEditFinish && onEditFinish(internalValue);
 								}}
 								style={iconStyle}
 								className="hover:text-sky-400"
