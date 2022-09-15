@@ -1,26 +1,27 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-import { useState, RefObject, useEffect } from 'react';
-import { StringUtil } from '../../lib';
+/*eslint-disable no-mixed-spaces-and-tabs */
+import React, { useState, RefObject, useEffect } from 'react';
 
-type FieldRowType = 'text';
+type FieldRowType = string | Record<string, any>;
 
-export interface FieldRowProps {
+type FieldRowProps<T extends FieldRowType> = {
 	ref?: RefObject<any>;
 	label?: string;
-	value: string;
+	value?: T;
 	onClick?: () => void;
 	isClickDisabled?: boolean;
 	highlight?: boolean;
 	isSelected?: boolean;
 	allowEdit?: boolean;
-	onEdit?: (value: string) => void;
+	onEdit?: (value?: T) => void;
 	Editable?: React.ElementType;
-	onEditFinish?: (value: string) => void;
+	onEditFinish?: (value?: T) => void;
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
-}
+	Modal?: React.ElementType;
+	modalProps?: Record<string, any>;
+};
 
-export const FieldRow = ({
+export function FieldRow<T extends FieldRowType>({
 	ref,
 	label,
 	value,
@@ -34,9 +35,11 @@ export const FieldRow = ({
 	onEditFinish,
 	AllowEditIcon,
 	CancelEditIcon,
-}: FieldRowProps) => {
+	Modal,
+	modalProps,
+}: FieldRowProps<T>) {
 	const [isEditing, setIsEditing] = useState(false);
-	const [internalValue, setInternalValue] = useState(value || '');
+	const [internalValue, setInternalValue] = useState(value);
 
 	const iconStyle = {
 		fontSize: '1.25rem',
@@ -67,48 +70,61 @@ export const FieldRow = ({
 		return '';
 	};
 
-	const FixedField = <div className="w-5/6">{internalValue}</div>;
+	const FixedField = <div className="w-5/6">{internalValue as string}</div>;
 	const EditableField = (
-		<div className="w-5/6 flex flex-row justify-between items-center">
-			<div className="w-5/6">
-				{isEditing
-					? Editable && (
-							<Editable
-								value={internalValue}
-								onChange={onChangeHandler}
-								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-									if (event.code === 'Enter') {
+		<>
+			<div className="w-5/6 flex flex-row justify-between items-center">
+				<div className="w-5/6">
+					{isEditing
+						? Editable && (
+								<Editable
+									value={internalValue}
+									onChange={onChangeHandler}
+									onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+										if (event.code === 'Enter') {
+											setIsEditing(false);
+											onEditFinish && onEditFinish(internalValue);
+										}
+									}}
+								/>
+						  )
+						: replaceEmpty(internalValue)}
+				</div>
+				<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
+					{isEditing
+						? CancelEditIcon && (
+								<CancelEditIcon
+									onClick={() => {
 										setIsEditing(false);
 										onEditFinish && onEditFinish(internalValue);
-									}
-								}}
-							/>
-					  )
-					: StringUtil.replaceEmpty(internalValue)}
+									}}
+									style={iconStyle}
+									className="hover:text-sky-400"
+								/>
+						  )
+						: AllowEditIcon && (
+								<AllowEditIcon
+									onClick={() => {
+										setIsEditing(true);
+									}}
+									className="hover:text-sky-400"
+									style={iconStyle}
+								/>
+						  )}
+				</div>
 			</div>
-			<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
-				{isEditing
-					? CancelEditIcon && (
-							<CancelEditIcon
-								onClick={() => {
-									setIsEditing(false);
-									onEditFinish && onEditFinish(internalValue);
-								}}
-								style={iconStyle}
-								className="hover:text-sky-400"
-							/>
-					  )
-					: AllowEditIcon && (
-							<AllowEditIcon
-								onClick={() => {
-									setIsEditing(true);
-								}}
-								className="hover:text-sky-400"
-								style={iconStyle}
-							/>
-					  )}
-			</div>
-		</div>
+			{Modal && (
+				<Modal
+					visible={isEditing}
+					onOk={onEditFinish}
+					onCancel={() => {
+						setIsEditing(false);
+						onEditFinish && onEditFinish(internalValue);
+					}}
+					{...modalProps}
+				/>
+			)}
+		</>
 	);
 
 	return (
@@ -121,4 +137,11 @@ export const FieldRow = ({
 			{allowEdit ? EditableField : FixedField}
 		</div>
 	);
-};
+}
+
+function replaceEmpty(obj: any) {
+	if (!obj || obj.length === undefined || obj.length === 0) {
+		return '-';
+	}
+	return obj;
+}

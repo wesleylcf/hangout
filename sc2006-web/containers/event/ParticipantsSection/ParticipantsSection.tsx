@@ -26,7 +26,9 @@ export const ParticipantsSection = ({
 	const [form] = Form.useForm(formInstance);
 	const { getFieldValue, setFieldValue } = form;
 	const participants: Participant[] = getFieldValue('users');
-	const [expandedPanels, setExpandedPanels] = useState<Set<string>>(new Set());
+	const [expandedParticipants, setExpandedParticipants] = useState<Set<string>>(
+		new Set(),
+	);
 
 	const onUpdateParticipant = (participant: Participant, index: number) => {
 		const currentParticipants: Participant[] = form.getFieldValue('users');
@@ -58,7 +60,7 @@ export const ParticipantsSection = ({
 				<div className="flex flew-row items-center">
 					<a
 						onClick={() => {
-							setExpandedPanels(new Set());
+							setExpandedParticipants(new Set());
 						}}
 						className="text-sky-400"
 					>
@@ -69,8 +71,8 @@ export const ParticipantsSection = ({
 			<Collapse
 				bordered={false}
 				ghost={true}
-				onChange={(key) => setExpandedPanels(new Set(key))}
-				activeKey={Array.from(expandedPanels)}
+				onChange={(key) => setExpandedParticipants(new Set(key))}
+				activeKey={Array.from(expandedParticipants)}
 			>
 				{participants &&
 					participants.map((participant, index) => {
@@ -111,7 +113,7 @@ export const ParticipantsSection = ({
 								<PublicParticipantCard
 									key={index}
 									participant={participant}
-									isExpanded={expandedPanels.has(index.toString())}
+									isExpanded={expandedParticipants.has(index.toString())}
 									onUpdateParticipant={onUpdateParticipant}
 									index={index}
 								/>

@@ -5,3 +5,4 @@ export * from './TextInput';
 export * from './Button';
 export * from './PasswordInput';
 export * from './NotificationBell';
+export * from './CollapseItemHeader';

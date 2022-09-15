@@ -14,12 +14,20 @@ import {
 } from '@ant-design/icons';
 import { FieldRow } from '../../../components/common/FieldRow';
 import { Collapse, Form } from 'antd';
+import { ScheduleModal } from '../ScheduleModal';
+import { CollapseItemHeader } from '../../../components/common';
 
+type FieldName = 'name' | 'preferences' | 'schedule' | 'address';
 interface PublicParticipantCardProps {
 	participant: PublicEventParticipant;
 	isExpanded: boolean;
 	onUpdateParticipant: (participant: Participant, index: number) => void;
 	index: number;
+}
+
+interface ParticipantItem {
+	name: FieldName;
+	label: string;
 }
 
 export const PublicParticipantCard = ({
@@ -30,49 +38,36 @@ export const PublicParticipantCard = ({
 	...props
 }: PublicParticipantCardProps) => {
 	const ParticipantCardHeader = ({ title }: { title: string }) => {
-		const caretStyle = {
-			fontSize: '1.25rem',
-		};
-		const className = isExpanded
-			? 'bg-cyan-400 text-white'
-			: 'hover:bg-cyan-400 hover:text-white';
+		const icon = participant.isCreator ? (
+			<CrownFilled
+				className="pr-2 "
+				style={{
+					color: 'rgb(232 121 249)',
+				}}
+			/>
+		) : (
+			<UserOutlined
+				className="pr-2 "
+				style={{
+					color: 'rgb(232 121 249)',
+				}}
+			/>
+		);
 		return (
-			<Card
-				className={`p-5 w-full ${className} flex flex-row justify-between items-center`}
-			>
-				<div className="w-5/6 flex flex-row items-center">
-					<div className="flex flex-row items-center">
-						{participant.isCreator ? (
-							<CrownFilled
-								className="pr-2 "
-								style={{
-									color: 'rgb(232 121 249)',
-								}}
-							/>
-						) : (
-							<UserOutlined
-								className="pr-2 "
-								style={{
-									color: 'rgb(232 121 249)',
-								}}
-							/>
-						)}
-					</div>
-					{title}
-				</div>
-				{isExpanded ? (
-					<CaretUpFilled style={caretStyle} />
-				) : (
-					<CaretDownFilled style={caretStyle} />
-				)}
-			</Card>
+			<CollapseItemHeader icon={icon} title={title} isExpanded={isExpanded} />
 		);
 	};
 
-	const [form] = Form.useForm();
-	const { getFieldValue, setFieldValue, setFieldsValue } = form;
+	const getEditable = (name: FieldName) => {
+		switch (name) {
+			case 'schedule':
+				return undefined;
+			default:
+				return TextInput;
+		}
+	};
 
-	const participantItems = useMemo(
+	const participantItems: ParticipantItem[] = useMemo(
 		() => [
 			{
 				name: 'name',
@@ -83,7 +78,7 @@ export const PublicParticipantCard = ({
 				label: 'Preferences:',
 			},
 			{
-				name: 'preferences',
+				name: 'schedule',
 				label: 'Schedule:',
 			},
 			{
@@ -94,57 +89,38 @@ export const PublicParticipantCard = ({
 		[],
 	);
 
-	useEffect(() => {
-		setFieldsValue(participant);
-	}, [participant]);
-
-	const onEditFinish = (key: string, value: string) => {
+	const onEditFinish = (key: string, value?: string) => {
 		const newParticipant = { ...participant, [key]: value };
 		onUpdateParticipant(newParticipant, index);
 	};
 
 	return (
 		<Collapse.Panel
-			key={form.getFieldValue('name')}
+			key={participant.name}
 			header={<ParticipantCardHeader title={participant.name} />}
 			forceRender
 			showArrow={false}
 			{...props}
 		>
-			<Form className="pl-4" form={form} initialValues={participant}>
-				{participantItems.map(({ label, name }, index) => {
-					const textLabels = ['Name:', 'Address:'];
-					return (
-						<Form.Item
-							key={name + label}
-							name={name}
-							rules={[
-								{
-									required: true,
-									message: `${name} cannot be empty`,
-								},
-								{
-									min: 6,
-									message: `${name} must be at least 6 characters`,
-								},
-							]}
-						>
-							<FieldRow
-								label={label}
-								value={getFieldValue(name)}
-								highlight={index % 2 == 0}
-								allowEdit={true}
-								CancelEditIcon={CheckOutlined}
-								AllowEditIcon={EditOutlined}
-								Editable={
-									textLabels.includes(label as string) ? TextInput : undefined
-								}
-								onEditFinish={(value: string) => onEditFinish(name, value)}
-							/>
-						</Form.Item>
-					);
-				})}
-			</Form>
+			{participantItems.map(({ label, name }, index) => {
+				return (
+					<FieldRow
+						key={name}
+						label={label}
+						value={participant[name]}
+						highlight={index % 2 == 0}
+						allowEdit={true}
+						CancelEditIcon={CheckOutlined}
+						AllowEditIcon={EditOutlined}
+						Editable={getEditable(name)}
+						onEditFinish={(value?: string) => onEditFinish(name, value)}
+						Modal={name === 'schedule' ? ScheduleModal : undefined}
+						modalProps={{
+							width: '80%',
+						}}
+					/>
+				);
+			})}
 		</Collapse.Panel>
 	);
 };

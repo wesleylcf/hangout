@@ -1,4 +1,4 @@
-import { SignUpRes, LoginRes, AuthUserReq, DbUser } from '../types';
+import { LoginRes, AuthUserReq, DbUser } from '../types';
 import { throwErrorOrGetData } from '../lib/error';
 import { Me } from '../contexts';
 
