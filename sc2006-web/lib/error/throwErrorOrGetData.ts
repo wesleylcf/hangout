@@ -21,11 +21,10 @@ export async function throwErrorOrGetData<T>(
 	const { status } = response;
 	const data = await response.json();
 	const { fallbackTitle, fallbackMessage } = options;
-	if (status < 205) {
+	const { error, message } = data;
+	if (!error && status < 205) {
 		return data;
 	}
-	const error = data.error;
-	const message = data.message;
 
 	if (error) {
 		throw ErrorUtil.apiError(error.message, error.title, error.level);

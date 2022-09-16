@@ -3,16 +3,19 @@ import React, { useState } from 'react';
 import { Badge, Calendar, Collapse, Modal, ModalProps, BadgeProps } from 'antd';
 import moment from 'moment';
 import { CollapseItemHeader } from '../../components/common';
+import { TimeRangesCard } from './TimeRangesCard';
 
-type ScheduleModalProps = ModalProps & {};
+type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
+	onOk: (value: any) => void;
+};
 
-export const ScheduleModal = (props: ScheduleModalProps) => {
+export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 	const DATE_FORMAT = 'ddd (DD MMM)';
-	const [selectedDate, setSelectedDate] = useState<any>();
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
-	const [freeTimeRanges, setFreeTimeRanges] =
-		useState<Record<string, [startTime: number, endTime: number][]>>();
+	const [freeTimeRanges, setFreeTimeRanges] = useState<
+		Record<string, Array<[any, any]>>
+	>({});
 
 	const startDate = moment();
 	const endDate = moment()
@@ -20,7 +23,7 @@ export const ScheduleModal = (props: ScheduleModalProps) => {
 		.hour(24)
 		.second(59);
 	return (
-		<Modal {...props}>
+		<Modal {...props} onOk={() => onOk(freeTimeRanges)}>
 			<div className="flex flex-row">
 				<Calendar
 					validRange={[startDate, endDate]}
@@ -29,7 +32,7 @@ export const ScheduleModal = (props: ScheduleModalProps) => {
 						setSelectedDates((selected) => {
 							const selectedCopy = new Set(selected);
 							setFreeTimeRanges((timeRanges) => {
-								return { ...timeRanges, presentableDate: [] };
+								return { ...timeRanges, [presentableDate]: [] };
 							});
 							if (selected.has(presentableDate)) {
 								selectedCopy.delete(presentableDate);
@@ -68,7 +71,35 @@ export const ScheduleModal = (props: ScheduleModalProps) => {
 								forceRender
 								showArrow={false}
 								{...props}
-							></Collapse.Panel>
+							>
+								<TimeRangesCard
+									addedTimeRanges={
+										freeTimeRanges[date] ? freeTimeRanges[date] : []
+									}
+									addTimeRange={(range: [any, any]) =>
+										setFreeTimeRanges((freeTimeRanges) => {
+											if (!freeTimeRanges) return freeTimeRanges;
+											const oldTimeRange = freeTimeRanges[date];
+											let newTimeRange: Array<[any, any]> = [range];
+											if (oldTimeRange) {
+												newTimeRange = [...oldTimeRange, range];
+											}
+											return { ...freeTimeRanges, [date]: newTimeRange };
+										})
+									}
+									removeTimeRange={(index: number) => {
+										setFreeTimeRanges((freeTimeRanges) => {
+											if (!freeTimeRanges) return freeTimeRanges;
+											const oldTimeRange = freeTimeRanges[date];
+											const newTimeRange = [
+												...oldTimeRange.slice(0, index),
+												...oldTimeRange.slice(index + 1),
+											];
+											return { ...freeTimeRanges, [date]: newTimeRange };
+										});
+									}}
+								/>
+							</Collapse.Panel>
 						))}
 					</Collapse>
 				</div>
@@ -77,25 +108,31 @@ export const ScheduleModal = (props: ScheduleModalProps) => {
 	);
 };
 
-const getBadge = (freeTimeRanges: [startTime: number, endTime: number][]) => {
-	const totalFreeTime =
-		freeTimeRanges?.reduce((accm, timeRange) => {
+const getBadge = (freeTimeRanges: [startTime: any, endTime: any][]) => {
+	let totalBusyTime = 0;
+	if (freeTimeRanges && freeTimeRanges.length) {
+		totalBusyTime = freeTimeRanges.reduce((accm, timeRange) => {
 			const [startTime, endTime] = timeRange;
-			return accm + endTime - startTime;
-		}, 0) ?? 12;
+			return accm + endTime.hours() - startTime.hours();
+		}, 0);
+	}
 
 	let text = 'Quite free';
-	if (totalFreeTime < 9) {
-		text = 'Not too busy';
+	if (totalBusyTime > 3) {
+		text = 'A little busy';
 	}
-	if (totalFreeTime < 6) {
+	if (totalBusyTime > 5) {
 		text = 'Quite busy';
 	}
 
 	return (
 		<Badge
 			status={
-				totalFreeTime > 8 ? 'success' : totalFreeTime > 5 ? 'warning' : 'error'
+				totalBusyTime > 5
+					? 'warning'
+					: totalBusyTime > 3
+					? 'warning'
+					: 'success'
 			}
 			text={text}
 		/>

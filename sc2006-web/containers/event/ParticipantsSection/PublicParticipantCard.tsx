@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
 	Participant,
 	PublicEventParticipant,
 } from '../../../pages/events/create';
-import { Card, TextInput } from '../../../components/common';
+import { TextInput } from '../../../components/common';
 import {
-	CaretUpFilled,
-	CaretDownFilled,
 	CheckOutlined,
 	EditOutlined,
 	CrownFilled,
@@ -116,8 +114,9 @@ export const PublicParticipantCard = ({
 						onEditFinish={(value?: string) => onEditFinish(name, value)}
 						Modal={name === 'schedule' ? ScheduleModal : undefined}
 						modalProps={{
-							width: '80%',
+							width: '90%',
 						}}
+						isValuePresentable={!['schedule', 'preferences'].includes(name)}
 					/>
 				);
 			})}

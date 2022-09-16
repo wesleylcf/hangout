@@ -126,7 +126,7 @@ export const ParticipantsSection = ({
 						onClick={() => setIsFriendsModalOpen(true)}
 					>
 						<UserAddOutlined className="pr-2" style={{ fontSize: '1rem' }} />
-						Add a friend
+						Add Existing User
 					</Card>
 					<div>or</div>
 					<Card

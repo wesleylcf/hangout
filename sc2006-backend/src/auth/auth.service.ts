@@ -37,7 +37,7 @@ export class AuthService {
 			this.logger.warn(e.message, 'AuthService');
 			return {
 				error: {
-					message: 'email is already in use.',
+					message: 'Email is already in use.',
 					title: 'Sign up error',
 					level: 'error',
 				},

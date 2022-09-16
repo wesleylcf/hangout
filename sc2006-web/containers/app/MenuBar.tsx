@@ -72,7 +72,7 @@ export function MenuBar() {
 				key: '/profile',
 			},
 		],
-		[me],
+		[],
 	);
 	const PublicItems: MenuBarItem[] = useMemo(
 		() => [
@@ -87,14 +87,14 @@ export function MenuBar() {
 			},
 			getLoginOrSignupButton(router.asPath),
 		],
-		[me],
+		[me, router.asPath],
 	);
 
 	const [menuItems, setMenuItems] = useState(PublicItems);
 
 	useEffect(() => {
 		setMenuItems(me ? ProtectedItems : PublicItems);
-	}, [me]);
+	}, [me, ProtectedItems, PublicItems]);
 
 	const onLogout = async () => {
 		router.push('/home');

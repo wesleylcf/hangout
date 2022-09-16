@@ -1,5 +1,6 @@
 /*eslint-disable no-mixed-spaces-and-tabs */
 import React, { useState, RefObject, useEffect } from 'react';
+import { EyeOutlined } from '@ant-design/icons';
 
 type FieldRowType = string | Record<string, any>;
 
@@ -7,6 +8,7 @@ type FieldRowProps<T extends FieldRowType> = {
 	ref?: RefObject<any>;
 	label?: string;
 	value?: T;
+	isValuePresentable?: boolean;
 	onClick?: () => void;
 	isClickDisabled?: boolean;
 	highlight?: boolean;
@@ -25,6 +27,7 @@ export function FieldRow<T extends FieldRowType>({
 	ref,
 	label,
 	value,
+	isValuePresentable,
 	onClick,
 	highlight,
 	isClickDisabled,
@@ -70,6 +73,15 @@ export function FieldRow<T extends FieldRowType>({
 		return '';
 	};
 
+	const PresentableValue = isValuePresentable ? (
+		replaceEmpty(internalValue)
+	) : (
+		<EyeOutlined
+			style={{ fontSize: '1rem' }}
+			onClick={() => setIsEditing(true)}
+		/>
+	);
+
 	const FixedField = <div className="w-5/6">{internalValue as string}</div>;
 	const EditableField = (
 		<>
@@ -88,7 +100,7 @@ export function FieldRow<T extends FieldRowType>({
 									}}
 								/>
 						  )
-						: replaceEmpty(internalValue)}
+						: PresentableValue}
 				</div>
 				<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
 					{isEditing
@@ -96,7 +108,7 @@ export function FieldRow<T extends FieldRowType>({
 								<CancelEditIcon
 									onClick={() => {
 										setIsEditing(false);
-										onEditFinish && onEditFinish(internalValue);
+										// onEditFinish && onEditFinish(internalValue);
 									}}
 									style={iconStyle}
 									className="hover:text-sky-400"
@@ -119,7 +131,7 @@ export function FieldRow<T extends FieldRowType>({
 					onOk={onEditFinish}
 					onCancel={() => {
 						setIsEditing(false);
-						onEditFinish && onEditFinish(internalValue);
+						// onEditFinish && onEditFinish(internalValue);
 					}}
 					{...modalProps}
 				/>

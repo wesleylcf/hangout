@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Card, InputLabel, TextInput } from '../../components/common';
 import { Form, Input } from 'antd';
 import { GlobalContext } from '../../contexts';
-import { AddFriendToEventModal } from '../../containers/event/AddFriendToEventModal';
+import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
 
 enum Preference {
@@ -36,18 +36,19 @@ const CreateEventPage = () => {
 	const [form] = Form.useForm<CreateEventForm>();
 	const { setFieldValue, getFieldValue } = form;
 	const onSubmit = (form: CreateEventForm) => {
+		console.log(form);
 		// call eventService.createEvent(form)
 	};
 
 	const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
-	const [selectedFriends, setSelectedFriends] = useState<Set<string>>(
-		new Set(),
+	const [addedParticipants, setAddedParticipants] = useState<Set<string>>(
+		new Set(me ? [me.uuid] : []),
 	);
-	const [addedFriends, setAddedFriends] = useState<Set<string>>(new Set());
 
 	if (!me) {
 		return null;
 	}
+
 	const initialFormValues: CreateEventForm = {
 		title: '',
 		users: [
@@ -61,10 +62,9 @@ const CreateEventPage = () => {
 		],
 	};
 
-	const onAddFriends = (friendIds: string[]) => {
+	const onAddUser = (userEmail: string) => {
 		const currentParticipants = getFieldValue('users');
-		const newParticipants = friendIds.map((id) => ({ uuid: id }));
-		setFieldValue('users', currentParticipants.concat(newParticipants));
+		setFieldValue('users', currentParticipants.concat({ uuid: userEmail }));
 	};
 
 	const onRemoveParticipant = (name: string) => {
@@ -77,7 +77,7 @@ const CreateEventPage = () => {
 				return participant.uuid !== name;
 			}
 		});
-		setAddedFriends((added) => {
+		setAddedParticipants((added) => {
 			const newAdded = new Set(added);
 			newAdded.delete(name);
 			return newAdded;
@@ -137,26 +137,17 @@ const CreateEventPage = () => {
 					</div>
 				</Form>
 			</Card>
-			<AddFriendToEventModal
+			<AddUserToEventModal
 				me={me}
 				isOpen={isFriendsModalOpen}
-				onOk={(friends: string[]) => {
-					onAddFriends(friends);
-					setSelectedFriends((selected) => {
-						setAddedFriends(
-							(added) =>
-								new Set([...Array.from(selected), ...Array.from(added)]),
-						);
-						return new Set();
-					});
+				onOk={(user: string) => {
+					onAddUser(user);
 					setIsFriendsModalOpen(false);
 				}}
 				onCancel={() => {
 					setIsFriendsModalOpen(false);
 				}}
-				addedFriends={addedFriends}
-				selectedFriends={selectedFriends}
-				setSelectedFriends={setSelectedFriends}
+				addedParticipants={addedParticipants}
 			/>
 		</>
 	);

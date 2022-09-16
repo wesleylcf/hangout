@@ -1,6 +1,7 @@
 import { Card, InputLabel, TextInput, PasswordInput } from '../common';
 import { Form, Input, FormInstance } from 'antd';
 import { Regex } from '../../types/constants';
+import { useRouter } from 'next/router';
 
 export enum AuthFormType {
 	SIGNUP = 'signup',
@@ -19,6 +20,7 @@ interface IForm {
 }
 
 export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
+	const router = useRouter();
 	const { setFieldValue, getFieldValue } = form;
 
 	const renderAssistiveText = () => {
@@ -26,7 +28,9 @@ export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
 			return (
 				<div className="flex flex-row items-center w-3/5">
 					Need an account?
-					<a className="pl-2">Sign up</a>
+					<a className="pl-2" onClick={() => router.push('/signup')}>
+						Sign up
+					</a>
 				</div>
 			);
 		}
@@ -34,7 +38,9 @@ export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
 			return (
 				<div className="flex flex-row items-center w-3/5">
 					Already have an account?
-					<a className="pl-2">Login</a>
+					<a className="pl-2" onClick={() => router.push('/login')}>
+						Login
+					</a>
 				</div>
 			);
 		}
