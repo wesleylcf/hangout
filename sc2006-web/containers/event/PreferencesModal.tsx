@@ -5,12 +5,11 @@ import moment from 'moment';
 import { CollapseItemHeader } from '../../components/common';
 import { TimeRangesCard } from './TimeRangesCard';
 
-type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
+type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
 };
 
-export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
-	const DATE_FORMAT = 'ddd (DD MMM)';
+export const PreferencesModal = ({ onOk, ...props }: PreferencesModalProps) => {
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 	const [freeTimeRanges, setFreeTimeRanges] = useState<
@@ -25,33 +24,6 @@ export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 	return (
 		<Modal {...props} onOk={() => onOk(freeTimeRanges)}>
 			<div className="flex flex-row">
-				<Calendar
-					validRange={[startDate, endDate]}
-					onSelect={(moment) => {
-						const presentableDate = moment.format(DATE_FORMAT);
-						setSelectedDates((selected) => {
-							const selectedCopy = new Set(selected);
-							setFreeTimeRanges((timeRanges) => {
-								return { ...timeRanges, [presentableDate]: [] };
-							});
-							if (selected.has(presentableDate)) {
-								selectedCopy.delete(presentableDate);
-								return selectedCopy;
-							} else {
-								return selectedCopy.add(presentableDate);
-							}
-						});
-					}}
-					className="w-4/6"
-					dateCellRender={(moment) => {
-						if (moment.isBetween(startDate, endDate, undefined, '[]')) {
-							const presentableDate = moment.format(DATE_FORMAT);
-							return freeTimeRanges
-								? getBadge(freeTimeRanges[presentableDate])
-								: null;
-						}
-					}}
-				/>
 				<div className="w-2/6 pl-4 overflow-auto">
 					<Collapse
 						bordered={false}
@@ -84,7 +56,6 @@ export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 											if (oldTimeRange) {
 												newTimeRange = [...oldTimeRange, range];
 											}
-
 											return { ...freeTimeRanges, [date]: newTimeRange };
 										})
 									}
