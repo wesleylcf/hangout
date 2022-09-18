@@ -1,12 +1,28 @@
-import { BellOutlined } from '@ant-design/icons';
+import { BellOutlined, BellFilled } from '@ant-design/icons';
+import { Badge } from 'antd';
 
-export const NotificationBell = () => {
+interface NotificationBellProps {
+	isClicked: boolean;
+	onClick: () => void;
+	count: number;
+}
+
+export const NotificationBell = ({
+	isClicked,
+	onClick,
+	count,
+}: NotificationBellProps) => {
 	return (
 		<button
-			className="flex flex-row justify-center items-center px-5 hover:text-emerald-400"
+			className={`flex flex-row justify-center items-center hover:text-emerald-400 ${
+				isClicked ? 'text-emerald-400' : ''
+			}`}
 			style={{ fontSize: '120%' }}
+			onClick={onClick}
 		>
-			<BellOutlined />
+			<Badge count={count} size="small">
+				{isClicked ? <BellFilled /> : <BellOutlined />}
+			</Badge>
 		</button>
 	);
 };

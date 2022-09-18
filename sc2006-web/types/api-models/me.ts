@@ -1,12 +1,11 @@
-import { DbUser } from '../constants';
+import { UserRes } from '../constants';
 
 export interface SignUpRes {
 	error?: string;
 }
 
 export interface LoginRes {
-	user?: Omit<DbUser, 'password'>;
-	error?: string;
+	user: UserRes;
 }
 
 export interface AuthUserReq {

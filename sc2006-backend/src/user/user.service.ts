@@ -6,10 +6,11 @@ import {
 	serverTimestamp,
 	setDoc,
 	Timestamp,
+	WriteBatch,
 	writeBatch,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser, SeedUser } from '../../../sc2006-common/';
+import { DbUser, DbUserRes } from '../../../sc2006-common/';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
@@ -22,15 +23,19 @@ export class UserService {
 	/*
     Returns User document if found, else undefined
   */
-	async findOne(_username: string): Promise<DbUser | undefined> {
+	async findOne(
+		_username: string,
+	): Promise<(DbUserRes & { uuid: string }) | undefined> {
 		const docRef = doc(db, 'users', _username);
 		const docSnap = await getDoc(docRef);
-		if (!docSnap.exists) {
+		if (!docSnap.exists()) {
 			return undefined;
 		}
+		const { createdAt, ...rest } = docSnap.data() as DbUser;
 		return {
-			username: docSnap.id,
-			...(docSnap.data() as Omit<DbUser, 'username'>),
+			uuid: docSnap.id,
+			...rest,
+			createdAt: createdAt.toDate(),
 		};
 	}
 
@@ -58,33 +63,61 @@ export class UserService {
 		}
 	}
 
-	async seedUsers(users: SeedUser[]) {
+	async bulkCreate(
+		users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
+		existingBatch?: WriteBatch,
+	) {
+		const batch = existingBatch ? existingBatch : writeBatch(db);
 		try {
-			const batch = writeBatch(db);
-
-			const usersNotifications = users.map((user) => user.notifications);
-
-			const usersNotificationUuids = await Promise.all(
-				usersNotifications.map(
-					async (userNotification) =>
-						await this.notificationService.bulkCreate(userNotification),
-				),
-			);
-
-			users.forEach((user, index) => {
-				const { username, notifications, ...rest } = user;
-
-				const docRef = doc(db, 'users', username);
-				batch.set(docRef, {
-					createdAt: serverTimestamp(),
-					notificationIds: usersNotificationUuids[index].uuids,
+			users.forEach(({ username, ...rest }) => {
+				const user: DbUser = {
 					...rest,
-				});
+					createdAt: serverTimestamp() as Timestamp,
+				};
+				const newUserDocRef = doc(db, 'users', username);
+				batch.set(newUserDocRef, user);
 			});
-
-			await batch.commit();
+			if (!existingBatch) {
+				await batch.commit();
+			}
+			return { error: null };
 		} catch (e) {
-			this.logger.warn('Could not batch write users', 'UserService');
+			this.logger.warn(
+				`Could not batch write users: ${e.message}`,
+				'UserService',
+			);
 		}
 	}
+
+	// async seedUsers(
+	// 	users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
+	// ) {
+	// 	try {
+	// 		const batch = writeBatch(db);
+
+	// 		const usersNotifications = users.map((user) => user.notifications);
+
+	// 		const usersNotificationUuids = await Promise.all(
+	// 			usersNotifications.map(
+	// 				async (userNotification) =>
+	// 					await this.notificationService.bulkCreate(userNotification),
+	// 			),
+	// 		);
+
+	// 		users.forEach((user, index) => {
+	// 			const { username, notifications, ...rest } = user;
+
+	// 			const docRef = doc(db, 'users', username);
+	// 			batch.set(docRef, {
+	// 				createdAt: serverTimestamp(),
+	// 				notificationIds: usersNotificationUuids[index].uuids,
+	// 				...rest,
+	// 			});
+	// 		});
+
+	// 		await batch.commit();
+	// 	} catch (e) {
+	// 		this.logger.warn('Could not batch write users', 'UserService');
+	// 	}
+	// }
 }

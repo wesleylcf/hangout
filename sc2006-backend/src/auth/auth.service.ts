@@ -37,7 +37,7 @@ export class AuthService {
 			this.logger.warn(e.message, 'AuthService');
 			return {
 				error: {
-					message: 'Specified email is already in use.',
+					message: 'Email is already in use.',
 					title: 'Sign up error',
 					level: 'error',
 				},
@@ -51,7 +51,7 @@ export class AuthService {
 		try {
 			const { user, error } = outcome;
 			const tokenInput: TokenInput = {
-				username: user.username,
+				username: user.uuid,
 				createdAt: user.createdAt,
 			};
 			let access_token = null;
@@ -72,7 +72,7 @@ export class AuthService {
 			if (!user) {
 				throw new Error('User could not be found from decoded token');
 			}
-			const { password, ...rest } = user;
+			const { password, createdAt, ...rest } = user;
 
 			return { user: rest };
 		} catch (e) {

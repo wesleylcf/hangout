@@ -6,7 +6,8 @@ import {
 
 import React, { ReactNode } from 'react';
 import { notification } from 'antd';
-import { PresentableError, PresentableErrorOptions } from '../../lib/error';
+import { PresentableError } from '../../lib/error';
+import { NAVIGATION_HEIGHT } from '../../constants';
 
 export interface NotificationContainerProps {
 	children: ReactNode;
@@ -17,6 +18,13 @@ export const NotificationContainer = ({
 	children,
 	topOffset,
 }: NotificationContainerProps) => {
+	const baseNotificationStyle = {
+		position: 'fixed' as any,
+		color: 'rgba(0, 0, 0, 0.65)',
+		top: NAVIGATION_HEIGHT + 5,
+		right: 5,
+	};
+
 	const info = (
 		message: ReactNode,
 		title?: ReactNode,
@@ -26,7 +34,7 @@ export const NotificationContainer = ({
 			description: message,
 			message: title ?? 'Info',
 			style: {
-				color: 'rgba(0, 0, 0, 0.65)',
+				...baseNotificationStyle,
 				border: '1px solid #91d5ff',
 				backgroundColor: '#e6f7ff',
 			},
@@ -42,7 +50,7 @@ export const NotificationContainer = ({
 			description: message,
 			message: title ?? 'Success',
 			style: {
-				color: 'rgba(0, 0, 0, 0.65)',
+				...baseNotificationStyle,
 				border: '1px solid #b7eb8f',
 				backgroundColor: '#f6ffed',
 			},
@@ -58,7 +66,7 @@ export const NotificationContainer = ({
 			description: message,
 			message: title ?? 'Success',
 			style: {
-				color: 'rgba(0, 0, 0, 0.65)',
+				...baseNotificationStyle,
 				border: '1px solid #ffe58f',
 				backgroundColor: '#fffbe6',
 			},
@@ -74,7 +82,7 @@ export const NotificationContainer = ({
 			description: message,
 			message: title ?? 'Info',
 			style: {
-				color: 'rgba(0, 0, 0, 0.65)',
+				...baseNotificationStyle,
 				border: '1px solid #ffa39e',
 				backgroundColor: '#fff1f0',
 			},

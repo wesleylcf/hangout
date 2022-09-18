@@ -5,3 +5,6 @@ export * from './TextInput';
 export * from './Button';
 export * from './PasswordInput';
 export * from './NotificationBell';
+export * from './CollapseItemHeader';
+export * from './IconBase';
+export * from './GreetingHeader';

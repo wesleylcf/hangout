@@ -1,5 +1,4 @@
-import e from 'express';
-import { PresentableError, ErrorUtil, defaultApiErrMessage } from '.';
+import { ErrorUtil } from '.';
 
 type ErrorResponse = Response & {
 	message?: string;
@@ -17,18 +16,19 @@ interface ThrowErrorOrGetDataOptions {
 */
 export async function throwErrorOrGetData<T>(
 	response: ErrorResponse,
-	options: ThrowErrorOrGetDataOptions = { responseNotNeeded: false },
+	options: ThrowErrorOrGetDataOptions,
 ): Promise<T> {
 	const { status } = response;
 	const data = await response.json();
-	const { message, error } = data;
-	const { responseNotNeeded, fallbackTitle, fallbackMessage } = options;
-	if (status < 205 && !responseNotNeeded) {
+	const { fallbackTitle, fallbackMessage } = options;
+	const { error, message } = data;
+	if (!error && status < 205) {
 		return data;
 	}
-	if (error.message) {
+
+	if (error) {
 		throw ErrorUtil.apiError(error.message, error.title, error.level);
 	} else {
-		throw ErrorUtil.apiError(fallbackMessage, fallbackTitle);
+		throw ErrorUtil.apiError(message || fallbackMessage, fallbackTitle);
 	}
 }

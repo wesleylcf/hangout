@@ -11,6 +11,10 @@ import * as Joi from 'joi';
 import { UserController } from './user/user.controller';
 import { NotificationService } from './notification/notification.service';
 import { NotificationModule } from './notification/notification.module';
+import { NotificationController } from './notification/notification.controller';
+import { EventModule } from './event/event.module';
+import { EventController } from './event/event.controller';
+import { EventService } from './event/event.service';
 
 /*
   Joi used to define an Object Schema which is compared to Config Object,
@@ -33,8 +37,21 @@ import { NotificationModule } from './notification/notification.module';
 		UserModule,
 		SeedDataModule,
 		NotificationModule,
+		EventModule,
 	],
-	controllers: [AppController, AuthController, UserController],
-	providers: [AppService, Logger, SeedDataService, NotificationService],
+	controllers: [
+		AppController,
+		AuthController,
+		UserController,
+		NotificationController,
+		EventController,
+	],
+	providers: [
+		AppService,
+		Logger,
+		SeedDataService,
+		NotificationService,
+		EventService,
+	],
 })
 export class AppModule {}

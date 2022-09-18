@@ -1,0 +1,3 @@
+export const NAVIGATION_HEIGHT = 45;
+
+export const AUTH_USER_MAX_PARTICIPANTS = 10;
