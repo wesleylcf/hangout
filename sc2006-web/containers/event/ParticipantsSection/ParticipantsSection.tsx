@@ -12,14 +12,28 @@ import { PublicParticipantCard } from './PublicParticipantCard';
 import { Participant } from '../../../pages/events/create';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 
-interface ParticipantsSectionProps {
-	setIsFriendsModalOpen: Dispatch<boolean>;
+interface BaseParticipantsSectionProps {
 	onRemoveParticipant: (id: string) => void;
 	formInstance: FormInstance;
 }
 
+interface AuthParticipantsSectionProps extends BaseParticipantsSectionProps {
+	limitFeatures?: never;
+	setIsInviteUserModalOpen: Dispatch<boolean>;
+}
+
+interface PublicParticipantSectionProps extends BaseParticipantsSectionProps {
+	limitFeatures: boolean;
+	setIsInviteUserModalOpen?: never;
+}
+
+type ParticipantsSectionProps =
+	| AuthParticipantsSectionProps
+	| PublicParticipantSectionProps;
+
 export const ParticipantsSection = ({
-	setIsFriendsModalOpen,
+	limitFeatures,
+	setIsInviteUserModalOpen,
 	onRemoveParticipant,
 	formInstance,
 }: ParticipantsSectionProps) => {
@@ -121,14 +135,26 @@ export const ParticipantsSection = ({
 						}
 					})}
 				<div className="w-full p-4 flex flex-row justify-center items-center space-x-4">
-					<Card
-						className="flex flex-row items-center justify-center p-4 bg-sky-400 text-white"
-						onClick={() => setIsFriendsModalOpen(true)}
-					>
-						<UserAddOutlined className="pr-2" style={{ fontSize: '1rem' }} />
-						Add Existing User
-					</Card>
-					<div>or</div>
+					{!limitFeatures && (
+						<>
+							<Card
+								className="flex flex-row items-center justify-center p-4 bg-sky-400 text-white"
+								onClick={() =>
+									setIsInviteUserModalOpen
+										? setIsInviteUserModalOpen(true)
+										: undefined
+								}
+							>
+								<UserAddOutlined
+									className="pr-2"
+									style={{ fontSize: '1rem' }}
+								/>
+								Add Existing User
+							</Card>
+							<div>or</div>
+						</>
+					)}
+
 					<Card
 						className="flex flex-row items-center justify-center p-4 bg-sky-400 text-white"
 						onClick={

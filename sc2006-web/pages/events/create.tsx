@@ -40,7 +40,7 @@ const CreateEventPage = () => {
 		// call eventService.createEvent(form)
 	};
 
-	const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
+	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
 	const [addedParticipants, setAddedParticipants] = useState<Set<string>>(
 		new Set(me ? [me.uuid] : []),
 	);
@@ -119,7 +119,7 @@ const CreateEventPage = () => {
 					</Form.Item>
 					<Form.Item name="users" dependencies={['users']}>
 						<ParticipantsSection
-							setIsFriendsModalOpen={setIsFriendsModalOpen}
+							setIsInviteUserModalOpen={setIsInviteUserModalOpen}
 							onRemoveParticipant={onRemoveParticipant}
 							formInstance={form}
 						/>
@@ -139,13 +139,13 @@ const CreateEventPage = () => {
 			</Card>
 			<AddUserToEventModal
 				me={me}
-				isOpen={isFriendsModalOpen}
+				isOpen={isInviteUserModal}
 				onOk={(user: string) => {
 					onAddUser(user);
-					setIsFriendsModalOpen(false);
+					setIsInviteUserModalOpen(false);
 				}}
 				onCancel={() => {
-					setIsFriendsModalOpen(false);
+					setIsInviteUserModalOpen(false);
 				}}
 				addedParticipants={addedParticipants}
 			/>

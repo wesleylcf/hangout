@@ -5,33 +5,43 @@ import moment from 'moment';
 import { CollapseItemHeader } from '../../components/common';
 import { TimeRangesCard } from './TimeRangesCard';
 
-type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
+export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
+	freeTimeRanges: Record<string, Array<[any, any]>>;
 };
 
-export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
+export const ScheduleModal = ({
+	onOk,
+	freeTimeRanges,
+	...props
+}: ScheduleModalProps) => {
 	const DATE_FORMAT = 'ddd (DD MMM)';
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
-	const [freeTimeRanges, setFreeTimeRanges] = useState<
+	const [internalFreeTimeRanges, setInternalFreeTimeRanges] = useState<
 		Record<string, Array<[any, any]>>
-	>({});
+	>(freeTimeRanges || {});
 
-	const startDate = moment();
+	const now = moment();
+	const startDate = moment()
+		.day(now.get('day') + 1)
+		.hour(0)
+		.second(0);
 	const endDate = moment()
 		.day(startDate.get('day') + 7)
 		.hour(24)
 		.second(59);
 	return (
-		<Modal {...props} onOk={() => onOk(freeTimeRanges)}>
+		<Modal {...props} onOk={() => onOk(internalFreeTimeRanges)}>
 			<div className="flex flex-row">
 				<Calendar
 					validRange={[startDate, endDate]}
 					onSelect={(moment) => {
 						const presentableDate = moment.format(DATE_FORMAT);
+						if (!moment.isBetween(startDate, endDate, undefined, '[]')) return;
 						setSelectedDates((selected) => {
 							const selectedCopy = new Set(selected);
-							setFreeTimeRanges((timeRanges) => {
+							setInternalFreeTimeRanges((timeRanges) => {
 								return { ...timeRanges, [presentableDate]: [] };
 							});
 							if (selected.has(presentableDate)) {
@@ -43,13 +53,29 @@ export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 						});
 					}}
 					className="w-4/6"
-					dateCellRender={(moment) => {
-						if (moment.isBetween(startDate, endDate, undefined, '[]')) {
-							const presentableDate = moment.format(DATE_FORMAT);
-							return freeTimeRanges
-								? getBadge(freeTimeRanges[presentableDate])
-								: null;
+					dateFullCellRender={(moment) => {
+						const presentableDate = moment.format(DATE_FORMAT);
+						const date = moment.date();
+						let bgColorClassName = '';
+						if (!moment.isBetween(startDate, endDate, undefined, '[]')) {
+							bgColorClassName = 'bg-gray-50';
 						}
+						if (selectedDates.has(presentableDate)) {
+							bgColorClassName = 'bg-cyan-50';
+						}
+
+						return (
+							<div
+								className={'h-16 w-full '.concat(bgColorClassName)}
+								style={{
+									paddingRight: '12px',
+									margin: 0,
+									border: '0.5px solid lightgray',
+								}}
+							>
+								{date}
+							</div>
+						);
 					}}
 				/>
 				<div className="w-2/6 pl-4 overflow-auto">
@@ -74,29 +100,41 @@ export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 							>
 								<TimeRangesCard
 									addedTimeRanges={
-										freeTimeRanges[date] ? freeTimeRanges[date] : []
+										internalFreeTimeRanges[date]
+											? internalFreeTimeRanges[date]
+											: []
 									}
 									addTimeRange={(range: [any, any]) =>
-										setFreeTimeRanges((freeTimeRanges) => {
-											if (!freeTimeRanges) return freeTimeRanges;
-											const oldTimeRange = freeTimeRanges[date];
+										setInternalFreeTimeRanges((internalFreeTimeRanges) => {
+											if (!internalFreeTimeRanges)
+												return internalFreeTimeRanges;
+											const oldTimeRange = internalFreeTimeRanges[date];
 											let newTimeRange: Array<[any, any]> = [range];
 											if (oldTimeRange) {
 												newTimeRange = [...oldTimeRange, range];
 											}
 
-											return { ...freeTimeRanges, [date]: newTimeRange };
+											return {
+												...internalFreeTimeRanges,
+												[date]: newTimeRange,
+											};
 										})
 									}
 									removeTimeRange={(index: number) => {
-										setFreeTimeRanges((freeTimeRanges) => {
-											if (!freeTimeRanges) return freeTimeRanges;
-											const oldTimeRange = freeTimeRanges[date];
+										setInternalFreeTimeRanges((internalFreeTimeRanges) => {
+											if (!internalFreeTimeRanges)
+												return internalFreeTimeRanges;
+											const oldTimeRange = internalFreeTimeRanges[date];
 											const newTimeRange = [
 												...oldTimeRange.slice(0, index),
 												...oldTimeRange.slice(index + 1),
 											];
-											return { ...freeTimeRanges, [date]: newTimeRange };
+											return newTimeRange.length
+												? {
+														...internalFreeTimeRanges,
+														[date]: newTimeRange,
+												  }
+												: { ...internalFreeTimeRanges };
 										});
 									}}
 								/>
@@ -109,10 +147,10 @@ export const ScheduleModal = ({ onOk, ...props }: ScheduleModalProps) => {
 	);
 };
 
-const getBadge = (freeTimeRanges: [startTime: any, endTime: any][]) => {
+const getBadge = (internalFreeTimeRanges: [startTime: any, endTime: any][]) => {
 	let totalBusyTime = 0;
-	if (freeTimeRanges && freeTimeRanges.length) {
-		totalBusyTime = freeTimeRanges.reduce((accm, timeRange) => {
+	if (internalFreeTimeRanges && internalFreeTimeRanges.length) {
+		totalBusyTime = internalFreeTimeRanges.reduce((accm, timeRange) => {
 			const [startTime, endTime] = timeRange;
 			return accm + endTime.hours() - startTime.hours();
 		}, 0);

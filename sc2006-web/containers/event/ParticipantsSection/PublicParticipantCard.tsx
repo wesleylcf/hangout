@@ -115,6 +115,8 @@ export const PublicParticipantCard = ({
 						Modal={name === 'schedule' ? ScheduleModal : undefined}
 						modalProps={{
 							width: '90%',
+							freeTimeRanges: participant[name],
+							destroyOnClose: true,
 						}}
 						isValuePresentable={!['schedule', 'preferences'].includes(name)}
 					/>

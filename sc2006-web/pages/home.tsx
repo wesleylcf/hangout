@@ -1,6 +1,7 @@
 import type { NextPage } from 'next';
 import { useContext } from 'react';
-import { Home, Demo } from '../containers/home';
+import { Home } from '../containers/home/home';
+import { Demo } from '../containers/home/demo';
 import { GlobalContext } from '../contexts';
 
 const HomePage: NextPage = () => {

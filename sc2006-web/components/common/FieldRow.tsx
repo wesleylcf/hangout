@@ -1,6 +1,7 @@
 /*eslint-disable no-mixed-spaces-and-tabs */
 import React, { useState, RefObject, useEffect } from 'react';
 import { EyeOutlined } from '@ant-design/icons';
+import { ScheduleModalProps } from '../../containers/event/ScheduleModal';
 
 type FieldRowType = string | Record<string, any>;
 
@@ -14,13 +15,12 @@ type FieldRowProps<T extends FieldRowType> = {
 	highlight?: boolean;
 	isSelected?: boolean;
 	allowEdit?: boolean;
-	onEdit?: (value?: T) => void;
 	Editable?: React.ElementType;
 	onEditFinish?: (value?: T) => void;
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
 	Modal?: React.ElementType;
-	modalProps?: Record<string, any>;
+	modalProps?: Partial<ScheduleModalProps>;
 };
 
 export function FieldRow<T extends FieldRowType>({
@@ -33,7 +33,6 @@ export function FieldRow<T extends FieldRowType>({
 	isClickDisabled,
 	isSelected,
 	allowEdit = false,
-	onEdit,
 	Editable,
 	onEditFinish,
 	AllowEditIcon,
@@ -52,7 +51,6 @@ export function FieldRow<T extends FieldRowType>({
 	const onChangeHandler = (e: any) => {
 		if (allowEdit) {
 			setInternalValue(e.target.value);
-			onEdit && onEdit(e.target.value);
 		}
 	};
 
@@ -109,6 +107,7 @@ export function FieldRow<T extends FieldRowType>({
 									onClick={() => {
 										setIsEditing(false);
 										// onEditFinish && onEditFinish(internalValue);
+										setInternalValue(value);
 									}}
 									style={iconStyle}
 									className="hover:text-sky-400"
@@ -128,9 +127,13 @@ export function FieldRow<T extends FieldRowType>({
 			{Modal && (
 				<Modal
 					visible={isEditing}
-					onOk={onEditFinish}
+					onOk={(value: T) => {
+						onEditFinish && onEditFinish(value);
+						setIsEditing(false);
+					}}
 					onCancel={() => {
 						setIsEditing(false);
+						setInternalValue(value);
 						// onEditFinish && onEditFinish(internalValue);
 					}}
 					{...modalProps}

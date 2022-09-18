@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { GreetingHeader } from '../../components/common';
-import { GlobalContext, Me } from '../../contexts';
+import { Me } from '../../contexts';
 
 interface HomePageProps {
 	me: Me;
