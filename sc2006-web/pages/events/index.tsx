@@ -7,7 +7,6 @@ import { PlusCircleFilled } from '@ant-design/icons';
 enum EventMenuItemType {
 	CREATED_EVENTS = '#created',
 	INVITED_EVENTS = '#invited',
-	INVITATIONS = '#invitations',
 	ACTIVE_EVENTS = '#active',
 	EXPIRED_EVENTS = '#past',
 }
@@ -39,7 +38,6 @@ function ListEventsPage() {
 	);
 	const refs = {
 		created: useRef(null as any),
-		invitations: useRef(null as any),
 		active: useRef(null as any),
 		expired: useRef(null as any),
 	};
@@ -49,9 +47,6 @@ function ListEventsPage() {
 		switch (selectedMenuItem) {
 			case EventMenuItemType.CREATED_EVENTS:
 				window.scrollTo(0, 0);
-				break;
-			case EventMenuItemType.INVITATIONS:
-				window.scrollTo(0, refs.invitations.current.offsetTop);
 				break;
 			case EventMenuItemType.ACTIVE_EVENTS:
 				window.scrollTo(0, refs.active.current.offsetTop);
@@ -98,10 +93,6 @@ function ListEventsPage() {
 							label: 'Invited Events',
 							children: [
 								{
-									key: EventMenuItemType.INVITATIONS,
-									label: 'Invitations',
-								},
-								{
 									key: EventMenuItemType.ACTIVE_EVENTS,
 									label: 'Current Events',
 								},
@@ -131,11 +122,14 @@ function ListEventsPage() {
 			></Divider>
 			<Layout style={{ background: 'none', marginLeft: 275 }}>
 				<Layout.Content className="w-full h-full flex flex-col p-16 space-y-12">
-					<h1 ref={refs.created}>Created Events</h1>
-					<h1>Invited Events</h1>
-					<h2 ref={refs.invitations}>Invitations</h2>
-					<h2 ref={refs.active}>Current Events</h2>
-					<h2 ref={refs.expired} className="h-screen">
+					<h1 className="text-2xl" ref={refs.created}>
+						Created Events
+					</h1>
+					<h1 className="text-2xl">Invited Events</h1>
+					<h2 className="text-lg" ref={refs.active}>
+						Current Events
+					</h2>
+					<h2 className="text-lg" ref={refs.expired}>
 						Past Events
 					</h2>
 				</Layout.Content>

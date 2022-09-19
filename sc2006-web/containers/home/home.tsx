@@ -13,7 +13,7 @@ export const Home = ({ me }: HomePageProps) => {
 			<GreetingHeader
 				now={now}
 				name={me.uuid}
-				className="flex flex-row items-center text-xl pl-8 pt-8"
+				className="flex flex-row items-center text-2xl pl-8 pt-8"
 				nameClassName="text-cyan-400 pl-2"
 			/>
 		</div>
