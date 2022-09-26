@@ -1,8 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-	Participant,
-	PublicEventParticipant,
-} from '../../../pages/events/create';
+import { EventParticipant, PublicEventParticipant } from '../../../types';
 import { TextInput } from '../../../components/common';
 import {
 	CheckOutlined,
@@ -20,7 +17,7 @@ type FieldName = 'name' | 'preferences' | 'schedule' | 'address';
 interface PublicParticipantCardProps {
 	participant: PublicEventParticipant;
 	isExpanded: boolean;
-	onUpdateParticipant: (participant: Participant, index: number) => void;
+	onUpdateParticipant: (participant: EventParticipant, index: number) => void;
 	index: number;
 }
 

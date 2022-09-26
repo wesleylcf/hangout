@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { Card, InputLabel } from '../../../components/common';
 import { PublicParticipantCard } from './PublicParticipantCard';
-import { Participant } from '../../../pages/events/create';
+import { EventParticipant } from '../../../types';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 
 interface BaseParticipantsSectionProps {
@@ -39,24 +39,28 @@ export const ParticipantsSection = ({
 }: ParticipantsSectionProps) => {
 	const [form] = Form.useForm(formInstance);
 	const { getFieldValue, setFieldValue } = form;
-	const participants: Participant[] = getFieldValue('users');
+	const participants: EventParticipant[] = getFieldValue('participants');
 	const [expandedParticipants, setExpandedParticipants] = useState<Set<string>>(
 		new Set(),
 	);
 
-	const onUpdateParticipant = (participant: Participant, index: number) => {
-		const currentParticipants: Participant[] = form.getFieldValue('users');
+	const onUpdateParticipant = (
+		participant: EventParticipant,
+		index: number,
+	) => {
+		const currentParticipants: EventParticipant[] =
+			form.getFieldValue('participants');
 		const newParticipants = [
 			...currentParticipants.slice(0, index),
 			participant,
 			...currentParticipants.slice(index + 1, currentParticipants.length),
 		];
-		form.setFieldValue('users', newParticipants);
+		form.setFieldValue('participants', newParticipants);
 	};
 
 	const onManualAddParticipant = () => {
-		const currentParticipants = getFieldValue('users');
-		const newParticipant: Participant = {
+		const currentParticipants = getFieldValue('participants');
+		const newParticipant: EventParticipant = {
 			name: `New Participant ${currentParticipants.length + 1}`,
 			preferences: [],
 			schedule: [],
@@ -64,7 +68,7 @@ export const ParticipantsSection = ({
 			isCreator: false,
 		};
 		const newParticipants = [...currentParticipants, newParticipant];
-		setFieldValue('users', newParticipants);
+		setFieldValue('participants', newParticipants);
 	};
 
 	return (

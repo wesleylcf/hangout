@@ -17,14 +17,14 @@ export const Demo = () => {
 						Always end up rescheduling outings? Have no idea where to go next?
 					</p>
 					<p>
-						Simply add an existing user or manually enter someone's preferences,
-						schedule, and address and leave the rest to us!
+						Simply add an existing user or manually enter someone&#39;s
+						preferences, schedule, and address and leave the rest to us!
 					</p>
 				</div>
 			</section>
 			<section className="flex flex-col space-y-8 items-center bg-gray-50">
 				<h1 className="text-2xl text-sky-400 left-1/2 mt-8">
-					Here's how it works.
+					Here&#39;s how it works.
 				</h1>
 				<div className="w-full flex flex-row">
 					<div className="w-1/2 pl-16 flex flex-row items-center justify-center">

@@ -4,30 +4,11 @@ import { Form, Input } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
-
-enum Preference {
-	OUTDOOR = 'outdoor',
-	INDOOR = 'indoor',
-}
-
-export interface PublicEventParticipant {
-	name: string;
-	preferences: Array<Preference>;
-	schedule: any;
-	address: string;
-	isCreator: boolean;
-}
-
-interface AuthEventParticipant {
-	uuid: string;
-	isCreator: boolean;
-}
-
-export type Participant = PublicEventParticipant | AuthEventParticipant;
+import { EventParticipant } from '../../types';
 
 interface CreateEventForm {
-	title: string;
-	users: Array<Participant>;
+	name: string;
+	participants: Array<EventParticipant>;
 }
 
 const CreateEventPage = () => {
@@ -50,8 +31,8 @@ const CreateEventPage = () => {
 	}
 
 	const initialFormValues: CreateEventForm = {
-		title: '',
-		users: [
+		name: '',
+		participants: [
 			{
 				name: me.uuid,
 				preferences: [],
@@ -63,12 +44,16 @@ const CreateEventPage = () => {
 	};
 
 	const onAddUser = (userEmail: string) => {
-		const currentParticipants = getFieldValue('users');
-		setFieldValue('users', currentParticipants.concat({ uuid: userEmail }));
+		const currentParticipants = getFieldValue('participants');
+		setFieldValue(
+			'participants',
+			currentParticipants.concat({ uuid: userEmail }),
+		);
 	};
 
 	const onRemoveParticipant = (name: string) => {
-		const currentParticipants: Participant[] = getFieldValue('users');
+		const currentParticipants: EventParticipant[] =
+			getFieldValue('participants');
 		const newParticipants = currentParticipants.filter((participant) => {
 			if ('name' in participant) {
 				return participant.name !== name;
@@ -82,7 +67,7 @@ const CreateEventPage = () => {
 			newAdded.delete(name);
 			return newAdded;
 		});
-		setFieldValue('users', newParticipants);
+		setFieldValue('participants', newParticipants);
 	};
 
 	return (
@@ -96,7 +81,7 @@ const CreateEventPage = () => {
 				>
 					<InputLabel>Name of Event</InputLabel>
 					<Form.Item
-						name="title"
+						name="name"
 						rules={[
 							{
 								required: true,
@@ -113,11 +98,11 @@ const CreateEventPage = () => {
 						]}
 					>
 						<TextInput
-							onChange={(e: any) => setFieldValue('title', e.target.value)}
-							value={getFieldValue('title')}
+							onChange={(e: any) => setFieldValue('name', e.target.value)}
+							value={getFieldValue('name')}
 						/>
 					</Form.Item>
-					<Form.Item name="users" dependencies={['users']}>
+					<Form.Item name="participants" dependencies={['participants']}>
 						<ParticipantsSection
 							setIsInviteUserModalOpen={setIsInviteUserModalOpen}
 							onRemoveParticipant={onRemoveParticipant}

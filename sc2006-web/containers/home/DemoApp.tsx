@@ -5,7 +5,7 @@ import { ParticipantsSection } from '../event/ParticipantsSection/ParticipantsSe
 
 interface DemoAppForm {
 	title: string;
-	users: Array<any>;
+	participants: Array<any>;
 }
 
 export const DemoApp = () => {
@@ -13,23 +13,26 @@ export const DemoApp = () => {
 	const { setFieldValue, getFieldValue } = form;
 	const initialFormValues: DemoAppForm = {
 		title: 'Some Event Name',
-		users: [],
+		participants: [],
 	};
 	const onSubmit = (form: DemoAppForm) => {
 		console.log(form);
 		// call eventService.createEvent(form)
 	};
 	const onAddUser = (userEmail: string) => {
-		const currentParticipants = getFieldValue('users');
-		setFieldValue('users', currentParticipants.concat({ uuid: userEmail }));
+		const currentParticipants = getFieldValue('participants');
+		setFieldValue(
+			'participants',
+			currentParticipants.concat({ uuid: userEmail }),
+		);
 	};
 
 	const onRemoveParticipant = (name: string) => {
-		const currentParticipants: any[] = getFieldValue('users');
+		const currentParticipants: any[] = getFieldValue('participants');
 		const newParticipants = currentParticipants.filter(
 			(participant) => participant.name !== name,
 		);
-		setFieldValue('users', newParticipants);
+		setFieldValue('participants', newParticipants);
 	};
 	return (
 		<>
@@ -59,13 +62,13 @@ export const DemoApp = () => {
 						]}
 					>
 						<TextInput
-							onChange={() => {}}
+							onChange={() => null}
 							value="Some Event Name"
 							disabled
 							placeholder="Some Event Name"
 						/>
 					</Form.Item>
-					<Form.Item name="users" dependencies={['users']}>
+					<Form.Item name="participants" dependencies={['participants']}>
 						<ParticipantsSection
 							limitFeatures
 							onRemoveParticipant={onRemoveParticipant}

@@ -20,3 +20,18 @@ export interface CreateEventReq {
 	userIds: string[];
 	publicUsers: [];
 }
+
+export interface PublicEventParticipant {
+	name: string;
+	preferences: Array<string>;
+	schedule: any;
+	address: string;
+	isCreator: boolean;
+}
+
+interface AuthEventParticipant {
+	uuid: string;
+	isCreator: boolean;
+}
+
+export type EventParticipant = PublicEventParticipant | AuthEventParticipant;
