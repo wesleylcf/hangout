@@ -14,6 +14,7 @@ import { FieldRow } from '../../../components/common/FieldRow';
 import { Collapse, Form } from 'antd';
 import { ScheduleModal } from '../ScheduleModal';
 import { CollapseItemHeader } from '../../../components/common';
+import { PreferencesModal } from '../PreferencesModal';
 
 type FieldName = 'name' | 'preferences' | 'schedule' | 'address';
 interface PublicParticipantCardProps {
@@ -59,6 +60,7 @@ export const PublicParticipantCard = ({
 	const getEditable = (name: FieldName) => {
 		switch (name) {
 			case 'schedule':
+			case 'preferences':
 				return undefined;
 			default:
 				return TextInput;
@@ -88,6 +90,7 @@ export const PublicParticipantCard = ({
 	);
 
 	const onEditFinish = (key: string, value?: string) => {
+		console.log(`updating ${key} with ${value}`);
 		const newParticipant = { ...participant, [key]: value };
 		onUpdateParticipant(newParticipant, index);
 	};
@@ -101,6 +104,13 @@ export const PublicParticipantCard = ({
 			{...props}
 		>
 			{participantItems.map(({ label, name }, index) => {
+				let modal;
+				if (name === 'schedule') {
+					modal = ScheduleModal;
+				}
+				if (name === 'preferences') {
+					modal = PreferencesModal;
+				}
 				return (
 					<FieldRow
 						key={name}
@@ -112,7 +122,7 @@ export const PublicParticipantCard = ({
 						AllowEditIcon={EditOutlined}
 						Editable={getEditable(name)}
 						onEditFinish={(value?: string) => onEditFinish(name, value)}
-						Modal={name === 'schedule' ? ScheduleModal : undefined}
+						Modal={modal}
 						modalProps={{
 							width: '90%',
 							freeTimeRanges: participant[name],

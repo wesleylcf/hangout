@@ -34,7 +34,7 @@ export const ScheduleModal = ({
 
 	return (
 		<Modal {...props} onOk={() => onOk(internalFreeTimeRanges)}>
-			<div className="flex flex-row">
+			<div className="flex flex-row" style={{ minHeight: '24rem' }}>
 				<Calendar
 					validRange={[startDate, endDate]}
 					onSelect={(moment) => {

@@ -42,6 +42,7 @@ export function FieldRow<T extends FieldRowType>({
 }: FieldRowProps<T>) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [internalValue, setInternalValue] = useState(value);
+	const [modalViewOnly, setModalViewOnly] = useState(false);
 
 	const iconStyle = {
 		fontSize: '1.25rem',
@@ -76,7 +77,10 @@ export function FieldRow<T extends FieldRowType>({
 	) : (
 		<EyeOutlined
 			style={{ fontSize: '1rem' }}
-			onClick={() => setIsEditing(true)}
+			onClick={() => {
+				setModalViewOnly(true);
+				// setIsEditing(true);
+			}}
 		/>
 	);
 
@@ -106,8 +110,7 @@ export function FieldRow<T extends FieldRowType>({
 								<CancelEditIcon
 									onClick={() => {
 										setIsEditing(false);
-										// onEditFinish && onEditFinish(internalValue);
-										setInternalValue(value);
+										onEditFinish && onEditFinish(internalValue);
 									}}
 									style={iconStyle}
 									className="hover:text-sky-400"
@@ -126,7 +129,7 @@ export function FieldRow<T extends FieldRowType>({
 			</div>
 			{Modal && (
 				<Modal
-					visible={isEditing}
+					visible={isEditing || modalViewOnly}
 					onOk={(value: T) => {
 						onEditFinish && onEditFinish(value);
 						setIsEditing(false);
@@ -134,8 +137,10 @@ export function FieldRow<T extends FieldRowType>({
 					onCancel={() => {
 						setIsEditing(false);
 						setInternalValue(value);
+						setModalViewOnly(false);
 						// onEditFinish && onEditFinish(internalValue);
 					}}
+					{...(modalViewOnly && { footer: null })}
 					{...modalProps}
 				/>
 			)}
