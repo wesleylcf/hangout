@@ -1,7 +1,8 @@
 import { Timestamp } from 'firebase/firestore';
+import { Moment } from 'moment';
 
 export interface DbEvent {
-	title: string;
+	name: string;
 	activeParticipantIds: string[];
 	invitedParticipantIds: string[];
 	creatorId: string;
@@ -16,15 +17,14 @@ export interface DbEventRes extends Omit<DbEvent, 'createdAt'> {
 }
 
 export interface CreateEventReq {
-	title: string;
-	userIds: string[];
-	publicUsers: [];
+	name: string;
+	participants: EventParticipant[];
 }
 
 export interface PublicEventParticipant {
 	name: string;
 	preferences: Array<string>;
-	schedule: any;
+	schedule: Record<string, Array<[Moment, Moment]>>;
 	address: string;
 	isCreator: boolean;
 }
