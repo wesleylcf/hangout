@@ -5,6 +5,7 @@ import { GlobalContext } from '../../contexts';
 import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
 import { EventParticipant } from '../../types';
+import { eventService } from '../../services';
 
 interface CreateEventForm {
 	name: string;
@@ -16,9 +17,9 @@ const CreateEventPage = () => {
 
 	const [form] = Form.useForm<CreateEventForm>();
 	const { setFieldValue, getFieldValue } = form;
-	const onSubmit = (form: CreateEventForm) => {
+	const onSubmit = async (form: CreateEventForm) => {
 		console.log(form);
-		// call eventService.createEvent(form)
+		await eventService.create(form);
 	};
 
 	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
@@ -47,7 +48,7 @@ const CreateEventPage = () => {
 		const currentParticipants = getFieldValue('participants');
 		setFieldValue(
 			'participants',
-			currentParticipants.concat({ uuid: userEmail }),
+			currentParticipants.concat({ uuid: userEmail, isCreator: false }),
 		);
 	};
 
@@ -125,8 +126,8 @@ const CreateEventPage = () => {
 			<AddUserToEventModal
 				me={me}
 				isOpen={isInviteUserModal}
-				onOk={(user: string) => {
-					onAddUser(user);
+				onOk={(uuid: string) => {
+					onAddUser(uuid);
 					setIsInviteUserModalOpen(false);
 				}}
 				onCancel={() => {

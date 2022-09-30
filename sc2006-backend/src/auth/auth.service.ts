@@ -7,8 +7,18 @@ import { ValidateUserOutcome, TokenInput } from '../constants/auth';
 import {
 	PresentableError,
 	defaultApiErrMessage,
+	DbUserRes,
 } from '../../../sc2006-common/src';
 
+export interface DecodeTokenUser {
+	user: Omit<DbUserRes, 'password' | 'createdAt'>;
+}
+
+export interface DecodeTokenError {
+	error: string;
+}
+
+export type DecodeTokenResult = DecodeTokenError | DecodeTokenUser;
 @Injectable()
 export class AuthService {
 	private readonly saltRounds = 10;
@@ -64,7 +74,7 @@ export class AuthService {
 		}
 	}
 
-	async decodeToken(token: string) {
+	async decodeToken(token: string): Promise<DecodeTokenResult> {
 		try {
 			const decoded = this.jwtService.decode(token) as TokenInput;
 			const { username } = decoded;

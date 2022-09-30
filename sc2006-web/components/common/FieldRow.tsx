@@ -3,7 +3,7 @@ import React, { useState, RefObject, useEffect } from 'react';
 import { EyeOutlined } from '@ant-design/icons';
 import { ScheduleModalProps } from '../../containers/event/ScheduleModal';
 
-type FieldRowType = string | Record<string, any>;
+type FieldRowType = string | string[] | Record<string, [string, string]>;
 
 type FieldRowProps<T extends FieldRowType> = {
 	ref?: RefObject<any>;

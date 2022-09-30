@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { Moment } from 'moment';
 
 export interface DbEvent {
 	name: string;
@@ -23,7 +24,7 @@ export interface CreateEventReq {
 export interface PublicEventParticipant {
 	name: string;
 	preferences: Array<string>;
-	schedule: any;
+	schedule: Record<string, Array<[string, string]>>;
 	address: string;
 	isCreator: boolean;
 }

@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 import { Button, TimePicker } from 'antd';
 import moment from 'moment';
 import { useNotification } from '../../hooks';
+import { EVENT_DATETIME_FORMAT } from '../../types';
 
 interface TimeRangesCardProps {
 	addedTimeRanges: Array<[start: any, end: any] | []>;
-	addTimeRange: (range: [any, any]) => void;
+	addTimeRange: (range: [string, string]) => void;
 	removeTimeRange: (index: number) => void;
 }
 
@@ -19,7 +20,7 @@ export const TimeRangesCard = ({
 	const { RangePicker } = TimePicker;
 	const TIME_FORMAT = 'HH:mm';
 	const [selectedTimeRange, setSelectedTimeRange] = useState<
-		[start: any, end: any]
+		[start: string, end: string]
 	>([] as any);
 
 	const notification = useNotification();
@@ -38,18 +39,13 @@ export const TimeRangesCard = ({
 				'Invalid Time Range',
 			);
 		}
-		addTimeRange(range);
-		// setAddedTimeRanges((timeRanges) => {
-		// 	return [...timeRanges, range];
-		// });
+		const formattedTimeRange = [
+			start.format(EVENT_DATETIME_FORMAT),
+			end.format(EVENT_DATETIME_FORMAT),
+		] as [string, string];
+		addTimeRange(formattedTimeRange);
 	};
 
-	// const onRemoveTimeRange = (index: number) => {
-	// 	setAddedTimeRanges((timeRanges) => [
-	// 		...timeRanges.slice(0, index),
-	// 		...timeRanges.slice(index + 1),
-	// 	]);
-	// };
 	return (
 		<div className="space-y-2">
 			<b>Please pick the time ranges you are free</b>
@@ -74,7 +70,8 @@ export const TimeRangesCard = ({
 									className="flex flex-row items-center space-x-2"
 								>
 									<p className="my-auto">
-										[{start.format(TIME_FORMAT)}, {end.format(TIME_FORMAT)}]
+										[{moment(start).format(TIME_FORMAT)},{' '}
+										{moment(end).format(TIME_FORMAT)}]
 									</p>
 									<Button onClick={() => removeTimeRange(index)}>Remove</Button>
 								</div>

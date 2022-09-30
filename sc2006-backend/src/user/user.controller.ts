@@ -21,7 +21,7 @@ export class UserController {
 	}
 
 	@UseGuards(JwtAuthGuard)
-	@Post('/check-exists')
+	@Post('check-exists')
 	async checkExists(
 		@Body() body: CheckUserExistsDto,
 	): Promise<{ error: Omit<PresentableError, 'name'> | boolean }> {

@@ -32,7 +32,7 @@ export class AuthController {
 		If you have res as a param you cannot return an object, but instead make use of res
   */
 	@UseGuards(LocalAuthGuard)
-	@Post('/login')
+	@Post('login')
 	async login(
 		@Req() req,
 		@Res({ passthrough: true }) response,

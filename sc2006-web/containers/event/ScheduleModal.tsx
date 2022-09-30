@@ -4,10 +4,11 @@ import { Badge, Calendar, Collapse, Modal, ModalProps, BadgeProps } from 'antd';
 import moment, { Moment } from 'moment';
 import { CollapseItemHeader } from '../../components/common';
 import { TimeRangesCard } from './TimeRangesCard';
+import { EVENT_DATE_FORMAT } from '../../types';
 
 export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
-	busyTimeRanges: Record<string, Array<[Moment, Moment]>>;
+	busyTimeRanges: Record<string, Array<[string, string]>>;
 };
 
 export const ScheduleModal = ({
@@ -15,25 +16,20 @@ export const ScheduleModal = ({
 	busyTimeRanges,
 	...props
 }: ScheduleModalProps) => {
-	const DATE_FORMAT = 'ddd (DD MMM)';
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 	const [internalBusyTimeRanges, setInternalBusyTimeRanges] = useState<
-		Record<string, Array<[any, any]>>
+		Record<string, Array<[string, string]>>
 	>(busyTimeRanges || {});
 
 	const now = moment();
-	const startDate = moment()
-		.day(now.get('day') + 1)
-		.hour(0)
-		.second(0);
-	const endDate = moment()
-		.day(startDate.get('day') + 7)
-		.hour(24)
-		.second(59);
+	const startDate = moment(now).add(1, 'days').startOf('day');
+	const endDate = moment(startDate).add(6, 'days').endOf('day');
+
+	console.log(startDate, endDate);
 
 	const onSelectDate = (moment: Moment) => {
-		const presentableDate = moment.format(DATE_FORMAT);
+		const presentableDate = moment.format(EVENT_DATE_FORMAT);
 		if (!moment.isBetween(startDate, endDate, undefined, '[]')) return;
 		setSelectedDates((selected) => {
 			const selectedCopy = new Set(selected);
@@ -50,7 +46,7 @@ export const ScheduleModal = ({
 	};
 
 	const renderDateCellOverride = (moment: Moment) => {
-		const presentableDate = moment.format(DATE_FORMAT);
+		const presentableDate = moment.format(EVENT_DATE_FORMAT);
 		const date = moment.date();
 		let bgColorClassName = '';
 
@@ -123,7 +119,7 @@ export const ScheduleModal = ({
 					className="w-4/6"
 					dateCellRender={(moment) => {
 						if (moment.isBetween(startDate, endDate, undefined, '[]')) {
-							const presentableDate = moment.format(DATE_FORMAT);
+							const presentableDate = moment.format(EVENT_DATE_FORMAT);
 							return busyTimeRanges
 								? getBadge(busyTimeRanges[presentableDate])
 								: null;
@@ -169,11 +165,13 @@ export const ScheduleModal = ({
 	);
 };
 
-const getBadge = (timeRanges: [startTime: any, endTime: any][]) => {
+const getBadge = (timeRanges: [startTime: string, endTime: string][]) => {
 	let totalBusyTime = 0;
 	if (timeRanges && timeRanges.length) {
 		totalBusyTime = timeRanges.reduce((accm, timeRange) => {
-			const [startTime, endTime] = timeRange;
+			const [startTimeFormatted, endTimeFormatted] = timeRange;
+			const startTime = moment(startTimeFormatted);
+			const endTime = moment(endTimeFormatted);
 			return accm + endTime.hours() - startTime.hours();
 		}, 0);
 	}

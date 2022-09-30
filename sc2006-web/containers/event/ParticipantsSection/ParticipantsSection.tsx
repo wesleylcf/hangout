@@ -63,7 +63,7 @@ export const ParticipantsSection = ({
 		const newParticipant: EventParticipant = {
 			name: `New Participant ${currentParticipants.length + 1}`,
 			preferences: [],
-			schedule: [],
+			schedule: {},
 			address: '',
 			isCreator: false,
 		};
@@ -96,7 +96,7 @@ export const ParticipantsSection = ({
 					participants.map((participant, index) => {
 						if ('uuid' in participant) {
 							return (
-								<div className="p-4" key={participant.uuid + index}>
+								<div className="p-4" key={participant.uuid! + index}>
 									<Card className="p-5 flex flex-row justify-between">
 										<div className="w-5/6 flex flex-row items-center">
 											{participant.isCreator ? (
@@ -119,7 +119,7 @@ export const ParticipantsSection = ({
 										</div>
 										<div className="flex flex-row items-center hover:text-red-400">
 											<DeleteOutlined
-												onClick={() => onRemoveParticipant(participant.uuid)}
+												onClick={() => onRemoveParticipant(participant.uuid!)}
 												style={{ fontSize: '1.25rem' }}
 											/>
 										</div>

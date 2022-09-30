@@ -65,7 +65,7 @@ export class SeedDataService {
 			username: email,
 			password: 'password',
 			eventIds: [],
-			schedule: [],
+			schedule: {},
 			notificationIds: notificationIds[index],
 			address: null,
 			friendIds: this.emails.filter((otherEmail) => otherEmail !== email),

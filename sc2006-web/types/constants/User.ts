@@ -30,7 +30,7 @@ export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
 	uuid: string;
 }
 
-type TimeRange = [start: Moment, end: Moment];
+type TimeRange = [start: string, end: string];
 
 export interface PublicUser {
 	schedule: Record<string, Array<TimeRange>>;

@@ -306,6 +306,10 @@ export const PreferencesModal = ({ onOk, ...props }: PreferencesModalProps) => {
 	return (
 		<Modal {...props} onOk={() => onOk(selectedTypes)}>
 			<div className="flex flex-row p-8">
+				<p>
+					Please be as specific as you can in choosing your preferences,
+					otherwise the results suggested to you may not be ideal.
+				</p>
 				<TreeSelect
 					treeData={treeData}
 					value={Array.from(selectedTypes)}

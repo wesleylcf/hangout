@@ -21,17 +21,24 @@ export interface CreateEventReq {
 	participants: EventParticipant[];
 }
 
-export interface PublicEventParticipant {
-	name: string;
-	preferences: Array<string>;
-	schedule: Record<string, Array<[Moment, Moment]>>;
-	address: string;
+interface BaseEventParticipant {
 	isCreator: boolean;
 }
 
-interface AuthEventParticipant {
+export interface PublicEventParticipant extends BaseEventParticipant {
+	name: string;
+	preferences: Array<string>;
+	schedule: Record<string, Array<[string, string]>>;
+	address: string;
+	uuid?: never;
+}
+
+export interface AuthEventParticipant extends BaseEventParticipant {
 	uuid: string;
-	isCreator: boolean;
+	name?: never;
+	preferences?: never;
+	schedule?: never;
+	address?: never;
 }
 
 export type EventParticipant = PublicEventParticipant | AuthEventParticipant;

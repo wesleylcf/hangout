@@ -17,7 +17,7 @@ export class NotificationController {
 	constructor(private readonly notificationService: NotificationService) {}
 
 	@UseGuards(JwtAuthGuard)
-	@Post('/list')
+	@Post('list')
 	async getUserNotifications(@Body() req: UpdateNotificationDto) {
 		const notifications = await this.notificationService.findMany(
 			req.notificationUuids,
@@ -26,7 +26,7 @@ export class NotificationController {
 	}
 
 	@UseGuards(JwtAuthGuard)
-	@Post('/markAsSeen')
+	@Post('markAsSeen')
 	async markAsSeen(@Body() req: UpdateNotificationDto) {
 		const res = await this.notificationService.bulkUpdate(
 			req.notificationUuids.map((uuid) => ({

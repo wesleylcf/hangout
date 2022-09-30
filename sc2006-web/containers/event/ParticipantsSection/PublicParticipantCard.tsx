@@ -22,7 +22,7 @@ interface PublicParticipantCardProps {
 }
 
 interface ParticipantItem {
-	name: FieldName;
+	key: FieldName;
 	label: string;
 }
 
@@ -67,19 +67,19 @@ export const PublicParticipantCard = ({
 	const participantItems: ParticipantItem[] = useMemo(
 		() => [
 			{
-				name: 'name',
+				key: 'name',
 				label: 'Name:',
 			},
 			{
-				name: 'preferences',
+				key: 'preferences',
 				label: 'Preferences:',
 			},
 			{
-				name: 'schedule',
+				key: 'schedule',
 				label: 'Schedule:',
 			},
 			{
-				name: 'address',
+				key: 'address',
 				label: 'Address:',
 			},
 		],
@@ -87,7 +87,6 @@ export const PublicParticipantCard = ({
 	);
 
 	const onEditFinish = (key: string, value?: string) => {
-		console.log(`updating ${key} with ${value}`);
 		const newParticipant = { ...participant, [key]: value };
 		onUpdateParticipant(newParticipant, index);
 	};
@@ -100,32 +99,38 @@ export const PublicParticipantCard = ({
 			showArrow={false}
 			{...props}
 		>
-			{participantItems.map(({ label, name }, index) => {
+			{participantItems.map(({ label, key }, index) => {
 				let modal;
-				if (name === 'schedule') {
+				if (key === 'schedule') {
 					modal = ScheduleModal;
 				}
-				if (name === 'preferences') {
+				if (key === 'preferences') {
 					modal = PreferencesModal;
 				}
 				return (
 					<FieldRow
-						key={name}
+						key={key}
 						label={label}
-						value={participant[name]}
+						value={participant[key] as any}
 						highlight={index % 2 == 0}
 						allowEdit={true}
 						CancelEditIcon={CheckOutlined}
 						AllowEditIcon={EditOutlined}
-						Editable={getEditable(name)}
-						onEditFinish={(value?: string) => onEditFinish(name, value)}
+						Editable={getEditable(key)}
+						onEditFinish={(value?: string) => onEditFinish(key, value)}
 						Modal={modal}
-						modalProps={{
-							width: '90%',
-							freeTimeRanges: participant[name],
-							destroyOnClose: true,
-						}}
-						isValuePresentable={!['schedule', 'preferences'].includes(name)}
+						modalProps={
+							['schedule', 'preferences'].includes(key)
+								? {
+										width: '90%',
+										...(key === 'schedule' && {
+											busyTimeRanges: participant[key],
+										}),
+										destroyOnClose: true,
+								  }
+								: undefined
+						}
+						isValuePresentable={!['schedule', 'preferences'].includes(key)}
 					/>
 				);
 			})}

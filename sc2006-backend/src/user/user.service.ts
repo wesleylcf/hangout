@@ -3,11 +3,16 @@ import { db } from 'src/firebase.config';
 import {
 	doc,
 	getDoc,
+	query,
 	serverTimestamp,
 	setDoc,
 	Timestamp,
 	WriteBatch,
 	writeBatch,
+	collection,
+	where,
+	getDocs,
+	documentId,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
 import { DbUser, DbUserRes } from '../../../sc2006-common/';
@@ -50,7 +55,7 @@ export class UserService {
 				password,
 				createdAt: serverTimestamp() as Timestamp,
 				eventIds: [],
-				schedule: [],
+				schedule: {},
 				notificationIds: [],
 				address: null,
 				friendIds: [],
@@ -84,6 +89,22 @@ export class UserService {
 		} catch (e) {
 			this.logger.warn(
 				`Could not batch write users: ${e.message}`,
+				'UserService',
+			);
+		}
+	}
+
+	async bulkFindAllById(uuids: string[]): Promise<DbUserRes[]> {
+		try {
+			const usersRef = collection(db, 'users');
+			const qry = query(usersRef, where(documentId(), 'in', uuids));
+			const res = [];
+			const querySnapshot = await getDocs(qry);
+			querySnapshot.forEach((q) => res.push(q.data()));
+			return res as unknown as DbUserRes[];
+		} catch (e) {
+			this.logger.warn(
+				`Could not batch find users: ${e.message}`,
 				'UserService',
 			);
 		}

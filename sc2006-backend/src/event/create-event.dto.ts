@@ -1,28 +1,48 @@
 import {
+	IsArray,
 	IsBoolean,
-	IsNotEmpty,
 	IsString,
 	Length,
-	MaxLength,
-	MinLength,
+	Matches,
+	ValidateIf,
+	ValidateNested,
 } from 'class-validator';
-import { DbEvent } from '../../../sc2006-common/src';
+import { Type } from 'class-transformer';
+import { CreateEventReq, EventParticipant } from '../../../sc2006-common/src';
+import { Regex } from '../../../sc2006-common/src';
 
-export class CreateEventDto
-	implements Omit<DbEvent, 'createdAt' | 'creatorId' | 'eventResultIds'>
-{
+export class CreateEventDto implements CreateEventReq {
 	@IsString()
 	@Length(10, 50)
-	title: string;
+	name: string;
 
-	@MinLength(1)
-	@MaxLength(10)
-	invitedParticipantIds: string[];
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => ParticipantDto)
+	participants: Array<EventParticipant>;
+}
 
-	@MinLength(1)
-	@MaxLength(10)
-	activeParticipantIds: string[];
+export class ParticipantDto {
+	@ValidateIf((o) => typeof o.name === 'undefined')
+	uuid?: string;
 
 	@IsBoolean()
-	expired: boolean;
+	isCreator?: boolean;
+
+	@ValidateIf((o) => typeof o.uuid === 'undefined')
+	@IsString()
+	name: string;
+
+	@ValidateIf((o) => typeof o.uuid === 'undefined')
+	@IsArray()
+	@IsString({ each: true })
+	preferences: Array<string>;
+
+	@ValidateIf((o) => typeof o.uuid === 'undefined')
+	schedule: Record<string, [string, string][]>;
+
+	@ValidateIf((o) => typeof o.uuid === 'undefined')
+	@IsString()
+	@Matches(Regex.POSTAL_CODE)
+	address: string;
 }

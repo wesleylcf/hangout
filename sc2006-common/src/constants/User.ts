@@ -1,10 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
 import { DbNotification } from '.';
+import { Moment } from 'moment';
 
 export interface SeedUser {
 	username: string;
 	eventIds: string[];
-	schedule: DateTime[];
+	schedule: Record<string, Array<TimeRange>>;
 	notifications: Pick<DbNotification, 'title' | 'description'>[];
 	address: number | null;
 	friendIds: string[];
@@ -14,7 +15,7 @@ export interface DbUser {
 	createdAt: Timestamp;
 	eventIds: string[];
 	friendIds: string[];
-	schedule: DateTime[];
+	schedule: Record<string, Array<TimeRange>>;
 	notificationIds: string[];
 	address: number | null;
 	password: string;
@@ -29,15 +30,10 @@ export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
 	uuid: string;
 }
 
-export interface DateTime {
-	date: Date;
-	timeRanges: TimeRange[];
-}
-
-type TimeRange = [start: Date, end: Date];
+type TimeRange = [start: string, end: string];
 
 export interface PublicUser {
-	schedule: DateTime;
+	schedule: Record<string, Array<TimeRange>>;
 	address: string;
 	preferences: string[];
 }
