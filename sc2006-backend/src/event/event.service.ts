@@ -25,29 +25,32 @@ export class EventService {
 	constructor(private readonly logger: Logger) {}
 
 	async createOne(
-		event: Omit<DbEvent, 'createdAt' | 'creatorId' | 'eventResultIds'>,
-		creatorId: string,
-	): Promise<{ uuid: string }> {
+		event: Omit<DbEvent, 'createdAt' | 'eventResultIds'>,
+	): Promise<{ eventUuid: string }> {
 		try {
 			const batch = writeBatch(db);
+			const { creatorId } = event;
 			const newEvent: DbEvent = {
 				createdAt: serverTimestamp() as Timestamp,
 				...event,
 				creatorId,
-				eventResultIds: [],
 			};
+
 			const newEventDocRef = doc(collection(db, 'events'));
 			const creatorDocRef = doc(db, 'users', creatorId);
-			const uuid = newEventDocRef.id;
+			const eventUuid = newEventDocRef.id;
 
 			batch.set(newEventDocRef, newEvent);
 			batch.update(creatorDocRef, {
-				eventIds: arrayUnion(uuid),
+				eventIds: arrayUnion(eventUuid),
 			});
 			await batch.commit();
 
-			this.logger.log(`Event ${uuid} created by ${creatorId}`, 'EventService');
-			return { uuid };
+			this.logger.log(
+				`Event ${eventUuid} created by ${creatorId}`,
+				'EventService',
+			);
+			return { eventUuid };
 		} catch (e) {
 			this.logger.warn(`Unable to create event: ${e.message}`, 'EventService');
 			throw e;

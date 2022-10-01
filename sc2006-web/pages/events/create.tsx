@@ -6,6 +6,8 @@ import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal'
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
 import { EventParticipant } from '../../types';
 import { eventService } from '../../services';
+import { useNotification } from '../../hooks';
+import { useRouter } from 'next/router';
 
 interface CreateEventForm {
 	name: string;
@@ -14,12 +16,28 @@ interface CreateEventForm {
 
 const CreateEventPage = () => {
 	const { me } = useContext(GlobalContext);
-
+	const notification = useNotification();
+	const router = useRouter();
 	const [form] = Form.useForm<CreateEventForm>();
 	const { setFieldValue, getFieldValue } = form;
 	const onSubmit = async (form: CreateEventForm) => {
-		console.log(form);
-		await eventService.create(form);
+		try {
+			await eventService.create(form);
+			notification.success(
+				<div>
+					Successfully created event <b>{form.name}</b>
+				</div>,
+				'Event created!',
+			);
+			router.push('/events');
+		} catch (e) {
+			notification.apiError({
+				name: '',
+				level: 'error',
+				message: 'Please check your inputs or alert us.',
+				title: 'Failed to create Event',
+			});
+		}
 	};
 
 	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
@@ -31,6 +49,7 @@ const CreateEventPage = () => {
 		return null;
 	}
 
+	// Let current user be of type PublicEventParticipant to allow user to edit his info.
 	const initialFormValues: CreateEventForm = {
 		name: '',
 		participants: [

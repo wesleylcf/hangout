@@ -1,14 +1,13 @@
 import { Timestamp } from 'firebase/firestore';
-import { Moment } from 'moment';
 
 export interface DbEvent {
 	name: string;
-	activeParticipantIds: string[];
-	invitedParticipantIds: string[];
+	authParticipantIds: string[];
+	manualParticipants: PublicEventParticipant[];
 	creatorId: string;
 	createdAt: Timestamp;
-	eventResultIds: string[];
-	expired: boolean;
+	eventResultId: string;
+	expiresAt: string;
 }
 
 export interface DbEventRes extends Omit<DbEvent, 'createdAt'> {
@@ -21,17 +20,24 @@ export interface CreateEventReq {
 	participants: EventParticipant[];
 }
 
-export interface PublicEventParticipant {
-	name: string;
-	preferences: Array<string>;
-	schedule: Record<string, Array<[string, string]>>;
-	address: string;
+interface BaseEventParticipant {
 	isCreator: boolean;
 }
 
-interface AuthEventParticipant {
+export interface PublicEventParticipant extends BaseEventParticipant {
+	name: string;
+	preferences: Array<string>;
+	schedule: Record<string, Array<{ start: string; end: string }>>;
+	address: string;
+	uuid?: never;
+}
+
+export interface AuthEventParticipant extends BaseEventParticipant {
 	uuid: string;
-	isCreator: boolean;
+	name?: never;
+	preferences?: never;
+	schedule?: never;
+	address?: never;
 }
 
 export type EventParticipant = PublicEventParticipant | AuthEventParticipant;

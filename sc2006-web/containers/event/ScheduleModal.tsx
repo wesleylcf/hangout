@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types*/
 import React, { useState } from 'react';
-import { Badge, Calendar, Collapse, Modal, ModalProps, BadgeProps } from 'antd';
+import { Badge, Calendar, Collapse, Modal, ModalProps } from 'antd';
 import moment, { Moment } from 'moment';
 import { CollapseItemHeader } from '../../components/common';
 import { TimeRangesCard } from './TimeRangesCard';
@@ -8,7 +8,7 @@ import { EVENT_DATE_FORMAT } from '../../types';
 
 export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
-	busyTimeRanges: Record<string, Array<[string, string]>>;
+	busyTimeRanges: Record<string, Array<{ start: string; end: string }>>;
 };
 
 export const ScheduleModal = ({
@@ -19,14 +19,12 @@ export const ScheduleModal = ({
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 	const [internalBusyTimeRanges, setInternalBusyTimeRanges] = useState<
-		Record<string, Array<[string, string]>>
+		Record<string, Array<{ start: string; end: string }>>
 	>(busyTimeRanges || {});
 
 	const now = moment();
 	const startDate = moment(now).add(1, 'days').startOf('day');
 	const endDate = moment(startDate).add(6, 'days').endOf('day');
-
-	console.log(startDate, endDate);
 
 	const onSelectDate = (moment: Moment) => {
 		const presentableDate = moment.format(EVENT_DATE_FORMAT);
@@ -78,10 +76,13 @@ export const ScheduleModal = ({
 		);
 	};
 
-	const onAddTimeRange = (range: [any, any], date: string) =>
-		setInternalBusyTimeRanges((internalBusyTimeRanges) => {
-			if (!internalBusyTimeRanges) return internalBusyTimeRanges;
-			const oldTimeRange = internalBusyTimeRanges[date];
+	const onAddTimeRange = (
+		range: { start: string; end: string },
+		date: string,
+	) =>
+		setInternalBusyTimeRanges((timeRanges) => {
+			if (!timeRanges) return timeRanges;
+			const oldTimeRange = timeRanges[date];
 			const newTimeRange = oldTimeRange.length
 				? [...oldTimeRange, range]
 				: [range];
@@ -153,7 +154,9 @@ export const ScheduleModal = ({
 											? internalBusyTimeRanges[date]
 											: []
 									}
-									addTimeRange={(range) => onAddTimeRange(range, date)}
+									addTimeRange={(range) =>
+										onAddTimeRange({ start: range[0], end: range[1] }, date)
+									}
 									removeTimeRange={(index) => onRemoveTimeRange(index, date)}
 								/>
 							</Collapse.Panel>
@@ -165,13 +168,13 @@ export const ScheduleModal = ({
 	);
 };
 
-const getBadge = (timeRanges: [startTime: string, endTime: string][]) => {
+const getBadge = (timeRanges: { start: string; end: string }[]) => {
 	let totalBusyTime = 0;
 	if (timeRanges && timeRanges.length) {
 		totalBusyTime = timeRanges.reduce((accm, timeRange) => {
-			const [startTimeFormatted, endTimeFormatted] = timeRange;
-			const startTime = moment(startTimeFormatted);
-			const endTime = moment(endTimeFormatted);
+			const { start, end } = timeRange;
+			const startTime = moment(start);
+			const endTime = moment(end);
 			return accm + endTime.hours() - startTime.hours();
 		}, 0);
 	}

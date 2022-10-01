@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types*/
 import React, { useState } from 'react';
-import { Badge, Calendar, Collapse, Modal, ModalProps, BadgeProps } from 'antd';
-import { CollapseItemHeader } from '../../components/common';
+import { Modal, ModalProps } from 'antd';
 import { TreeSelect } from 'antd';
 
 type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {

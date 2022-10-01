@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useMemo } from 'react';
 import { EventParticipant, PublicEventParticipant } from '../../../types';
 import { TextInput } from '../../../components/common';

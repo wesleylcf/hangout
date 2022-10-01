@@ -11,7 +11,10 @@ import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateEventDto } from './create-event.dto';
 import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
-import { PublicEventParticipant } from '../../../sc2006-common/src';
+import {
+	EventParticipant,
+	PublicEventParticipant,
+} from '../../../sc2006-common/src';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -25,29 +28,45 @@ export class EventController {
 	@UseGuards(JwtAuthGuard)
 	@Post('create')
 	async createEvent(@Body() body: CreateEventDto) {
-		const { participants } = body;
+		const { name, participants } = body;
 
 		const manuallyAddedUsers = [];
-		const userUuids = [];
+		const authUserUuids = [];
+		let creator: EventParticipant;
 		participants.forEach((participant) => {
-			if (participant['uuid']) {
-				userUuids.push(participant['uuid']);
+			if (participant.isCreator) {
+				creator = participant;
+			}
+			if (participant.uuid) {
+				authUserUuids.push(participant['uuid']);
 			} else {
-				manuallyAddedUsers.push(participant);
+				if (!participant.isCreator) {
+					manuallyAddedUsers.push(participant);
+				}
 			}
 		});
+
 		let authUsers = [];
-		if (userUuids.length) {
-			const users = await this.userService.bulkFindAllById(userUuids);
-			authUsers = users as any[];
+		if (authUserUuids.length) {
+			const users = await this.userService.bulkFindAllById(authUserUuids);
+			authUsers = users;
 		}
 
-		const populatedParticipants: PublicEventParticipant[] =
-			manuallyAddedUsers.concat(authUsers);
+		const { eventResultId, expiresAt } =
+			await this.eventResultService.createOne([
+				...manuallyAddedUsers,
+				...authUsers,
+				creator,
+			]);
 
-		const eventResultId = await this.eventResultService.createOne(
-			populatedParticipants,
-		);
-		// await this.eventService.createOne(body, user.uuid);
+		await this.eventService.createOne({
+			name,
+			expiresAt,
+			creatorId: creator.name,
+			eventResultId,
+			authParticipantIds: authUserUuids,
+			manualParticipants: manuallyAddedUsers,
+		});
+		return { error: null };
 	}
 }

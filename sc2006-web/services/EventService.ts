@@ -1,4 +1,4 @@
-import { PresentableError, throwErrorOrGetData } from '../lib/error';
+import { throwErrorOrGetData } from '../lib/error';
 import { CreateEventReq } from '../types';
 
 export class EventService {
@@ -13,6 +13,9 @@ export class EventService {
 			},
 			body: JSON.stringify(req),
 		});
-		console.log(response);
+		await throwErrorOrGetData(response, {
+			fallbackMessage: 'Please try again later or send us an alert',
+			fallbackTitle: 'Failed to create event',
+		});
 	}
 }

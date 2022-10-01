@@ -8,7 +8,13 @@ import {
 	getLatLngCenter,
 } from '../../../sc2006-common/src';
 import fetch from 'node-fetch';
-import { doc, setDoc, collection } from 'firebase/firestore';
+import {
+	doc,
+	setDoc,
+	collection,
+	serverTimestamp,
+	Timestamp,
+} from 'firebase/firestore';
 import { db } from 'src/firebase.config';
 import * as moment from 'moment'; // otherwise error moment is not a function
 
@@ -23,7 +29,7 @@ export class EventResultService {
 		participants: {
 			preferences: string[];
 			address: string;
-			schedule: Record<string, [start: string, end: string][]>;
+			schedule: Record<string, { start: string; end: string }[]>;
 		}[],
 	) {
 		const candidatePlaceTypes = new Set();
@@ -112,13 +118,13 @@ export class EventResultService {
 				dates.forEach((date) => {
 					const timeRanges = schedule[date];
 					timeRanges.forEach((timeRange) => {
-						const [startTimeString, endTimeString] = timeRange;
-						const start = moment(startTimeString, EVENT_DATETIME_FORMAT);
-						const end = moment(endTimeString, EVENT_DATETIME_FORMAT);
-						const startHour = start.hours();
-						const startMinutes = start.minutes();
-						const endHour = end.hours();
-						const endMinutes = end.minutes();
+						const { start, end } = timeRange;
+						const startMoment = moment(start, EVENT_DATETIME_FORMAT);
+						const endMoment = moment(end, EVENT_DATETIME_FORMAT);
+						const startHour = startMoment.hours();
+						const startMinutes = startMoment.minutes();
+						const endHour = endMoment.hours();
+						const endMinutes = endMoment.minutes();
 
 						for (let h = startHour; h < endHour + 1; h++) {
 							const minute = busyDateTime[date][h];
@@ -183,6 +189,7 @@ export class EventResultService {
 			const result: DbEventResult = {
 				suggestedDates,
 				suggestions,
+				createdAt: serverTimestamp() as Timestamp,
 			};
 
 			const newResultDocRef = doc(collection(db, 'event-results'));
@@ -191,10 +198,18 @@ export class EventResultService {
 				`Successfully generated and stored event result ${newResultDocRef.id}`,
 				'EventResultService',
 			);
-			return newResultDocRef.id;
+
+			return {
+				eventResultId: newResultDocRef.id,
+				expiresAt: moment()
+					.add(7, 'day')
+					.endOf('day')
+					.format(EVENT_DATETIME_FORMAT),
+			};
 		} catch (e) {
 			this.logger.error(
-				`Failed to calculate places: ${e.message} ${e.stack}`,
+				`Failed to calculate places: ${e.message}
+        ${e.stack}`,
 				'EventResultService',
 			);
 		}

@@ -7,7 +7,7 @@ import { useNotification } from '../../hooks';
 import { EVENT_DATETIME_FORMAT } from '../../types';
 
 interface TimeRangesCardProps {
-	addedTimeRanges: Array<[start: any, end: any] | []>;
+	addedTimeRanges: Array<{ start: string; end: string }>;
 	addTimeRange: (range: [string, string]) => void;
 	removeTimeRange: (index: number) => void;
 }
@@ -63,7 +63,7 @@ export const TimeRangesCard = ({
 				<b>Selected time ranges</b>
 				{addedTimeRanges.length
 					? addedTimeRanges.map((range, index) => {
-							const [start, end] = range;
+							const { start, end } = range;
 							return (
 								<div
 									key={index}
