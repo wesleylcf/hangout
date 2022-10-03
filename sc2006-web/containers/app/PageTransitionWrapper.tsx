@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
-import { useEffect, ReactNode, useState } from 'react';
+import { useEffect, ReactNode, useState, useContext } from 'react';
 import { Spin } from '../../components/common';
+import { PageContext } from '../../contexts';
 import { useProtectRoutes } from '../../hooks';
 
 interface PageTransitionWrapperProps {
@@ -11,6 +12,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 	children,
 }) => {
 	const router = useRouter();
+	const { loading } = useContext(PageContext);
 	const [internalLoading, setInternalLoading] = useState(false);
 	useProtectRoutes();
 
@@ -33,7 +35,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 
 	return (
 		<div className="flex flex-row items-center justify-center w-full h-full">
-			{internalLoading ? <Spin size="large" center /> : children}
+			{internalLoading || loading ? <Spin size="large" center /> : children}
 		</div>
 	);
 };

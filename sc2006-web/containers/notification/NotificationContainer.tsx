@@ -2,7 +2,7 @@ import {
 	NotificationContext,
 	NotificationContextProps,
 	NotificationExtraProps,
-} from '../../contexts/NotificationContext';
+} from '../../contexts/';
 
 import React, { ReactNode } from 'react';
 import { notification } from 'antd';

@@ -6,13 +6,15 @@ import { AppContainer } from '../containers/app';
 import { Me, GlobalContextProps } from '../contexts/';
 import { meService } from '../services';
 import { Spin } from '../components/common';
+import { PageContextProps } from '../contexts/PageContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, setMe] = useState<Me | undefined>(undefined as any);
 	const [wasLoggedIn, setWasLoggedIn] = useState(false);
 	const [isAppLoading, setIsAppLoading] = useState(true);
+	const [isPageLoading, setIsPageLoading] = useState(false);
 	const [postLoginPath, setPostLoginPath] = useState('/home');
-	const contextValue: GlobalContextProps = {
+	const globalContext: GlobalContextProps = {
 		wasLoggedIn,
 		setWasLoggedIn: (bool: boolean) => setWasLoggedIn(bool),
 		me: me!,
@@ -20,14 +22,20 @@ function MyApp({ Component, pageProps }: AppProps) {
 		postLoginPath: postLoginPath,
 		setPostLoginPath: (path: string) => setPostLoginPath(path),
 	};
+	const pageContext: PageContextProps = {
+		loading: isPageLoading,
+		setLoading: setIsPageLoading,
+	};
 	useEffect(() => {
 		const reconstructUser = async () => {
 			let user;
 			try {
 				setIsAppLoading(true);
 				user = await meService.reconstructUser();
+				console.log('reconstructed user', user);
 				setMe(user);
 			} catch (e) {
+				console.log('Could not reconstruct user');
 				// No JWT token, so we cannot reconstructUser(401 response)
 			}
 			setTimeout(() => setIsAppLoading(false), 300);
@@ -43,7 +51,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 	}
 
 	return (
-		<AppContainer meContext={contextValue}>
+		<AppContainer meContext={globalContext} pageContext={pageContext}>
 			<Component {...pageProps} />
 		</AppContainer>
 	);
