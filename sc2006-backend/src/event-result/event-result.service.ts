@@ -2,10 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import {
 	DbEventResult,
+	DbEventSuggestion,
 	EVENT_DATETIME_FORMAT,
 	EVENT_DATE_FORMAT,
 	GeoapifyResponse,
 	getLatLngCenter,
+	PresentableError,
 } from '../../../sc2006-common/src';
 import fetch from 'node-fetch';
 import {
@@ -17,6 +19,11 @@ import {
 } from 'firebase/firestore';
 import { db } from 'src/firebase.config';
 import * as moment from 'moment'; // otherwise error moment is not a function
+
+interface CreateOneResult {
+	eventResultId: string;
+	expiresAt: string;
+}
 
 @Injectable()
 export class EventResultService {
@@ -31,13 +38,39 @@ export class EventResultService {
 			address: string;
 			schedule: Record<string, { start: string; end: string }[]>;
 		}[],
-	) {
-		const candidatePlaceTypes = new Set();
-		participants.forEach(({ preferences }) => {
-			preferences.forEach((pref) => candidatePlaceTypes.add(pref));
-		});
-
+	): Promise<{
+		result: CreateOneResult | null;
+		error: PresentableError | null;
+	}> {
 		try {
+			// Get common preferences first since if there are none we cannot generate results.
+			const commonPreferences = [];
+			const candidatePreferences = new Set();
+			participants.forEach((participant) => {
+				const preferences = participant.preferences.length
+					? participant.preferences
+					: EventResultService.DEFAULT_PREFERENCES;
+				preferences.forEach((preference) => {
+					if (candidatePreferences.has(preference)) return;
+					if (participants.every((p) => p.preferences.includes(preference))) {
+						commonPreferences.push(preference);
+					}
+					candidatePreferences.add(preference);
+				});
+			});
+			// Todo: Handle case when no common preference
+			if (commonPreferences.length < 1) {
+				return {
+					result: null,
+					error: {
+						name: '',
+						level: 'error',
+						title: 'Could not generate Event results',
+						message: 'Participants do not have any common preferences',
+					},
+				};
+			}
+
 			// Convert postal codes into latitude and longtitude
 			const geoCodes = await Promise.all(
 				participants.map(async ({ address }) => {
@@ -65,20 +98,7 @@ export class EventResultService {
 
 			const center = getLatLngCenter(coordinates);
 
-			const commonPreferences = [];
-			const candidatePreferences = new Set();
-			participants.forEach((participant) =>
-				participant.preferences.forEach((preference) => {
-					if (candidatePreferences.has(preference)) return;
-					if (participants.every((p) => p.preferences.includes(preference))) {
-						commonPreferences.push(preference);
-					}
-					candidatePreferences.add(preference);
-				}),
-			);
-			// Todo: Handle case when no common preference
-
-			const presentableCenter = `${center[1]},${center[0]}`; // 'lng,lat'
+			const presentableCenter = `${center[1]},${center[0]}`; // Geoapify uses [lng,lat] instead of [lat, lng]
 			// Since API calculates cost based on number of places returned, we use a separate call for each preference
 			const places: GeoapifyResponse[] = await Promise.all(
 				commonPreferences.map(async (preference) => {
@@ -88,7 +108,7 @@ export class EventResultService {
 				}),
 			);
 
-			const suggestions = {};
+			const suggestions: DbEventSuggestion = {};
 			places.forEach((place, index) => {
 				const preference = commonPreferences[index];
 				suggestions[preference] = place.features.map(({ properties }) => {
@@ -104,10 +124,7 @@ export class EventResultService {
 				});
 			});
 
-			// Todo: what if no suggestions(is this even possible?)
-
-			// calculate intersection of time ranges
-			// get union of busy times
+			// calculate intersection of time ranges by getting union of busy times
 			const busyDateTime = {};
 			const dates = Object.keys(participants[0].schedule);
 			dates.forEach((date) => {
@@ -143,6 +160,7 @@ export class EventResultService {
 				});
 			});
 
+			// Initialize suggestedDates with [00:00:00, 23:59:59]
 			const suggestedDates = {};
 			const now = moment();
 			for (let i = 1; i < 8; i++) {
@@ -191,7 +209,6 @@ export class EventResultService {
 				suggestions,
 				createdAt: serverTimestamp() as Timestamp,
 			};
-
 			const newResultDocRef = doc(collection(db, 'event-results'));
 			await setDoc(newResultDocRef, result);
 			this.logger.log(
@@ -200,11 +217,14 @@ export class EventResultService {
 			);
 
 			return {
-				eventResultId: newResultDocRef.id,
-				expiresAt: moment()
-					.add(7, 'day')
-					.endOf('day')
-					.format(EVENT_DATETIME_FORMAT),
+				result: {
+					eventResultId: newResultDocRef.id,
+					expiresAt: moment()
+						.add(7, 'day')
+						.endOf('day')
+						.format(EVENT_DATETIME_FORMAT),
+				},
+				error: null,
 			};
 		} catch (e) {
 			this.logger.error(
@@ -214,4 +234,18 @@ export class EventResultService {
 			);
 		}
 	}
+
+	public static readonly DEFAULT_PREFERENCES = [
+		'activities',
+		'commercial',
+		'catering',
+		'entertainment',
+		'leisure',
+		'natural',
+		'national_park',
+		'tourism',
+		'camping',
+		'beach',
+		'adults',
+	];
 }

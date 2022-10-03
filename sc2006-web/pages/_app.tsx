@@ -16,11 +16,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 		wasLoggedIn,
 		setWasLoggedIn: (bool: boolean) => setWasLoggedIn(bool),
 		me: me!,
-		setMe: (me?: Me) => setMe(me),
+		setMe: setMe,
 		postLoginPath: postLoginPath,
 		setPostLoginPath: (path: string) => setPostLoginPath(path),
 	};
-
 	useEffect(() => {
 		const reconstructUser = async () => {
 			let user;

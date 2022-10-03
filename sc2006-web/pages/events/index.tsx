@@ -6,7 +6,7 @@ import { PlusCircleFilled } from '@ant-design/icons';
 
 enum EventMenuItemType {
 	CREATED_EVENTS = '#created',
-	INVITED_EVENTS = '#invited',
+	PARTICIPATING_EVENTS = '#participating',
 	ACTIVE_EVENTS = '#active',
 	EXPIRED_EVENTS = '#past',
 }
@@ -68,7 +68,7 @@ function ListEventsPage() {
 			<Layout.Sider
 				theme="light"
 				width={275}
-				className="fixed top-0 left-0"
+				className="fixed top-0 left-0 pr-16"
 				style={{
 					overflow: 'auto',
 					height: 'calc(100vh - 45px)',
@@ -89,8 +89,8 @@ function ListEventsPage() {
 				<Menu
 					items={[
 						{
-							key: EventMenuItemType.INVITED_EVENTS,
-							label: 'Invited Events',
+							key: EventMenuItemType.PARTICIPATING_EVENTS,
+							label: 'Participating Events',
 							children: [
 								{
 									key: EventMenuItemType.ACTIVE_EVENTS,
@@ -125,7 +125,7 @@ function ListEventsPage() {
 					<h1 className="text-2xl" ref={refs.created}>
 						Created Events
 					</h1>
-					<h1 className="text-2xl">Invited Events</h1>
+					<h1 className="text-2xl">Participating Events</h1>
 					<h2 className="text-lg" ref={refs.active}>
 						Current Events
 					</h2>

@@ -120,7 +120,7 @@ export function MenuBar() {
 					mode="horizontal"
 					className="w-4/5 justify-end"
 					expandIcon={<MenuOutlined />}
-					onClick={({ key }) => router.push(`${key}`)}
+					onClick={({ key }) => router.push(key)}
 					style={{ border: 'none' }}
 				/>
 				{me && (

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types*/
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal, ModalProps } from 'antd';
 import { TreeSelect } from 'antd';
 
@@ -8,297 +8,245 @@ type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
 };
 
 export const PreferencesModal = ({ onOk, ...props }: PreferencesModalProps) => {
-	const treeData = [
-		{
-			title: 'Activities',
-			key: '0-0',
-			value: 'activities',
-			children: [
-				{
-					title: 'Community Centres',
-					key: '0-0-0',
-					value: 'activity.community_center',
-				},
-				{
-					title: 'Sport Clubs',
-					key: '0-0-1',
-					value: 'activity.sport_club',
-				},
-			],
-		},
-		{
-			title: 'Shopping',
-			key: '0-1',
-			value: 'commercial',
-			children: [
-				{
-					title: 'Outdoor and sports shops',
-					key: '0-1-0',
-					value: 'commercial.outdoor_and_sport',
-				},
-				{
-					title: 'Shopping malls',
-					key: '0-1-1',
-					value: 'commercial.shopping_mall',
-				},
-				{
-					title: 'Department stores',
-					key: '0-1-2',
-					value: 'commercial.department_store',
-				},
-				{
-					title: 'Hobby-related shops',
-					key: '0-1-3',
-					value: 'commercial.hobby',
-				},
-				{
-					title: 'Book shops',
-					key: '0-1-4',
-					value: 'commercial.books',
-				},
-				{
-					title: 'Gift and Souvenir shops',
-					key: '0-1-5',
-					value: 'commercial.gift_and_souvenir',
-				},
-				{
-					title: 'Tickets and lottery shops',
-					key: '0-1-6',
-					value: 'commercial.tickets_and_lottery',
-				},
-				{
-					title: 'Clothing and Bags',
-					key: '0-1-7',
-					value: ['commercial.clothing', 'commercial.bag'],
-				},
-				{
-					title: 'Healthy and Beauty shops',
-					key: '0-1-8',
-					value: 'commercial.health_and_beauty',
-				},
-				{
-					title: 'Food and Drinks',
-					key: '0-1-9',
-					value: 'commercial.food_and_drink',
-				},
-				{
-					title: 'Art and Antiques shops',
-					key: '0-1-10',
-					value: ['commercial.art', 'commercial.antiques'],
-				},
-				{
-					title: 'Video and Music shops',
-					key: '0-1-11',
-					value: 'commercial.video_and_music',
-				},
-			],
-		},
-		{
-			title: 'Food',
-			key: '0-2',
-			value: 'catering',
-			children: [
-				{
-					title: 'Restaurants',
-					key: '0-2-0',
-					value: 'catering.restaurant',
-				},
-				{
-					title: 'Fast food',
-					key: '0-2-1',
-					value: 'catering.fast_food',
-				},
-				{
-					title: 'Cafes',
-					key: '0-2-2',
-					value: 'catering.cafe',
-				},
-				{
-					title: 'Food courts',
-					key: '0-2-3',
-					value: 'catering.food_court',
-				},
-				{
-					title: 'Bars and Pubs',
-					key: '0-2-4',
-					value: ['catering.bar', 'catering.pub'],
-				},
-				{
-					title: 'Ice cream',
-					key: '0-2-5',
-					value: 'catering.ice_cream',
-				},
-			],
-		},
-		{
-			title: 'Entertainment',
-			key: '0-3',
-			value: 'entertainment',
-			children: [
-				{
-					title: 'Culture',
-					key: '0-3-0',
-					value: 'entertainment.culture',
-				},
-				{
-					title: 'Zoo',
-					key: '0-3-1',
-					value: 'entertainment.zoo',
-				},
-				{
-					title: 'Entertainment',
-					key: '0-3-2',
-					value: 'entertainment.aquarium',
-				},
-				{
-					title: 'Planetarium',
-					key: '0-3-3',
-					value: 'entertainment.planetarium',
-				},
-				{
-					title: 'Cinema',
-					key: '0-3-4',
-					value: 'entertainment.cinema',
-				},
-				{
-					title: 'Arcade',
-					key: '0-3-5',
-					value: 'entertainment.amusement_arcade',
-				},
-				{
-					title: 'Escape-room',
-					key: '0-3-6',
-					value: 'entertainment.escape_game',
-				},
-				{
-					title: 'Miniature golf',
-					key: '0-3-7',
-					value: 'entertainment.miniature_golf',
-				},
-				{
-					title: 'Bowling Alley',
-					key: '0-3-8',
-					value: 'entertainment.bowling_alley',
-				},
-				{
-					title: 'Theme park',
-					key: '0-3-9',
-					value: 'entertainment.theme_park',
-				},
-				{
-					title: 'Flying fox',
-					key: '0-3-10',
-					value: 'entertainment.flying_fox',
-				},
-				{
-					title: 'Water park',
-					key: '0-3-11',
-					value: 'entertainment.water_park',
-				},
-			],
-		},
-		{
-			title: 'Leisure',
-			key: '0-4',
-			value: 'leisure',
-			children: [
-				{
-					title: 'Picnic',
-					key: '0-4-0',
-					value: 'leisure.picnic',
-				},
-				{
-					title: 'Barbecue',
-					key: '0-4-1',
-					value: 'leisure.picnic.bbq',
-				},
-				{
-					title: 'Playground',
-					key: '0-4-2',
-					value: 'leisure.playground',
-				},
-				{
-					title: 'Spa',
-					key: '0-4-3',
-					value: 'leisure.spa',
-				},
-				{
-					title: 'Park',
-					key: '0-4-4',
-					value: 'leisure.park',
-				},
-			],
-		},
-		{
-			title: 'Nature',
-			key: '0-5',
-			value: 'natural',
-		},
-		{
-			title: 'Nation Park',
-			key: '0-6',
-			value: 'national_park',
-		},
-		{
-			title: 'Rental',
-			key: '0-7',
-			value: 'rental',
-		},
-		{
-			title: 'Tour spots',
-			key: '0-8',
-			value: 'tourism',
-			children: [
-				{
-					title: 'Attractions',
-					key: '0-7',
-					value: 'tourism.attraction',
-				},
-				{
-					title: 'Sights',
-					key: '0-7',
-					value: 'tourism.sights',
-				},
-			],
-		},
-		{
-			title: 'Camping',
-			key: '0-8',
-			value: 'camping',
-		},
-		{
-			title: 'Beach',
-			key: '0-9',
-			value: 'beach',
-		},
-		{
-			title: 'Adult stuff',
-			key: '0-10',
-			value: 'adult',
-			children: [
-				{
-					title: 'Night club',
-					key: '0-10-0',
-					value: 'adult.nightclub',
-				},
-				{
-					title: 'Strip club',
-					key: '0-10-1',
-					value: 'adult.stripclub',
-				},
-				{
-					title: 'Casino',
-					key: '0-10-2',
-					value: 'adult.casino',
-				},
-				{
-					title: 'Adult Gaming Centre',
-					key: '0-10-3',
-					value: 'adult.adult_gaming_centre',
-				},
-			],
-		},
-	];
+	const treeData = useMemo(
+		() => [
+			{
+				title: 'Activities',
+				value: 'activities',
+				children: [
+					{
+						title: 'Community Centres',
+						value: 'activity.community_center',
+					},
+					{
+						title: 'Sport Clubs',
+						value: 'activity.sport_club',
+					},
+				],
+			},
+			{
+				title: 'Shopping',
+				value: 'commercial',
+				children: [
+					{
+						title: 'Outdoor and sports shops',
+						value: 'commercial.outdoor_and_sport',
+					},
+					{
+						title: 'Shopping malls',
+						value: 'commercial.shopping_mall',
+					},
+					{
+						title: 'Department stores',
+						value: 'commercial.department_store',
+					},
+					{
+						title: 'Hobby-related shops',
+						value: 'commercial.hobby',
+					},
+					{
+						title: 'Book shops',
+						value: 'commercial.books',
+					},
+					{
+						title: 'Gift and Souvenir shops',
+						value: 'commercial.gift_and_souvenir',
+					},
+					{
+						title: 'Tickets and lottery shops',
+						value: 'commercial.tickets_and_lottery',
+					},
+					{
+						title: 'Clothing and Bags',
+						value: ['commercial.clothing', 'commercial.bag'],
+					},
+					{
+						title: 'Healthy and Beauty shops',
+						value: 'commercial.health_and_beauty',
+					},
+					{
+						title: 'Food and Drinks',
+						value: 'commercial.food_and_drink',
+					},
+					{
+						title: 'Art and Antiques shops',
+						value: ['commercial.art', 'commercial.antiques'],
+					},
+					{
+						title: 'Video and Music shops',
+						value: 'commercial.video_and_music',
+					},
+				],
+			},
+			{
+				title: 'Food',
+				value: 'catering',
+				children: [
+					{
+						title: 'Restaurants',
+						value: 'catering.restaurant',
+					},
+					{
+						title: 'Fast food',
+						value: 'catering.fast_food',
+					},
+					{
+						title: 'Cafes',
+						value: 'catering.cafe',
+					},
+					{
+						title: 'Food courts',
+						value: 'catering.food_court',
+					},
+					{
+						title: 'Bars and Pubs',
+						value: ['catering.bar', 'catering.pub'],
+					},
+					{
+						title: 'Ice cream',
+						value: 'catering.ice_cream',
+					},
+				],
+			},
+			{
+				title: 'Entertainment',
+				value: 'entertainment',
+				children: [
+					{
+						title: 'Culture',
+						value: 'entertainment.culture',
+					},
+					{
+						title: 'Zoo',
+						value: 'entertainment.zoo',
+					},
+					{
+						title: 'Entertainment',
+						value: 'entertainment.aquarium',
+					},
+					{
+						title: 'Planetarium',
+						value: 'entertainment.planetarium',
+					},
+					{
+						title: 'Cinema',
+						value: 'entertainment.cinema',
+					},
+					{
+						title: 'Arcade',
+						value: 'entertainment.amusement_arcade',
+					},
+					{
+						title: 'Escape-room',
+						value: 'entertainment.escape_game',
+					},
+					{
+						title: 'Miniature golf',
+						value: 'entertainment.miniature_golf',
+					},
+					{
+						title: 'Bowling Alley',
+						value: 'entertainment.bowling_alley',
+					},
+					{
+						title: 'Theme park',
+						value: 'entertainment.theme_park',
+					},
+					{
+						title: 'Flying fox',
+						value: 'entertainment.flying_fox',
+					},
+					{
+						title: 'Water park',
+						value: 'entertainment.water_park',
+					},
+				],
+			},
+			{
+				title: 'Leisure',
+				value: 'leisure',
+				children: [
+					{
+						title: 'Picnic',
+						value: 'leisure.picnic',
+					},
+					{
+						title: 'Barbecue',
+						value: 'leisure.picnic.bbq',
+					},
+					{
+						title: 'Playground',
+						value: 'leisure.playground',
+					},
+					{
+						title: 'Spa',
+						value: 'leisure.spa',
+					},
+					{
+						title: 'Park',
+						value: 'leisure.park',
+					},
+				],
+			},
+			{
+				title: 'Nature',
+				value: 'natural',
+			},
+			{
+				title: 'National Park',
+				value: 'national_park',
+			},
+			{
+				title: 'Rental',
+				value: 'rental',
+			},
+			{
+				title: 'Tourist spots',
+				value: 'tourism',
+				children: [
+					{
+						title: 'Attractions',
+						value: 'tourism.attraction',
+					},
+					{
+						title: 'Sights',
+						value: 'tourism.sights',
+					},
+				],
+			},
+			{
+				title: 'Camping',
+				value: 'camping',
+			},
+			{
+				title: 'Beach',
+				value: 'beach',
+			},
+			{
+				title: 'Adult stuff',
+				value: 'adult',
+				children: [
+					{
+						title: 'Night club',
+						value: 'adult.nightclub',
+					},
+					{
+						title: 'Strip club',
+						value: 'adult.stripclub',
+					},
+					{
+						title: 'Casino',
+						value: 'adult.casino',
+					},
+					{
+						title: 'Adult Gaming Centre',
+						value: 'adult.adult_gaming_centre',
+					},
+				],
+			},
+		],
+		[],
+	);
 
 	const [selectedTypes, setSelectedTypes] = useState<Array<string>>([]);
 

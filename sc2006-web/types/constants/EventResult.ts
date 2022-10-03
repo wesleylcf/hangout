@@ -4,7 +4,7 @@ export interface DbEventResult {
 	// Because firebase doesn't allow directly nested arrays
 	suggestedDates: Record<string, Array<{ start: string; end: string }>>;
 	suggestions: {
-		[category: string]: DbPlace;
+		[category: string]: DbPlace[];
 	};
 	createdAt: Timestamp;
 }

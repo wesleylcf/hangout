@@ -1,10 +1,11 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useContext, useState } from 'react';
 import { Card, InputLabel, TextInput } from '../../components/common';
 import { Form, Input } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
-import { EventParticipant } from '../../types';
+import { EventParticipant, UserRes } from '../../types';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { useRouter } from 'next/router';
@@ -15,14 +16,24 @@ interface CreateEventForm {
 }
 
 const CreateEventPage = () => {
-	const { me } = useContext(GlobalContext);
+	const { me, setMe } = useContext(GlobalContext);
 	const notification = useNotification();
 	const router = useRouter();
 	const [form] = Form.useForm<CreateEventForm>();
 	const { setFieldValue, getFieldValue } = form;
 	const onSubmit = async (form: CreateEventForm) => {
 		try {
-			await eventService.create(form);
+			console.log(form);
+			const { eventUuid } = await eventService.create(form);
+			setMe((prevMe) => {
+				if (prevMe) {
+					return {
+						...prevMe,
+						eventIds: [...prevMe.eventIds, eventUuid],
+					};
+				}
+			});
+
 			notification.success(
 				<div>
 					Successfully created event <b>{form.name}</b>
@@ -31,12 +42,15 @@ const CreateEventPage = () => {
 			);
 			router.push('/events');
 		} catch (e) {
-			notification.apiError({
-				name: '',
-				level: 'error',
-				message: 'Please check your inputs or alert us.',
-				title: 'Failed to create Event',
-			});
+			const error = e.title
+				? e
+				: {
+						name: '',
+						level: 'error',
+						message: 'Please check your inputs or alert us.',
+						title: 'Failed to create Event',
+				  };
+			notification.apiError(error);
 		}
 	};
 

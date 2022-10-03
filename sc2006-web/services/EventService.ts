@@ -1,5 +1,5 @@
 import { throwErrorOrGetData } from '../lib/error';
-import { CreateEventReq } from '../types';
+import { CreateEventReq, CreateEventRes } from '../types';
 
 export class EventService {
 	async create(req: CreateEventReq) {
@@ -13,9 +13,11 @@ export class EventService {
 			},
 			body: JSON.stringify(req),
 		});
-		await throwErrorOrGetData(response, {
-			fallbackMessage: 'Please try again later or send us an alert',
+		const data = await throwErrorOrGetData<CreateEventRes>(response, {
+			fallbackMessage:
+				'Please check your inputs. Otherwise please try again later or send us an alert',
 			fallbackTitle: 'Failed to create event',
 		});
+		return data;
 	}
 }

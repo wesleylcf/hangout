@@ -3,10 +3,12 @@ import { Timestamp } from 'firebase/firestore';
 export interface DbEventResult {
 	// Because firebase doesn't allow directly nested arrays
 	suggestedDates: Record<string, Array<{ start: string; end: string }>>;
-	suggestions: {
-		[category: string]: DbPlace;
-	};
+	suggestions: DbEventSuggestion;
 	createdAt: Timestamp;
+}
+
+export interface DbEventSuggestion {
+	[category: string]: DbPlace[];
 }
 
 export const EVENT_DATETIME_FORMAT = 'ddd LL HH:mm';

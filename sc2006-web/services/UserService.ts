@@ -16,8 +16,6 @@ export class UserService {
 		});
 		await throwErrorOrGetData<{
 			error: Omit<PresentableError, 'name'> | null;
-		}>(response, {
-			responseNotNeeded: true,
-		});
+		}>(response, {});
 	}
 }

@@ -1,4 +1,5 @@
 import {
+	ArrayMinSize,
 	IsArray,
 	IsBoolean,
 	IsString,
@@ -17,6 +18,7 @@ export class CreateEventDto implements CreateEventReq {
 	name: string;
 
 	@IsArray()
+	@ArrayMinSize(2)
 	@ValidateNested({ each: true })
 	@Type(() => ParticipantDto)
 	participants: Array<EventParticipant>;

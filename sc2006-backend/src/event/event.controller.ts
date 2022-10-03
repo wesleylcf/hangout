@@ -4,6 +4,8 @@ import {
 	Post,
 	UseInterceptors,
 	UseGuards,
+	Res,
+	HttpStatus,
 } from '@nestjs/common';
 import { LoggingInterceptor } from 'src/logging.interceptor';
 import { EventService } from './event.service';
@@ -11,10 +13,7 @@ import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateEventDto } from './create-event.dto';
 import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
-import {
-	EventParticipant,
-	PublicEventParticipant,
-} from '../../../sc2006-common/src';
+import { EventParticipant } from '../../../sc2006-common/src';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -25,9 +24,19 @@ export class EventController {
 		private readonly eventResultService: EventResultService,
 	) {}
 
+	@Post('list')
+	async getEvents(@Body() body: { uuids: string[] }) {
+		const { uuids } = body;
+		const events = await this.eventService.findMany(uuids);
+		return events;
+	}
+
 	@UseGuards(JwtAuthGuard)
 	@Post('create')
-	async createEvent(@Body() body: CreateEventDto) {
+	async createEvent(
+		@Body() body: CreateEventDto,
+		@Res({ passthrough: true }) res,
+	) {
 		const { name, participants } = body;
 
 		const manuallyAddedUsers = [];
@@ -52,14 +61,21 @@ export class EventController {
 			authUsers = users;
 		}
 
-		const { eventResultId, expiresAt } =
-			await this.eventResultService.createOne([
-				...manuallyAddedUsers,
-				...authUsers,
-				creator,
-			]);
+		const { result, error } = await this.eventResultService.createOne([
+			...manuallyAddedUsers,
+			...authUsers,
+			creator,
+		]);
 
-		await this.eventService.createOne({
+		if (error) {
+			res.status(HttpStatus.BAD_REQUEST).json({ error, uuid: null });
+			console.log(`Returning error: ${JSON.stringify(error)}`);
+			return;
+		}
+
+		const { eventResultId, expiresAt } = result;
+
+		const { eventUuid } = await this.eventService.createOne({
 			name,
 			expiresAt,
 			creatorId: creator.name,
@@ -67,6 +83,6 @@ export class EventController {
 			authParticipantIds: authUserUuids,
 			manualParticipants: manuallyAddedUsers,
 		});
-		return { error: null };
+		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
 	}
 }

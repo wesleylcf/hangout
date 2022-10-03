@@ -14,9 +14,7 @@ export class MeService {
 			body: JSON.stringify(user),
 			credentials: 'include',
 		});
-		await throwErrorOrGetData(response, {
-			responseNotNeeded: true,
-		});
+		await throwErrorOrGetData(response, {});
 	}
 
 	async login(req: AuthUserReq) {
