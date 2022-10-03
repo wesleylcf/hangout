@@ -11,6 +11,7 @@ import { Card, InputLabel } from '../../../components/common';
 import { PublicParticipantCard } from './PublicParticipantCard';
 import { EventParticipant } from '../../../types';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
+import { ParticipantCardHeader } from './ParticipantCardHeader';
 
 interface BaseParticipantsSectionProps {
 	onRemoveParticipant: (id: string) => void;
@@ -131,7 +132,13 @@ export const ParticipantsSection = ({
 								<PublicParticipantCard
 									key={index}
 									participant={participant}
-									isExpanded={expandedParticipants.has(index.toString())}
+									header={
+										<ParticipantCardHeader
+											title={participant.name}
+											isExpanded={expandedParticipants.has(index.toString())}
+											isCreator={participant.isCreator}
+										/>
+									}
 									onUpdateParticipant={onUpdateParticipant}
 									index={index}
 								/>

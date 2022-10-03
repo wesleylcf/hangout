@@ -9,18 +9,17 @@ import {
 	UserOutlined,
 } from '@ant-design/icons';
 import { FieldRow } from '../../../components/common/FieldRow';
-import { Collapse, Form } from 'antd';
+import { Collapse, CollapsePanelProps } from 'antd';
 import { ScheduleModal } from '../ScheduleModal';
 import { CollapseItemHeader } from '../../../components/common';
 import { PreferencesModal } from '../PreferencesModal';
 
 type FieldName = 'name' | 'preferences' | 'schedule' | 'address';
-interface PublicParticipantCardProps {
+type PublicParticipantCardProps = CollapsePanelProps & {
 	participant: PublicEventParticipant;
-	isExpanded: boolean;
 	onUpdateParticipant: (participant: EventParticipant, index: number) => void;
 	index: number;
-}
+};
 
 interface ParticipantItem {
 	key: FieldName;
@@ -29,32 +28,10 @@ interface ParticipantItem {
 
 export const PublicParticipantCard = ({
 	participant,
-	isExpanded,
 	onUpdateParticipant,
 	index,
 	...props
 }: PublicParticipantCardProps) => {
-	const ParticipantCardHeader = ({ title }: { title: string }) => {
-		const icon = participant.isCreator ? (
-			<CrownFilled
-				className="pr-2 "
-				style={{
-					color: 'rgb(232 121 249)',
-				}}
-			/>
-		) : (
-			<UserOutlined
-				className="pr-2 "
-				style={{
-					color: 'rgb(232 121 249)',
-				}}
-			/>
-		);
-		return (
-			<CollapseItemHeader icon={icon} title={title} isExpanded={isExpanded} />
-		);
-	};
-
 	const getEditable = (name: FieldName) => {
 		switch (name) {
 			case 'schedule':
@@ -93,13 +70,7 @@ export const PublicParticipantCard = ({
 	};
 
 	return (
-		<Collapse.Panel
-			key={participant.name}
-			header={<ParticipantCardHeader title={participant.name} />}
-			forceRender
-			showArrow={false}
-			{...props}
-		>
+		<Collapse.Panel forceRender showArrow={false} {...props}>
 			{participantItems.map(({ label, key }, index) => {
 				let modal;
 				if (key === 'schedule') {
