@@ -3,6 +3,7 @@ import {
 	DbNotification,
 	DbEvent,
 	DbEventRes,
+	EVENT_DATETIME_FORMAT,
 } from '../../../sc2006-common/src';
 import { db } from 'src/firebase.config';
 import {
@@ -19,6 +20,7 @@ import {
 	arrayUnion,
 	WriteBatch,
 } from 'firebase/firestore';
+import * as moment from 'moment';
 
 @Injectable()
 export class EventService {
@@ -68,7 +70,7 @@ export class EventService {
 		return {
 			uuid: docSnap.id,
 			...rest,
-			createdAt: createdAt.toDate(),
+			createdAt: moment(createdAt.toDate()).format(EVENT_DATETIME_FORMAT),
 		};
 	}
 
@@ -83,7 +85,7 @@ export class EventService {
 			result.push({
 				uuid: doc.id,
 				...rest,
-				createdAt: createdAt.toDate(),
+				createdAt: moment(createdAt.toDate()).format(EVENT_DATETIME_FORMAT),
 			});
 		});
 		return result;

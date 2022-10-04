@@ -1,8 +1,20 @@
-import React, { useState, ReactNode, useMemo, useRef, useEffect } from 'react';
+import React, {
+	useState,
+	ReactNode,
+	useMemo,
+	useRef,
+	useEffect,
+	useContext,
+} from 'react';
 import { Layout, Divider, Menu } from 'antd';
 import { useRouter } from 'next/router';
 import { NAVIGATION_HEIGHT } from '../../constants';
 import { PlusCircleFilled } from '@ant-design/icons';
+import { DbEventRes } from '../../types';
+import { GlobalContext, PageContext } from '../../contexts';
+import { eventService } from '../../services';
+import { useNotification } from '../../hooks';
+import { ListCreatedEvents } from '../../containers/event/ListCreatedEvents';
 
 enum EventMenuItemType {
 	CREATED_EVENTS = '#created',
@@ -20,28 +32,35 @@ interface EventMenuItem {
 }
 
 function ListEventsPage() {
-	const eventMenuItems: EventMenuItem[] = useMemo(
-		() => [
-			{
-				key: EventMenuItemType.CREATED_EVENTS,
-				label: 'Created Events',
-			},
-		],
-		[],
-	);
-	const onCreateEvent = () => {
-		router.push('/events/create');
-	};
-
+	const { me } = useContext(GlobalContext);
+	const { setLoading } = useContext(PageContext);
+	const notification = useNotification();
+	const [events, setEvents] = useState<Array<DbEventRes>>([]);
 	const [selectedMenuItem, setSelectedMenuItem] = useState(
 		EventMenuItemType.CREATED_EVENTS,
 	);
 	const refs = {
-		created: useRef(null as any),
-		active: useRef(null as any),
-		expired: useRef(null as any),
+		created: useRef<HTMLHeadingElement>(null as any),
+		active: useRef<HTMLHeadingElement>(null as any),
+		expired: useRef<HTMLHeadingElement>(null as any),
 	};
 	const router = useRouter();
+
+	useEffect(() => {
+		const pullAndSetEvents = async () => {
+			try {
+				const events = await eventService.getBriefEvents({
+					uuids: me?.eventIds || [],
+				});
+				setEvents(events);
+			} catch (e) {
+				notification.apiError(e);
+			}
+		};
+		setLoading(true);
+		pullAndSetEvents();
+		setLoading(false);
+	}, [me?.eventIds]);
 
 	useEffect(() => {
 		switch (selectedMenuItem) {
@@ -59,6 +78,21 @@ function ListEventsPage() {
 		}
 	}, [selectedMenuItem]);
 
+	const eventMenuItems: EventMenuItem[] = useMemo(
+		() => [
+			{
+				key: EventMenuItemType.CREATED_EVENTS,
+				label: 'Created Events',
+			},
+		],
+		[],
+	);
+
+	const onCreateEvent = () => {
+		router.push('/events/create');
+	};
+
+	console.log('events', events);
 	return (
 		<Layout
 			className="w-full h-full bg-white"
@@ -68,7 +102,7 @@ function ListEventsPage() {
 			<Layout.Sider
 				theme="light"
 				width={275}
-				className="fixed top-0 left-0 pr-16"
+				className="fixed top-0 left-0 pr-12"
 				style={{
 					overflow: 'auto',
 					height: 'calc(100vh - 45px)',
@@ -121,17 +155,20 @@ function ListEventsPage() {
 				className="bg-sky-400 inline-block"
 			></Divider>
 			<Layout style={{ background: 'none', marginLeft: 275 }}>
-				<Layout.Content className="w-full h-full flex flex-col p-16 space-y-12">
-					<h1 className="text-2xl" ref={refs.created}>
-						Created Events
-					</h1>
-					<h1 className="text-2xl">Participating Events</h1>
-					<h2 className="text-lg" ref={refs.active}>
-						Current Events
-					</h2>
-					<h2 className="text-lg" ref={refs.expired}>
-						Past Events
-					</h2>
+				<Layout.Content className="w-full h-full flex flex-col space-y-12">
+					<ListCreatedEvents
+						headerRef={refs.created}
+						events={events.filter((e) => e.creatorId == me?.uuid)}
+					/>
+					<div className="flex flex-col p-12">
+						<h1 className="text-2xl">Participating Events</h1>
+						<h2 className="text-lg" ref={refs.active}>
+							Current Events
+						</h2>
+						<h2 className="text-lg" ref={refs.expired}>
+							Past Events
+						</h2>
+					</div>
 				</Layout.Content>
 			</Layout>
 			<PlusCircleFilled

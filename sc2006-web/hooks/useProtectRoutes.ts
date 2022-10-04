@@ -31,7 +31,9 @@ export function useProtectRoutes() {
 	};
 
 	useEffect(() => {
-		const plainPath = router.asPath.split('#')[0];
+		const unhashedPath = router.asPath.split('#')[0];
+		const plainPath = '/' + unhashedPath.split('/')[1];
+
 		const { allowedRoutes } = getRoutes(me);
 		if (me) {
 			if (wasLoggedIn) {

@@ -5,7 +5,7 @@ import { Form, Input } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
 import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
-import { EventParticipant, UserRes } from '../../types';
+import { EventParticipant } from '../../types';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { useRouter } from 'next/router';

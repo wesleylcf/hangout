@@ -29,7 +29,8 @@ export class MeService {
 			credentials: 'include',
 		});
 		const data = await throwErrorOrGetData<LoginRes>(response, {
-			fallbackMessage: 'Please check your email and password carefully',
+			fallbackMessage:
+				'Please check your email and password carefully. Otherwise, please try again later',
 			fallbackTitle: 'Login error',
 		});
 		const { user } = data;

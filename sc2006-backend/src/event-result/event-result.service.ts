@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import {
 	DbEventResult,
+	DbEventResultRes,
 	DbEventSuggestion,
 	EVENT_DATETIME_FORMAT,
 	EVENT_DATE_FORMAT,
@@ -12,6 +13,7 @@ import {
 import fetch from 'node-fetch';
 import {
 	doc,
+	getDoc,
 	setDoc,
 	collection,
 	serverTimestamp,
@@ -31,6 +33,21 @@ export class EventResultService {
 		private readonly userService: UserService,
 		private readonly logger: Logger,
 	) {}
+
+	async findOne(uuid: string): Promise<DbEventResultRes | undefined> {
+		const docRef = doc(db, 'event-results', uuid);
+		const docSnap = await getDoc(docRef);
+		if (!docSnap.exists()) {
+			return undefined;
+		}
+
+		const { createdAt, ...rest } = docSnap.data() as DbEventResult;
+		return {
+			uuid: docSnap.id,
+			createdAt: moment(createdAt.toDate()).format(EVENT_DATETIME_FORMAT),
+			...rest,
+		};
+	}
 
 	async createOne(
 		participants: {

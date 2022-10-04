@@ -1,5 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
 
+export interface DbEventResultRes extends Omit<DbEventResult, 'createdAt'> {
+	uuid: string;
+	createdAt: string;
+}
 export interface DbEventResult {
 	// Because firebase doesn't allow directly nested arrays
 	suggestedDates: Record<string, Array<{ start: string; end: string }>>;

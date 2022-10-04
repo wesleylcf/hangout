@@ -24,7 +24,23 @@ export class EventController {
 		private readonly eventResultService: EventResultService,
 	) {}
 
-	@Post('list')
+	@Post('detailed/one')
+	async getEvent(@Body() body: { uuid: string }) {
+		const { uuid } = body;
+		const event = await this.eventService.findOne(uuid);
+		const { authParticipantIds, eventResultId, ...rest } = event;
+		const detailedAuthParticipants = await this.userService.bulkFindAllById(
+			authParticipantIds,
+		);
+		const eventResult = await this.eventResultService.findOne(eventResultId);
+		return {
+			...rest,
+			authParticipants: detailedAuthParticipants,
+			eventResult,
+		};
+	}
+
+	@Post('brief/list')
 	async getEvents(@Body() body: { uuids: string[] }) {
 		const { uuids } = body;
 		const events = await this.eventService.findMany(uuids);
