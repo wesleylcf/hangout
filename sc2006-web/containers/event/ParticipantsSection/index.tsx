@@ -12,19 +12,19 @@ import { PublicParticipantCard } from './PublicParticipantCard';
 import { EventParticipant } from '../../../types';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 import { ParticipantCardHeader } from './ParticipantCardHeader';
+import { useNotification } from '../../../hooks';
 
 interface BaseParticipantsSectionProps {
 	onRemoveParticipant: (id: string) => void;
 	formInstance: FormInstance;
+	limitFeatures?: boolean;
 }
 
 interface AuthParticipantsSectionProps extends BaseParticipantsSectionProps {
-	limitFeatures?: never;
 	setIsInviteUserModalOpen: Dispatch<boolean>;
 }
 
 interface PublicParticipantSectionProps extends BaseParticipantsSectionProps {
-	limitFeatures: boolean;
 	setIsInviteUserModalOpen?: never;
 }
 
@@ -33,11 +33,12 @@ type ParticipantsSectionProps =
 	| PublicParticipantSectionProps;
 
 export const ParticipantsSection = ({
-	limitFeatures,
+	limitFeatures = false,
 	setIsInviteUserModalOpen,
 	onRemoveParticipant,
 	formInstance,
 }: ParticipantsSectionProps) => {
+	const notification = useNotification();
 	const [form] = Form.useForm(formInstance);
 	const { getFieldValue, setFieldValue } = form;
 	const participants: EventParticipant[] = getFieldValue('participants');
@@ -61,6 +62,14 @@ export const ParticipantsSection = ({
 
 	const onManualAddParticipant = () => {
 		const currentParticipants = getFieldValue('participants');
+
+		if (limitFeatures && currentParticipants.length >= 5) {
+			notification.warning(
+				'Please log in to remove restricted usage of the app',
+				'Cannot add anymore participants',
+			);
+		}
+
 		const newParticipant: EventParticipant = {
 			name: `New Participant ${currentParticipants.length + 1}`,
 			preferences: [],

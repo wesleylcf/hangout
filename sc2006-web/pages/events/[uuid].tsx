@@ -68,7 +68,6 @@ const EventPage = () => {
 
 	const presentablePlaceProps: PresentablePlaceProps[] = ['name', 'address'];
 
-	console.log(eventResult);
 	return (
 		<div className="w-full h-full flex flex-col">
 			<PageHeader onBack={() => router.back()} title={`Event ${uuid}`} />
@@ -114,7 +113,6 @@ const EventPage = () => {
 					>
 						{eventResult?.suggestions &&
 							Object.keys(eventResult.suggestions).map((placeType) => {
-								console.log(placeType);
 								return (
 									<Collapse.Panel
 										showArrow={false}

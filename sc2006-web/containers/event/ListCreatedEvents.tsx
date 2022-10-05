@@ -1,7 +1,7 @@
 import React, { ReactNode, RefObject } from 'react';
 import { Card } from '../../components/common';
 import { DbEventRes } from '../../types';
-import { EventSection } from './EventSection/EventSection';
+import { EventSection } from './EventSection';
 
 interface ListCreatedEventsProps {
 	headerRef: RefObject<HTMLHeadingElement>;
