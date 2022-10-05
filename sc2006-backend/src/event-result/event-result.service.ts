@@ -177,8 +177,11 @@ export class EventResultService {
 				});
 			});
 
-			// Initialize suggestedDates with [00:00:00, 23:59:59]
-			const suggestedDates = {};
+			// Initialize suggestedDates with {start: 00:00:00, end: 23:59:59}
+			const suggestedDates: Record<
+				string,
+				Array<Record<'start' | 'end', string>>
+			> = {};
 			const now = moment();
 			for (let i = 1; i < 8; i++) {
 				const startDateTime = moment()
@@ -188,8 +191,10 @@ export class EventResultService {
 					.day(now.get('day') + i)
 					.endOf('day');
 				suggestedDates[startDateTime.format(EVENT_DATE_FORMAT)] = [
-					startDateTime.format(EVENT_DATETIME_FORMAT),
-					endDateTime.format(EVENT_DATETIME_FORMAT),
+					{
+						start: startDateTime.format(EVENT_DATETIME_FORMAT),
+						end: endDateTime.format(EVENT_DATETIME_FORMAT),
+					},
 				];
 			}
 			Object.keys(busyDateTime).map((dateString) => {
