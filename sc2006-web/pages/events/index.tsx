@@ -92,7 +92,6 @@ function ListEventsPage() {
 		router.push('/events/create');
 	};
 
-	console.log('events', events);
 	return (
 		<Layout
 			className="w-full h-full bg-white"
