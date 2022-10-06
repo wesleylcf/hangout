@@ -1,13 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { useContext, useState } from 'react';
-import { Card, InputLabel, TextInput } from '../../components/common';
-import { Form, Input } from 'antd';
+import React, { useContext } from 'react';
+import { Form, PageHeader } from 'antd';
 import { GlobalContext } from '../../contexts';
 import { EventParticipant } from '../../types';
-import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { useRouter } from 'next/router';
 import { CreateEventForm } from '../../containers/event/CreateEventForm';
+import { eventService } from '../../services';
 
 interface CreateEventForm {
 	name: string;
@@ -19,7 +18,6 @@ const CreateEventPage = () => {
 	const notification = useNotification();
 	const router = useRouter();
 	const [form] = Form.useForm<CreateEventForm>();
-	const { setFieldValue, getFieldValue } = form;
 	const onSubmit = async (form: CreateEventForm) => {
 		try {
 			console.log(form);
@@ -70,11 +68,18 @@ const CreateEventPage = () => {
 	};
 
 	return (
-		<CreateEventForm
-			form={form}
-			initialValues={initialFormValues}
-			onSubmitHandler={onSubmit}
-		/>
+		<div className="flex flex-col w-full h-full items-center">
+			<PageHeader
+				onBack={() => router.back()}
+				title="Create Event"
+				className="self-start"
+			/>
+			<CreateEventForm
+				form={form}
+				initialValues={initialFormValues}
+				onSubmitHandler={onSubmit}
+			/>
+		</div>
 	);
 };
 

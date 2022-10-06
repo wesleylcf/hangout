@@ -2,6 +2,7 @@
 import React, { useState, RefObject, useEffect } from 'react';
 import { EyeOutlined } from '@ant-design/icons';
 import { ScheduleModalProps } from '../../containers/event/ScheduleModal';
+import Form, { Rule } from 'antd/lib/form';
 
 type FieldRowType = string | string[] | Record<string, [string, string]>;
 
@@ -21,6 +22,8 @@ type FieldRowProps<T extends FieldRowType> = {
 	CancelEditIcon?: React.ElementType;
 	Modal?: React.ElementType;
 	modalProps?: Partial<ScheduleModalProps>;
+	formFieldName?: string;
+	fieldFormRules?: Rule[];
 };
 
 export function FieldRow<T extends FieldRowType>({
@@ -39,6 +42,9 @@ export function FieldRow<T extends FieldRowType>({
 	CancelEditIcon,
 	Modal,
 	modalProps,
+	formFieldName,
+	fieldFormRules,
+	...formItemProps
 }: FieldRowProps<T>) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [internalValue, setInternalValue] = useState(value);
@@ -88,44 +94,42 @@ export function FieldRow<T extends FieldRowType>({
 	const EditableField = (
 		<>
 			<div className="w-5/6 flex flex-row justify-between items-center">
-				<div className="w-5/6">
-					{isEditing
-						? Editable && (
-								<Editable
-									value={internalValue}
-									onChange={onChangeHandler}
-									onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-										if (event.code === 'Enter') {
-											setIsEditing(false);
-											onEditFinish && onEditFinish(internalValue);
-										}
-									}}
-								/>
-						  )
-						: PresentableValue}
-				</div>
-				<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
-					{isEditing
-						? CancelEditIcon && (
-								<CancelEditIcon
-									onClick={() => {
+				{isEditing
+					? Editable && (
+							<Editable
+								value={internalValue}
+								onChange={onChangeHandler}
+								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+									if (event.code === 'Enter') {
 										setIsEditing(false);
 										onEditFinish && onEditFinish(internalValue);
-									}}
-									style={iconStyle}
-									className="hover:text-sky-400"
-								/>
-						  )
-						: AllowEditIcon && (
-								<AllowEditIcon
-									onClick={() => {
-										setIsEditing(true);
-									}}
-									className="hover:text-sky-400"
-									style={iconStyle}
-								/>
-						  )}
-				</div>
+									}
+								}}
+							/>
+					  )
+					: PresentableValue}
+			</div>
+			<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
+				{isEditing
+					? CancelEditIcon && (
+							<CancelEditIcon
+								onClick={() => {
+									setIsEditing(false);
+									onEditFinish && onEditFinish(internalValue);
+								}}
+								style={iconStyle}
+								className="hover:text-sky-400"
+							/>
+					  )
+					: AllowEditIcon && (
+							<AllowEditIcon
+								onClick={() => {
+									setIsEditing(true);
+								}}
+								className="hover:text-sky-400"
+								style={iconStyle}
+							/>
+					  )}
 			</div>
 			{Modal && (
 				<Modal
@@ -148,14 +152,22 @@ export function FieldRow<T extends FieldRowType>({
 	);
 
 	return (
-		<div
-			ref={ref}
-			className={`p-2 flex flex-row ${getClassName()}`}
-			onClick={isClickDisabled ? undefined : onClickHandler}
+		<Form.Item
+			name={formFieldName}
+			rules={fieldFormRules ? fieldFormRules : undefined}
+			style={{ margin: 0 }}
+			className={`p-2 w-full h-full ${getClassName()}`}
+			{...formItemProps}
 		>
-			{label && <b className="w-1/6">{label} </b>}
-			{allowEdit ? EditableField : FixedField}
-		</div>
+			<div
+				ref={ref}
+				onClick={isClickDisabled ? undefined : onClickHandler}
+				className="w-full h-full flex flex-row p-2"
+			>
+				{label && <b className="w-1/6">{label} </b>}
+				{allowEdit ? EditableField : FixedField}
+			</div>
+		</Form.Item>
 	);
 }
 

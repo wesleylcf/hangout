@@ -1,11 +1,16 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { useContext, useState } from 'react';
+import React, { ComponentProps, useContext, useState } from 'react';
 import { Card, InputLabel, TextInput } from '../../../components/common';
 import { Form, Input, FormInstance } from 'antd';
 import { GlobalContext } from '../../../contexts';
 import { AddUserToEventModal } from '../AddUserToEventModal';
 import { ParticipantsSection } from '../ParticipantsSection';
-import { CreateEventRes, EventParticipant } from '../../../types';
+import {
+	CreateEventRes,
+	EventParticipant,
+	PublicEventParticipant,
+} from '../../../types';
+import { useNotification } from '../../../hooks';
 
 interface CreateEventForm {
 	name: string;
@@ -26,12 +31,17 @@ export const CreateEventForm = ({
 	limitFeatures = false,
 }: CreateEventFormProps) => {
 	const { me } = useContext(GlobalContext);
-
-	const { setFieldValue, getFieldValue } = form;
+	const notification = useNotification();
+	const { setFieldValue, getFieldValue, validateFields } = form;
 
 	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
 	const [addedParticipants, setAddedParticipants] = useState<Set<string>>(
 		new Set(me ? [me.uuid] : []),
+	);
+	const [publicParticipantFormInstances, setPublicParticipantFormInstances] =
+		useState<FormInstance<PublicEventParticipant>[]>([]);
+	const [expandedParticipants, setExpandedParticipants] = useState<Set<string>>(
+		new Set(),
 	);
 
 	const onAddAuthUser = (userEmail: string) => {
@@ -61,14 +71,50 @@ export const CreateEventForm = ({
 		setFieldValue('participants', newParticipants);
 	};
 
+	const validateAndSubmit = async (form: CreateEventForm) => {
+		publicParticipantFormInstances.forEach((formInstance) => {
+			formInstance.submit();
+		});
+
+		const participants: Array<EventParticipant> = getFieldValue('participants');
+
+		let hasError = false;
+		await Promise.all(
+			publicParticipantFormInstances
+				.map(async (formInstance) => {
+					return await formInstance.validateFields();
+				})
+				.concat(await validateFields()),
+		).catch((e) => {
+			hasError = true;
+			notification.error(
+				'One or more inputs have errors. Please check them carefully',
+				'Input Error',
+			);
+			const indexes = participants.map((p, index) => index.toString());
+			setExpandedParticipants(new Set(indexes));
+		});
+
+		if (participants.length < 2) {
+			notification.error(
+				'There should be at least two participants in an event',
+				'Input Error',
+			);
+			hasError = true;
+		}
+		if (!hasError) {
+			onSubmitHandler(form);
+		}
+	};
+
 	return (
 		<>
-			<Card className="p-8 w-5/6 h-5/6 flex flex-col justify-center items-start space-y-2 overflow-auto">
+			<Card className="p-8 w-5/6 h-5/6 space-y-2 overflow-auto">
 				<Form
-					className="w-full h-full"
+					className="w-full h-full flex flex-col"
 					initialValues={initialValues}
 					form={form}
-					onFinish={onSubmitHandler}
+					onFinish={validateAndSubmit}
 				>
 					<InputLabel>Name of Event</InputLabel>
 					<Form.Item
@@ -106,20 +152,22 @@ export const CreateEventForm = ({
 						<ParticipantsSection
 							setIsInviteUserModalOpen={setIsInviteUserModalOpen}
 							onRemoveParticipant={onRemoveParticipant}
-							formInstance={form}
+							form={form}
 							limitFeatures={limitFeatures}
+							setFormInstances={setPublicParticipantFormInstances}
+							formInstances={publicParticipantFormInstances}
+							expanded={expandedParticipants}
+							setExpanded={setExpandedParticipants}
 						/>
 					</Form.Item>
 
-					<div className="pt-2 flex flex-row items-center space-x-4">
-						<div className="w-2/5">
-							<Input
-								type="submit"
-								value="Create Event"
-								size="small"
-								className="h-8 sky-400"
-							/>
-						</div>
+					<div className="pt-2 w-2/5 flex flex-row justify-self-end self-center space-x-4">
+						<Input
+							type="submit"
+							value="Create Event"
+							size="small"
+							className="h-8 sky-400"
+						/>
 					</div>
 				</Form>
 			</Card>

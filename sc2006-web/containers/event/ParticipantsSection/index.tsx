@@ -9,15 +9,21 @@ import {
 } from '@ant-design/icons';
 import { Card, InputLabel } from '../../../components/common';
 import { PublicParticipantCard } from './PublicParticipantCard';
-import { EventParticipant } from '../../../types';
+import { EventParticipant, PublicEventParticipant } from '../../../types';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 import { ParticipantCardHeader } from './ParticipantCardHeader';
 import { useNotification } from '../../../hooks';
 
 interface BaseParticipantsSectionProps {
+	formInstances: Array<FormInstance<PublicEventParticipant>>;
+	setFormInstances: Dispatch<
+		React.SetStateAction<Array<FormInstance<PublicEventParticipant>>>
+	>;
 	onRemoveParticipant: (id: string) => void;
-	formInstance: FormInstance;
+	form: FormInstance;
 	limitFeatures?: boolean;
+	expanded: Set<string>;
+	setExpanded: Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 interface AuthParticipantsSectionProps extends BaseParticipantsSectionProps {
@@ -36,28 +42,27 @@ export const ParticipantsSection = ({
 	limitFeatures = false,
 	setIsInviteUserModalOpen,
 	onRemoveParticipant,
-	formInstance,
+	form,
+	setFormInstances,
+	expanded,
+	setExpanded,
 }: ParticipantsSectionProps) => {
 	const notification = useNotification();
-	const [form] = Form.useForm(formInstance);
 	const { getFieldValue, setFieldValue } = form;
 	const participants: EventParticipant[] = getFieldValue('participants');
-	const [expandedParticipants, setExpandedParticipants] = useState<Set<string>>(
-		new Set(),
-	);
 
 	const onUpdateParticipant = (
 		participant: EventParticipant,
 		index: number,
 	) => {
 		const currentParticipants: EventParticipant[] =
-			form.getFieldValue('participants');
+			getFieldValue('participants');
 		const newParticipants = [
 			...currentParticipants.slice(0, index),
 			participant,
 			...currentParticipants.slice(index + 1, currentParticipants.length),
 		];
-		form.setFieldValue('participants', newParticipants);
+		setFieldValue('participants', newParticipants);
 	};
 
 	const onManualAddParticipant = () => {
@@ -68,6 +73,7 @@ export const ParticipantsSection = ({
 				'Please log in to remove restricted usage of the app',
 				'Cannot add anymore participants',
 			);
+			return;
 		}
 
 		const newParticipant: EventParticipant = {
@@ -88,7 +94,7 @@ export const ParticipantsSection = ({
 				<div className="flex flew-row items-center">
 					<a
 						onClick={() => {
-							setExpandedParticipants(new Set());
+							setExpanded(new Set());
 						}}
 						className="text-sky-400"
 					>
@@ -99,8 +105,8 @@ export const ParticipantsSection = ({
 			<Collapse
 				bordered={false}
 				ghost={true}
-				onChange={(key) => setExpandedParticipants(new Set(key))}
-				activeKey={Array.from(expandedParticipants)}
+				onChange={(key) => setExpanded(new Set(key))}
+				activeKey={Array.from(expanded)}
 			>
 				{participants &&
 					participants.map((participant, index) => {
@@ -144,12 +150,13 @@ export const ParticipantsSection = ({
 									header={
 										<ParticipantCardHeader
 											title={participant.name}
-											isExpanded={expandedParticipants.has(index.toString())}
+											isExpanded={expanded.has(index.toString())}
 											isCreator={participant.isCreator}
 										/>
 									}
 									onUpdateParticipant={onUpdateParticipant}
 									index={index}
+									setFormInstances={setFormInstances}
 								/>
 							);
 						}

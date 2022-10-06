@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	reactStrictMode: true,
+	reactStrictMode: false, // True: renders components twice (on dev but not production) in order to detect any problems with your code and warn you about them (which can be quite useful). Turned off as I require PublicParticipantCard to render once
 	swcMinify: true,
 	env: {
 		API_URL: process.env.CLIENT_ENV
