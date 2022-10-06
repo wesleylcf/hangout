@@ -3,6 +3,7 @@ import { useEffect, ReactNode, useState, useContext } from 'react';
 import { Spin } from '../../components/common';
 import { PageContext } from '../../contexts';
 import { useProtectRoutes } from '../../hooks';
+import { NAVIGATION_HEIGHT } from '../../constants';
 
 interface PageTransitionWrapperProps {
 	children: ReactNode;
@@ -34,7 +35,10 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 	});
 
 	return (
-		<div className="flex flex-row items-center justify-center w-full h-full">
+		<div
+			className="flex flex-row items-center justify-center w-full h-full"
+			style={{ marginTop: NAVIGATION_HEIGHT }}
+		>
 			{internalLoading || loading ? <Spin size="large" center /> : children}
 		</div>
 	);

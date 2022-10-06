@@ -109,8 +109,8 @@ export function MenuBar() {
 
 	return (
 		<nav
-			className="flex flew-row justify-between bg-white"
-			style={{ height: NAVIGATION_HEIGHT }}
+			className="w-full flex flew-row justify-between bg-white fixed top-0"
+			style={{ height: NAVIGATION_HEIGHT, zIndex: 1 }}
 		>
 			<Logo />
 			<div className="w-3/6 flex flex-row justify-end">

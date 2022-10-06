@@ -11,7 +11,7 @@ interface EventCardProps {
 	event: DbEventRes;
 }
 
-export const EventCard = ({ icon, event }: EventCardProps) => {
+export const EventCard = React.memo(function ({ icon, event }: EventCardProps) {
 	const now = moment();
 	const router = useRouter();
 	return (
@@ -52,4 +52,4 @@ export const EventCard = ({ icon, event }: EventCardProps) => {
 			</div>
 		</Card>
 	);
-};
+});

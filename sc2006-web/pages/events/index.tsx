@@ -92,6 +92,10 @@ function ListEventsPage() {
 		router.push('/events/create');
 	};
 
+	const createdEvents = useMemo(
+		() => events.filter((e) => e.creatorId == me?.uuid),
+		[events],
+	);
 	return (
 		<Layout
 			className="w-full h-full bg-white"
@@ -155,10 +159,7 @@ function ListEventsPage() {
 			></Divider>
 			<Layout style={{ background: 'none', marginLeft: 275 }}>
 				<Layout.Content className="w-full h-full flex flex-col space-y-12">
-					<ListCreatedEvents
-						headerRef={refs.created}
-						events={events.filter((e) => e.creatorId == me?.uuid)}
-					/>
+					<ListCreatedEvents headerRef={refs.created} events={createdEvents} />
 					<div className="flex flex-col p-12">
 						<h1 className="text-2xl">Participating Events</h1>
 						<h2 className="text-lg" ref={refs.active}>
