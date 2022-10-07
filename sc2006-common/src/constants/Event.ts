@@ -1,6 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
 import { DbEventResultRes } from './EventResult';
-import { DbUserRes } from './User';
 
 export interface DbEvent {
 	name: string;
@@ -28,6 +27,12 @@ export type DetailedEventRes = Omit<
 export interface CreateEventReq {
 	name: string;
 	participants: EventParticipant[];
+}
+
+export interface UpdateEventReq {
+	uuid: string;
+	newEvent: CreateEventReq;
+	eventResultId: string;
 }
 
 interface BaseEventParticipant {

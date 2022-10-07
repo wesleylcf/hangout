@@ -21,7 +21,9 @@ export const GreetingHeader = ({
 	return (
 		<h1 className={className} style={style}>
 			{timePeriod === 'evening' ? (
-				<EveningSvg size={48} />
+				<div className="bg-black">
+					<EveningSvg size={48} />
+				</div>
 			) : (
 				<MorningAfternoonSvg size={48} />
 			)}{' '}

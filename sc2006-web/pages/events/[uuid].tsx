@@ -35,14 +35,18 @@ const EventPage = () => {
 
 	const onSubmit = async (form: CreateEventReq) => {
 		try {
-			console.log(form);
-			await eventService.update({ ...form, uuid: event!.uuid });
+			const { authParticipants, manualParticipants, ...rest } = event!;
+			await eventService.updateResult({
+				uuid: event!.uuid,
+				eventResultId: eventResult!.uuid,
+				newEvent: form,
+			});
 
 			notification.success(
 				<div>
-					Successfully created event <b>{form.name}</b>
+					Successfully updated event <b>{form.name}</b>
 				</div>,
-				'Event created!',
+				'Event updated!',
 			);
 			router.push('/events');
 		} catch (e) {
@@ -91,7 +95,6 @@ const EventPage = () => {
 			});
 			setEvent(eventRest);
 		} catch (e) {
-			console.log(e);
 			notification.apiError(e);
 		}
 	}
@@ -194,6 +197,7 @@ const EventPage = () => {
 								],
 							}}
 							onSubmitHandler={onSubmit}
+							submitText="Update Event"
 						/>
 					)}
 				</div>

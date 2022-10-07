@@ -8,11 +8,11 @@ type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
 	selectedPreferences: Array<string>;
 };
 
-export const PreferencesModal = ({
+export const PreferencesModal = React.memo(function _PreferencesModal({
 	onOk,
 	selectedPreferences,
 	...modalProps
-}: PreferencesModalProps) => {
+}: PreferencesModalProps) {
 	const treeData = useMemo(
 		() => [
 			{
@@ -276,4 +276,4 @@ export const PreferencesModal = ({
 			</div>
 		</Modal>
 	);
-};
+});

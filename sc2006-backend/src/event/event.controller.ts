@@ -14,6 +14,7 @@ import { CreateEventDto } from './create-event.dto';
 import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
 import { DetailedEventRes, EventParticipant } from '../../../sc2006-common/src';
+import { UpdateEventDto } from './update-event.dto';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -69,11 +70,9 @@ export class EventController {
 			}
 		});
 
-		let authUsers = [];
-		if (authUserUuids.length) {
-			const users = await this.userService.bulkFindAllById(authUserUuids);
-			authUsers = users;
-		}
+		const authUsers = authUserUuids.length
+			? await this.userService.bulkFindAllById(authUserUuids)
+			: [];
 
 		const { result, error } = await this.eventResultService.createOne([
 			...manuallyAddedUsers,
@@ -98,5 +97,45 @@ export class EventController {
 			manualParticipants: manuallyAddedUsers,
 		});
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('update')
+	async updateEvent(@Body() body: UpdateEventDto) {
+		const { newEvent, uuid, eventResultId } = body;
+		const { name, participants } = newEvent;
+		const manuallyAddedUsers = [];
+		const authUserUuids = [];
+		let creator: EventParticipant;
+		participants.forEach((participant) => {
+			if (participant.isCreator) {
+				creator = participant;
+			}
+			if (participant.uuid) {
+				authUserUuids.push(participant['uuid']);
+			} else {
+				manuallyAddedUsers.push(participant);
+			}
+		});
+
+		const authUsers = authUserUuids.length
+			? await this.userService.bulkFindAllById(authUserUuids)
+			: [];
+
+		const { error, result } = await this.eventResultService.updateOne({
+			uuid: eventResultId,
+			participants: [...manuallyAddedUsers, ...authUsers, creator],
+		});
+		if (error) {
+			return { error };
+		}
+
+		await this.eventService.updateOne({
+			uuid,
+			name,
+			authParticipantIds: authUserUuids,
+			manualParticipants: manuallyAddedUsers,
+		});
+		return { error };
 	}
 }

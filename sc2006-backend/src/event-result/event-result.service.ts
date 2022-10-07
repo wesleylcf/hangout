@@ -4,11 +4,13 @@ import {
 	DbEventResult,
 	DbEventResultRes,
 	DbEventSuggestion,
+	EventParticipant,
 	EVENT_DATETIME_FORMAT,
 	EVENT_DATE_FORMAT,
 	GeoapifyResponse,
 	getLatLngCenter,
 	PresentableError,
+	UpdateEventReq,
 } from '../../../sc2006-common/src';
 import fetch from 'node-fetch';
 import {
@@ -49,188 +51,12 @@ export class EventResultService {
 		};
 	}
 
-	async createOne(
-		participants: {
-			preferences: string[];
-			address: string;
-			schedule: Record<string, { start: string; end: string }[]>;
-		}[],
-	): Promise<{
+	async createOne(participants: EventParticipant[]): Promise<{
 		result: CreateOneResult | null;
 		error: PresentableError | null;
 	}> {
 		try {
-			// Get common preferences first since if there are none we cannot generate results.
-			const commonPreferences = [];
-			const candidatePreferences = new Set();
-			participants.forEach((participant) => {
-				const preferences = participant.preferences.length
-					? participant.preferences
-					: EventResultService.DEFAULT_PREFERENCES;
-				preferences.forEach((preference) => {
-					if (candidatePreferences.has(preference)) return;
-					if (participants.every((p) => p.preferences.includes(preference))) {
-						commonPreferences.push(preference);
-					}
-					candidatePreferences.add(preference);
-				});
-			});
-			// Todo: Handle case when no common preference
-			if (commonPreferences.length < 1) {
-				return {
-					result: null,
-					error: {
-						name: '',
-						level: 'error',
-						title: 'Could not generate Event results',
-						message: 'Participants do not have any common preferences',
-					},
-				};
-			}
-
-			// Convert postal codes into latitude and longtitude
-			const geoCodes = await Promise.all(
-				participants.map(async ({ address }) => {
-					const postal = parseInt(address);
-					return await fetch(
-						`https://developers.onemap.sg/commonapi/search?searchVal=${postal}&returnGeom=Y&getAddrDetails=N&pageNum=1`,
-					).then((response) => response.json());
-				}),
-			);
-
-			const coordinates: [lat: number, lng: number][] = geoCodes.map(
-				(geoCode, index) => {
-					const { LATITUDE, LONGTITUDE } = geoCode.results[0];
-					if (!LATITUDE || !LONGTITUDE) {
-						this.logger.warn(
-							`Could not find latitude and longtitude for ${JSON.stringify(
-								participants[index],
-							)}`,
-							'EventResultService',
-						);
-					}
-					return [LATITUDE, LONGTITUDE];
-				},
-			);
-
-			const center = getLatLngCenter(coordinates);
-
-			const presentableCenter = `${center[1]},${center[0]}`; // Geoapify uses [lng,lat] instead of [lat, lng]
-			// Since API calculates cost based on number of places returned, we use a separate call for each preference
-			const places: GeoapifyResponse[] = await Promise.all(
-				commonPreferences.map(async (preference) => {
-					return await fetch(
-						`https://api.geoapify.com/v2/places?categories=${preference}&bias=proximity:${presentableCenter}&limit=5&apiKey=${process.env.GEOAPIFY_API_KEY}`,
-					).then((response) => response.json());
-				}),
-			);
-
-			const suggestions: DbEventSuggestion = {};
-			places.forEach((place, index) => {
-				const preference = commonPreferences[index];
-				suggestions[preference] = place.features.map(({ properties }) => {
-					const { name, street, formatted, postcode, lat, lon, distance } =
-						properties;
-					return {
-						name: name || street,
-						address: formatted,
-						postal: parseInt(postcode),
-						coordinates: [lat, lon],
-						distanceFromCenter: distance,
-					};
-				});
-			});
-
-			// calculate intersection of time ranges by getting union of busy times
-			const busyDateTime = {};
-			const dates = Object.keys(participants[0].schedule);
-			dates.forEach((date) => {
-				busyDateTime[date] = new Array(24).fill(-1);
-			});
-			participants.forEach(({ schedule }) => {
-				const dates = Object.keys(schedule);
-				dates.forEach((date) => {
-					const timeRanges = schedule[date];
-					timeRanges.forEach((timeRange) => {
-						const { start, end } = timeRange;
-						const startMoment = moment(start, EVENT_DATETIME_FORMAT);
-						const endMoment = moment(end, EVENT_DATETIME_FORMAT);
-						const startHour = startMoment.hours();
-						const startMinutes = startMoment.minutes();
-						const endHour = endMoment.hours();
-						const endMinutes = endMoment.minutes();
-
-						for (let h = startHour; h < endHour + 1; h++) {
-							const minute = busyDateTime[date][h];
-							if (h == startHour) {
-								busyDateTime[date][h] =
-									minute < 0 ? startMinutes : Math.min(minute, startMinutes);
-								busyDateTime;
-							} else if (h == endHour) {
-								busyDateTime[date][h] =
-									minute < 0 ? endMinutes : Math.max(minute, endMinutes);
-							} else {
-								busyDateTime[date][h] = 60;
-							}
-						}
-					});
-				});
-			});
-
-			// Initialize suggestedDates with {start: 00:00:00, end: 23:59:59}
-			const suggestedDates: Record<
-				string,
-				Array<Record<'start' | 'end', string>>
-			> = {};
-			const now = moment();
-			for (let i = 1; i < 8; i++) {
-				const startDateTime = moment()
-					.day(now.get('day') + i)
-					.startOf('day');
-				const endDateTime = moment()
-					.day(now.get('day') + i)
-					.endOf('day');
-				suggestedDates[startDateTime.format(EVENT_DATE_FORMAT)] = [
-					{
-						start: startDateTime.format(EVENT_DATETIME_FORMAT),
-						end: endDateTime.format(EVENT_DATETIME_FORMAT),
-					},
-				];
-			}
-			Object.keys(busyDateTime).map((dateString) => {
-				const hours = busyDateTime[dateString];
-				const freeTimes = [];
-				let index = 0;
-				while (index < 24) {
-					const start = index;
-					while (index < 24 && hours[index] == -1) {
-						index++;
-					}
-
-					const date = moment(dateString, EVENT_DATE_FORMAT);
-					if (index > start) {
-						const startDate = moment(date).hour(start).startOf('hour');
-						const endDate = moment(date)
-							.hour(index - 1)
-							.endOf('hour');
-
-						freeTimes.push({
-							start: startDate.format(EVENT_DATETIME_FORMAT),
-							end: endDate.format(EVENT_DATETIME_FORMAT),
-						});
-					} else {
-						index++;
-					}
-					suggestedDates[dateString] = freeTimes;
-				}
-			});
-
-			// store result and return uuid of stored result
-			const result: DbEventResult = {
-				suggestedDates,
-				suggestions,
-				createdAt: serverTimestamp() as Timestamp,
-			};
+			const result = await this.getEventResult(participants);
 			const newResultDocRef = doc(collection(db, 'event-results'));
 			await setDoc(newResultDocRef, result);
 			this.logger.log(
@@ -254,7 +80,271 @@ export class EventResultService {
         ${e.stack}`,
 				'EventResultService',
 			);
+			return {
+				result: null,
+				error: {
+					name: '',
+					level: 'error',
+					title: 'Could not generate Event results',
+					message: e.message,
+				},
+			};
 		}
+	}
+
+	async updateOne({
+		uuid,
+		participants,
+	}: {
+		uuid: string;
+		participants: EventParticipant[];
+	}): Promise<{
+		result: string | null;
+		error: PresentableError | null;
+	}> {
+		try {
+			const result = await this.getEventResult(participants);
+			const newResultDocRef = doc(db, 'event-results', uuid);
+			await setDoc(newResultDocRef, result);
+			this.logger.log(
+				`Successfully stored updated event result ${newResultDocRef.id}`,
+				'EventResultService',
+			);
+			return {
+				result: uuid,
+				error: null,
+			};
+		} catch (e) {
+			this.logger.error(
+				`Failed to calculate places: ${e.message}
+        ${e.stack}`,
+				'EventResultService',
+			);
+			return {
+				result: null,
+				error: {
+					name: '',
+					level: 'error',
+					title: 'Could not generate Event results',
+					message: e.message,
+				},
+			};
+		}
+	}
+
+	private async getEventResult(
+		participants: EventParticipant[],
+	): Promise<DbEventResult> {
+		const commonPreferences = this.getCommonPreferences(participants);
+		const center = await this.getCentralLatLng(participants);
+		const suggestions = await this.getSuggestedPlaces(
+			commonPreferences,
+			center,
+		);
+
+		const suggestedDates = this.getSuggestedDates(participants);
+
+		// store result and return uuid of stored result
+		return {
+			suggestedDates,
+			suggestions,
+			createdAt: serverTimestamp() as Timestamp,
+		};
+	}
+
+	private getCommonPreferences(participants: EventParticipant[]) {
+		const res = [];
+		const candidatePreferences = new Set();
+		participants.forEach((participant) => {
+			const preferences = participant.preferences.length
+				? participant.preferences
+				: EventResultService.DEFAULT_PREFERENCES;
+			preferences.forEach((preference) => {
+				if (candidatePreferences.has(preference)) return;
+				if (participants.every((p) => p.preferences.includes(preference))) {
+					res.push(preference);
+				}
+				candidatePreferences.add(preference);
+			});
+		});
+		if (res.length < 1) {
+			throw new Error('Participants do not have any common preferences');
+		}
+		return res;
+	}
+
+	private async getCentralLatLng(participants: EventParticipant[]) {
+		try {
+			const geoCodes = await Promise.all(
+				participants.map(async ({ address }) => {
+					const postal = parseInt(address);
+					return await fetch(
+						`https://developers.onemap.sg/commonapi/search?searchVal=${postal}&returnGeom=Y&getAddrDetails=N&pageNum=1`,
+					).then((response) => response.json());
+				}),
+			);
+			const coordinates: [lat: number, lng: number][] = geoCodes.map(
+				(geoCode, index) => {
+					const { LATITUDE, LONGTITUDE } = geoCode.results[0];
+					if (!LATITUDE || !LONGTITUDE) {
+						this.logger.warn(
+							`Could not find latitude and longtitude for ${JSON.stringify(
+								participants[index],
+							)}`,
+							'EventResultService',
+						);
+					}
+					return [LATITUDE, LONGTITUDE];
+				},
+			);
+			return getLatLngCenter(coordinates);
+		} catch (e) {
+			console.log(`Error getting central coordinates
+			${e.message}
+			${e.stack}
+			`);
+			throw new Error('There was an unknown error while generating results');
+		}
+	}
+
+	private async getSuggestedPlaces(
+		commonPreferences: string[],
+		center: [lat: number, lng: number],
+	) {
+		/*
+			Gets 5 suggested places for each preference in @commonPreferences
+			Biased based on distance from the central coordinate from all participants 
+		*/
+
+		const presentableCenter = `${center[1]},${center[0]}`; // Geoapify uses [lng,lat] instead of [lat, lng]
+		// Since API calculates cost based on number of places returned, we use a separate call for each preference
+		const places: GeoapifyResponse[] = await Promise.all(
+			commonPreferences.map(async (preference) => {
+				return await fetch(
+					`https://api.geoapify.com/v2/places?categories=${preference}&bias=proximity:${presentableCenter}&limit=5&apiKey=${process.env.GEOAPIFY_API_KEY}`,
+				)
+					.then((response) => response.json())
+					.catch((e) =>
+						console.log(`GeoApify Error
+				${e}`),
+					);
+			}),
+		);
+
+		const suggestions: DbEventSuggestion = {};
+		places.forEach((place, index) => {
+			const preference = commonPreferences[index];
+			suggestions[preference] = place.features.map(({ properties }) => {
+				const { name, street, formatted, postcode, lat, lon, distance } =
+					properties;
+				return {
+					name: name || street,
+					address: formatted,
+					postal: parseInt(postcode),
+					coordinates: [lat, lon],
+					distanceFromCenter: distance,
+				};
+			});
+		});
+
+		return suggestions;
+	}
+
+	private getSuggestedDates(participants: EventParticipant[]) {
+		// Calculate intersection of time ranges by getting union of busy times
+		const now = moment();
+		const busyDateTime = {};
+		for (let i = 1; i < 8; i++) {
+			const startDateTime = moment()
+				.day(now.get('day') + i)
+				.startOf('day');
+			const endDateTime = moment()
+				.day(now.get('day') + i)
+				.endOf('day');
+			busyDateTime[startDateTime.format(EVENT_DATE_FORMAT)] = new Array(
+				24,
+			).fill(-1);
+		}
+
+		participants.forEach(({ schedule }) => {
+			const dates = Object.keys(schedule);
+			dates.forEach((date) => {
+				const timeRanges = schedule[date];
+				timeRanges.forEach((timeRange) => {
+					const { start, end } = timeRange;
+					const startMoment = moment(start, EVENT_DATETIME_FORMAT);
+					const endMoment = moment(end, EVENT_DATETIME_FORMAT);
+					const startHour = startMoment.hours();
+					const startMinutes = startMoment.minutes();
+					const endHour = endMoment.hours();
+					const endMinutes = endMoment.minutes();
+
+					for (let h = startHour; h < endHour + 1; h++) {
+						const minute = busyDateTime[date][h];
+						if (h == startHour) {
+							busyDateTime[date][h] =
+								minute < 0 ? startMinutes : Math.min(minute, startMinutes);
+							busyDateTime;
+						} else if (h == endHour) {
+							busyDateTime[date][h] =
+								minute < 0 ? endMinutes : Math.max(minute, endMinutes);
+						} else {
+							busyDateTime[date][h] = 60;
+						}
+					}
+				});
+			});
+		});
+
+		// Initialize suggestedDates with {start: 00:00:00, end: 23:59:59}
+		const suggestedDates: Record<
+			string,
+			Array<Record<'start' | 'end', string>>
+		> = {};
+		for (let i = 1; i < 8; i++) {
+			const startDateTime = moment()
+				.day(now.get('day') + i)
+				.startOf('day');
+			const endDateTime = moment()
+				.day(now.get('day') + i)
+				.endOf('day');
+			suggestedDates[startDateTime.format(EVENT_DATE_FORMAT)] = [
+				{
+					start: startDateTime.format(EVENT_DATETIME_FORMAT),
+					end: endDateTime.format(EVENT_DATETIME_FORMAT),
+				},
+			];
+		}
+
+		// Iterate over dates and set the free time intervals
+		Object.keys(busyDateTime).map((dateString) => {
+			const hours = busyDateTime[dateString];
+			const freeTimes = [];
+			let index = 0;
+			while (index < 24) {
+				const start = index;
+				while (index < 24 && hours[index] == -1) {
+					index++;
+				}
+
+				const date = moment(dateString, EVENT_DATE_FORMAT);
+				if (index > start) {
+					const startDate = moment(date).hour(start).startOf('hour');
+					const endDate = moment(date)
+						.hour(index - 1)
+						.endOf('hour');
+
+					freeTimes.push({
+						start: startDate.format(EVENT_DATETIME_FORMAT),
+						end: endDate.format(EVENT_DATETIME_FORMAT),
+					});
+				} else {
+					index++;
+				}
+				suggestedDates[dateString] = freeTimes;
+			}
+		});
+		return suggestedDates;
 	}
 
 	public static readonly DEFAULT_PREFERENCES = [

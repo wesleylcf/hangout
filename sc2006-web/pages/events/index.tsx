@@ -158,7 +158,7 @@ function ListEventsPage() {
 				className="bg-sky-400 inline-block"
 			></Divider>
 			<Layout style={{ background: 'none', marginLeft: 275 }}>
-				<Layout.Content className="w-full h-full flex flex-col space-y-12">
+				<Layout.Content className="w-full h-full flex flex-col">
 					<ListCreatedEvents headerRef={refs.created} events={createdEvents} />
 					<div className="flex flex-col p-12">
 						<h1 className="text-2xl">Participating Events</h1>

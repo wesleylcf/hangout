@@ -30,8 +30,10 @@ export interface CreateEventReq {
 	participants: EventParticipant[];
 }
 
-export interface UpdateEventReq extends CreateEventReq {
+export interface UpdateEventReq {
 	uuid: string;
+	newEvent: CreateEventReq;
+	eventResultId: string;
 }
 
 interface BaseEventParticipant {

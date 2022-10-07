@@ -20,6 +20,7 @@ import {
 	arrayUnion,
 	WriteBatch,
 	DocumentReference,
+	setDoc,
 } from 'firebase/firestore';
 import * as moment from 'moment';
 
@@ -58,6 +59,12 @@ export class EventService {
 			this.logger.warn(`Unable to create event: ${e.message}`, 'EventService');
 			throw e;
 		}
+	}
+
+	async updateOne(event: Partial<DbEvent> & { uuid: string }) {
+		const { uuid, ...rest } = event;
+		const eventDocRef = doc(db, 'events', uuid);
+		await setDoc(eventDocRef, rest, { merge: true });
 	}
 
 	async findOne(uuid: string): Promise<DbEventRes | undefined> {

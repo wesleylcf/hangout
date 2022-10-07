@@ -22,6 +22,7 @@ interface CreateEventFormProps {
 	initialValues: CreateEventForm;
 	onSubmitHandler: (form: CreateEventForm) => Promise<CreateEventRes | void>;
 	limitFeatures?: boolean;
+	submitText?: string;
 }
 
 export const CreateEventForm = ({
@@ -29,6 +30,7 @@ export const CreateEventForm = ({
 	initialValues,
 	onSubmitHandler,
 	limitFeatures = false,
+	submitText = 'Create Event',
 }: CreateEventFormProps) => {
 	const { me } = useContext(GlobalContext);
 	const notification = useNotification();
@@ -164,7 +166,7 @@ export const CreateEventForm = ({
 					<div className="pt-2 w-2/5 flex flex-row justify-self-end self-center space-x-4">
 						<Input
 							type="submit"
-							value="Create Event"
+							value={submitText}
 							size="small"
 							className="h-8 sky-400"
 						/>

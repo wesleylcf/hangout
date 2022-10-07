@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types*/
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Badge, Calendar, Collapse, Modal, ModalProps } from 'antd';
 import moment, { Moment } from 'moment';
 import { CollapseItemHeader } from '../../components/common';
@@ -11,12 +11,11 @@ export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	busyTimeRanges: Record<string, Array<{ start: string; end: string }>>;
 };
 
-export const ScheduleModal = ({
+export const ScheduleModal = React.memo(function _ScheduleModal({
 	onOk,
 	busyTimeRanges,
 	...modalProps
-}: ScheduleModalProps) => {
-	console.log('busy time ranges', busyTimeRanges);
+}: ScheduleModalProps) {
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(
 		new Set(Object.keys(busyTimeRanges || [])),
 	);
@@ -110,6 +109,40 @@ export const ScheduleModal = ({
 			};
 		});
 	};
+
+	const getBadge = (timeRanges: { start: string; end: string }[]) => {
+		let totalBusyTime = 0;
+		if (timeRanges && timeRanges.length) {
+			totalBusyTime = timeRanges.reduce((accm, timeRange) => {
+				const { start, end } = timeRange;
+				const startTime = moment(start);
+				const endTime = moment(end);
+				return accm + endTime.hours() - startTime.hours();
+			}, 0);
+		}
+
+		let text = 'Quite free';
+		if (totalBusyTime > 3) {
+			text = 'A little busy';
+		}
+		if (totalBusyTime > 5) {
+			text = 'Quite busy';
+		}
+
+		return (
+			<Badge
+				status={
+					totalBusyTime > 5
+						? 'warning'
+						: totalBusyTime > 3
+						? 'warning'
+						: 'success'
+				}
+				text={text}
+			/>
+		);
+	};
+
 	return (
 		<Modal
 			{...modalProps}
@@ -168,37 +201,4 @@ export const ScheduleModal = ({
 			</div>
 		</Modal>
 	);
-};
-
-const getBadge = (timeRanges: { start: string; end: string }[]) => {
-	let totalBusyTime = 0;
-	if (timeRanges && timeRanges.length) {
-		totalBusyTime = timeRanges.reduce((accm, timeRange) => {
-			const { start, end } = timeRange;
-			const startTime = moment(start);
-			const endTime = moment(end);
-			return accm + endTime.hours() - startTime.hours();
-		}, 0);
-	}
-
-	let text = 'Quite free';
-	if (totalBusyTime > 3) {
-		text = 'A little busy';
-	}
-	if (totalBusyTime > 5) {
-		text = 'Quite busy';
-	}
-
-	return (
-		<Badge
-			status={
-				totalBusyTime > 5
-					? 'warning'
-					: totalBusyTime > 3
-					? 'warning'
-					: 'success'
-			}
-			text={text}
-		/>
-	);
-};
+});

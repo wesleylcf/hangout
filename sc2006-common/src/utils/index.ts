@@ -16,7 +16,9 @@ function degr2rad(degr) {
  * @return array with the center latitude longtitude pairs in
  *   degrees.
  */
-export function getLatLngCenter(latLngInDegr: Array<[number, number]>) {
+export function getLatLngCenter(
+	latLngInDegr: Array<[number, number]>,
+): [lat: number, lng: number] {
 	var LATIDX = 0;
 	var LNGIDX = 1;
 	var sumX = 0;

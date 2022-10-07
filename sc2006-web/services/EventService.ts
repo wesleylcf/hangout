@@ -28,7 +28,7 @@ export class EventService {
 		return data;
 	}
 
-	async update(req: UpdateEventReq) {
+	async updateResult(req: UpdateEventReq) {
 		const response = await fetch(`${process.env.API_URL}/events/update`, {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			mode: 'cors', // no-cors, *cors, same-origin
@@ -59,9 +59,8 @@ export class EventService {
 			body: JSON.stringify(req),
 		});
 		const data = await throwErrorOrGetData<DbEventRes[]>(response, {
-			fallbackMessage:
-				'Please check your inputs. Otherwise please try again later or send us an alert',
-			fallbackTitle: 'Failed to create event',
+			fallbackMessage: 'Please try again later or alert us',
+			fallbackTitle: 'Failed to retrieve events',
 		});
 		return data;
 	}
