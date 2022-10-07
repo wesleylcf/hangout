@@ -5,9 +5,14 @@ import { TreeSelect } from 'antd';
 
 type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
+	selectedPreferences: Array<string>;
 };
 
-export const PreferencesModal = ({ onOk, ...props }: PreferencesModalProps) => {
+export const PreferencesModal = ({
+	onOk,
+	selectedPreferences,
+	...modalProps
+}: PreferencesModalProps) => {
 	const treeData = useMemo(
 		() => [
 			{
@@ -248,10 +253,12 @@ export const PreferencesModal = ({ onOk, ...props }: PreferencesModalProps) => {
 		[],
 	);
 
-	const [selectedTypes, setSelectedTypes] = useState<Array<string>>([]);
+	const [selectedTypes, setSelectedTypes] = useState<Array<string>>(
+		selectedPreferences || [],
+	);
 
 	return (
-		<Modal {...props} onOk={() => onOk(selectedTypes)}>
+		<Modal {...modalProps} onOk={() => onOk(selectedTypes)}>
 			<div className="flex flex-row p-8">
 				<p>
 					Please be as specific as you can in choosing your preferences,

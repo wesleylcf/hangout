@@ -14,9 +14,12 @@ export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 export const ScheduleModal = ({
 	onOk,
 	busyTimeRanges,
-	...props
+	...modalProps
 }: ScheduleModalProps) => {
-	const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
+	console.log('busy time ranges', busyTimeRanges);
+	const [selectedDates, setSelectedDates] = useState<Set<string>>(
+		new Set(Object.keys(busyTimeRanges || [])),
+	);
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 	const [internalBusyTimeRanges, setInternalBusyTimeRanges] = useState<
 		Record<string, Array<{ start: string; end: string }>>
@@ -109,7 +112,7 @@ export const ScheduleModal = ({
 	};
 	return (
 		<Modal
-			{...props}
+			{...modalProps}
 			onOk={() => onOk(internalBusyTimeRanges)}
 			style={{ maxHeight: '80vh' }}
 		>
@@ -146,7 +149,6 @@ export const ScheduleModal = ({
 								}
 								forceRender
 								showArrow={false}
-								{...props}
 							>
 								<TimeRangesCard
 									addedTimeRanges={

@@ -122,6 +122,7 @@ export const PublicParticipantCard = React.memo(
 			const newParticipant = { ...participant, [key]: value };
 			onUpdateParticipant(newParticipant, index);
 		};
+
 		return (
 			<Collapse.Panel forceRender showArrow={false} {...panelProps}>
 				<Form form={form} initialValues={participant}>
@@ -137,7 +138,7 @@ export const PublicParticipantCard = React.memo(
 							<FieldRow
 								key={key}
 								label={label}
-								value={getFieldValue(key)}
+								value={participant[key] as any}
 								highlight={index % 2 == 0}
 								allowEdit={true}
 								CancelEditIcon={CheckOutlined}
@@ -145,17 +146,16 @@ export const PublicParticipantCard = React.memo(
 								Editable={getEditable(key)}
 								onEditFinish={(value?: string) => onEditFinish(key, value)}
 								Modal={modal}
-								modalProps={
-									['schedule', 'preferences'].includes(key)
-										? {
-												width: '90%',
-												...(key === 'schedule' && {
-													busyTimeRanges: participant[key],
-												}),
-												destroyOnClose: true,
-										  }
-										: undefined
-								}
+								modalProps={{
+									width: '90%',
+									...(key === 'schedule' && {
+										busyTimeRanges: participant[key],
+									}),
+									...(key === 'preferences' && {
+										selectedPreferences: participant[key],
+									}),
+									destroyOnClose: true,
+								}}
 								isValuePresentable={!['schedule', 'preferences'].includes(key)}
 								formFieldName={key}
 								fieldFormRules={getFormRule(key)}

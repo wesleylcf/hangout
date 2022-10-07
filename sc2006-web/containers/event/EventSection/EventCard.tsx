@@ -47,9 +47,7 @@ export const EventCard = React.memo(function _EventCard({
 				<div className="pl-8">
 					<h3 className="text-slate-400 text-sm"># PARTICIPANTS</h3>
 					<div>
-						{event.authParticipantIds.length +
-							event.manualParticipants.length +
-							1}
+						{event.authParticipantIds.length + event.manualParticipants.length}
 					</div>
 				</div>
 			</div>

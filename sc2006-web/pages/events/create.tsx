@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import { Form, PageHeader } from 'antd';
 import { GlobalContext } from '../../contexts';
-import { CreateEventReq, EventParticipant } from '../../types';
+import { CreateEventReq } from '../../types';
 import { useNotification } from '../../hooks';
 import { useRouter } from 'next/router';
 import { CreateEventForm } from '../../containers/event/CreateEventForm';
