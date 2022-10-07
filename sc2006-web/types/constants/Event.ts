@@ -22,12 +22,16 @@ export type DetailedEventRes = Omit<
 	'authParticipantIds' | 'eventResultId'
 > & {
 	eventResult: DbEventResultRes;
-	authParticipants: DbUserRes[];
+	authParticipants: PublicEventParticipant[];
 };
 
 export interface CreateEventReq {
 	name: string;
 	participants: EventParticipant[];
+}
+
+export interface UpdateEventReq extends CreateEventReq {
+	uuid: string;
 }
 
 interface BaseEventParticipant {

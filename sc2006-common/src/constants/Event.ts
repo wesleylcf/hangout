@@ -22,7 +22,7 @@ export type DetailedEventRes = Omit<
 	'authParticipantIds' | 'eventResultId'
 > & {
 	eventResult: DbEventResultRes;
-	authParticipants: DbUserRes[];
+	authParticipants: AuthEventParticipant[];
 };
 
 export interface CreateEventReq {

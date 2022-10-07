@@ -13,7 +13,7 @@ import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateEventDto } from './create-event.dto';
 import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
-import { EventParticipant } from '../../../sc2006-common/src';
+import { DetailedEventRes, EventParticipant } from '../../../sc2006-common/src';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -25,17 +25,17 @@ export class EventController {
 	) {}
 
 	@Post('detailed/one')
-	async getEvent(@Body() body: { uuid: string }) {
+	async getEvent(@Body() body: { uuid: string }): Promise<DetailedEventRes> {
 		const { uuid } = body;
 		const event = await this.eventService.findOne(uuid);
 		const { authParticipantIds, eventResultId, ...rest } = event;
-		const detailedAuthParticipants = await this.userService.bulkFindAllById(
-			authParticipantIds,
-		);
 		const eventResult = await this.eventResultService.findOne(eventResultId);
 		return {
 			...rest,
-			authParticipants: detailedAuthParticipants,
+			authParticipants: authParticipantIds.map((id) => ({
+				uuid: id,
+				isCreator: false,
+			})),
 			eventResult,
 		};
 	}
@@ -65,9 +65,7 @@ export class EventController {
 			if (participant.uuid) {
 				authUserUuids.push(participant['uuid']);
 			} else {
-				if (!participant.isCreator) {
-					manuallyAddedUsers.push(participant);
-				}
+				manuallyAddedUsers.push(participant);
 			}
 		});
 

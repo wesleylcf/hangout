@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { Form, Input } from 'antd';
-import { TextInput, Card, InputLabel } from '../../components/common';
-import { ParticipantsSection } from '../event/ParticipantsSection';
+import React from 'react';
+import { Form } from 'antd';
 import { CreateEventForm } from '../event/CreateEventForm';
 
 interface DemoAppForm {

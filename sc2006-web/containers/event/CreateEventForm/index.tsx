@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { ComponentProps, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Card, InputLabel, TextInput } from '../../../components/common';
 import { Form, Input, FormInstance } from 'antd';
 import { GlobalContext } from '../../../contexts';
@@ -109,7 +109,7 @@ export const CreateEventForm = ({
 
 	return (
 		<>
-			<Card className="p-8 w-5/6 h-5/6 space-y-2 overflow-auto">
+			<Card className="p-8 space-y-2 w-full h-full overflow-auto">
 				<Form
 					className="w-full h-full flex flex-col"
 					initialValues={initialValues}
@@ -136,7 +136,7 @@ export const CreateEventForm = ({
 					>
 						{limitFeatures ? (
 							<TextInput
-								onChange={() => {}}
+								onChange={() => null}
 								value={getFieldValue('name')}
 								placeholder={getFieldValue('name')}
 								disabled

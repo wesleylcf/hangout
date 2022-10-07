@@ -19,6 +19,7 @@ import {
 	documentId,
 	arrayUnion,
 	WriteBatch,
+	DocumentReference,
 } from 'firebase/firestore';
 import * as moment from 'moment';
 
@@ -77,17 +78,35 @@ export class EventService {
 	async findMany(uuids: string[]) {
 		const eventsRef = collection(db, 'events');
 		const docRefs = uuids.map((uuid) => doc(db, 'events', uuid));
-		const qry = query(eventsRef, where(documentId(), 'in', docRefs));
-		const querySnapshot = await getDocs(qry);
+		// firebase 'in' filter limits array to a length of 10, so we group them in batches of 10
+		const batchedDocRefs: DocumentReference[][] = [];
+		docRefs.forEach((ref, index) => {
+			if (index % 10 == 0) {
+				batchedDocRefs.push([ref]);
+			} else {
+				batchedDocRefs[Math.floor(index / 10)].push(ref);
+			}
+		});
+
+		const batchedQuerySnapshots = await Promise.all(
+			batchedDocRefs.map(async (docRef) => {
+				const qry = query(eventsRef, where(documentId(), 'in', docRef));
+				return await getDocs(qry);
+			}),
+		);
+
 		const result: DbEventRes[] = [];
-		querySnapshot.forEach((doc) => {
-			const { createdAt, ...rest } = doc.data() as Omit<DbEvent, 'uuid'>;
-			result.push({
-				uuid: doc.id,
-				...rest,
-				createdAt: moment(createdAt.toDate()).format(EVENT_DATETIME_FORMAT),
+		batchedQuerySnapshots.forEach((querySnapshotBatch) => {
+			querySnapshotBatch.forEach((doc) => {
+				const { createdAt, ...rest } = doc.data() as Omit<DbEvent, 'uuid'>;
+				result.push({
+					uuid: doc.id,
+					...rest,
+					createdAt: moment(createdAt.toDate()).format(EVENT_DATETIME_FORMAT),
+				});
 			});
 		});
+
 		return result;
 	}
 

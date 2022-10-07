@@ -1,10 +1,12 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { useRouter } from 'next/router';
 import { Card, CollapseItemHeader } from '../../components/common';
-import { Collapse, PageHeader } from 'antd';
+import { Collapse, Form, PageHeader } from 'antd';
 import { useContext, useEffect, useState } from 'react';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import {
+	CreateEventReq,
 	DbEventResultRes,
 	DetailedEventRes,
 	EVENT_DATETIME_FORMAT,
@@ -14,6 +16,7 @@ import { PageContext } from '../../contexts';
 import moment from 'moment';
 import { FieldRow } from '../../components/common/FieldRow';
 import { PresentablePlaceTypeMap } from '.././../constants';
+import { CreateEventForm } from '../../containers/event/CreateEventForm';
 
 type PresentablePlaceProps = 'name' | 'address' | 'postal';
 
@@ -28,6 +31,32 @@ const EventPage = () => {
 	const [expandedPlaceTypes, setExpandedPlaceTypes] = useState<Set<string>>(
 		new Set(),
 	);
+	const [form] = Form.useForm<CreateEventReq>();
+
+	const onSubmit = async (form: CreateEventReq) => {
+		try {
+			console.log(form);
+			await eventService.update({ ...form, uuid: event!.uuid });
+
+			notification.success(
+				<div>
+					Successfully created event <b>{form.name}</b>
+				</div>,
+				'Event created!',
+			);
+			router.push('/events');
+		} catch (e) {
+			const error = e.title
+				? e
+				: {
+						name: '',
+						level: 'error',
+						message: 'Please check your inputs or alert us.',
+						title: 'Failed to generate edited Event',
+				  };
+			notification.apiError(error);
+		}
+	};
 
 	useEffect(() => {
 		setLoading(true);
@@ -62,6 +91,7 @@ const EventPage = () => {
 			});
 			setEvent(eventRest);
 		} catch (e) {
+			console.log(e);
 			notification.apiError(e);
 		}
 	}
@@ -71,7 +101,7 @@ const EventPage = () => {
 	return (
 		<div className="w-full h-full flex flex-col">
 			<PageHeader onBack={() => router.back()} title={`Event ${uuid}`} />
-			<div className="px-16">
+			<div className="px-16 pb-16">
 				<h1 className="text-2xl">Event Result</h1>
 				<Card className="p-8 mb-16">
 					<h2 className="text-xl">Suggested Dates and Timings</h2>
@@ -151,10 +181,22 @@ const EventPage = () => {
 							})}
 					</Collapse>
 				</Card>
-				<h1 className="text-2xl">Adjust results</h1>
-				<Card className="p-16 bg-slate-50">
-					<div>Create Event Page</div>
-				</Card>
+				<h1 className="text-2xl">Edit and re-generate result</h1>
+				<div className="w-full flex flex-row justify-center">
+					{event && (
+						<CreateEventForm
+							form={form}
+							initialValues={{
+								name: event.name,
+								participants: [
+									...event.authParticipants,
+									...event.manualParticipants,
+								],
+							}}
+							onSubmitHandler={onSubmit}
+						/>
+					)}
+				</div>
 			</div>
 		</div>
 	);

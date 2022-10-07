@@ -1,14 +1,14 @@
-import React, { Dispatch, useMemo, useState } from 'react';
-import { Collapse, FormInstance, Form } from 'antd';
+import React from 'react';
 import { DbEventRes } from '../../../types';
 import { EventCard } from './EventCard';
-import moment from 'moment';
 
 interface EventSectionProps {
 	events: DbEventRes[];
 }
 
-export const EventSection = React.memo(({ events }: EventSectionProps) => {
+export const EventSection = React.memo(function _EventSection({
+	events,
+}: EventSectionProps) {
 	return (
 		<div className="space-y-4">
 			{events &&

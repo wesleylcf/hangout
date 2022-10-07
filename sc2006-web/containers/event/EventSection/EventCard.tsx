@@ -11,7 +11,10 @@ interface EventCardProps {
 	event: DbEventRes;
 }
 
-export const EventCard = React.memo(function ({ icon, event }: EventCardProps) {
+export const EventCard = React.memo(function _EventCard({
+	icon,
+	event,
+}: EventCardProps) {
 	const now = moment();
 	const router = useRouter();
 	return (
