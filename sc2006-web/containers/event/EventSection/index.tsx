@@ -13,6 +13,7 @@ export const EventSection = React.memo(function _EventSection({
 		<div className="flex flex-wrap flex-row gap-x-12 gap-y-12">
 			{events &&
 				events.map((event) => <EventCard key={event.uuid} event={event} />)}
+			<div className="basis-5/12"></div>
 		</div>
 	);
 });

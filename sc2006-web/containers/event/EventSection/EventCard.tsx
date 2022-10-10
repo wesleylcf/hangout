@@ -21,7 +21,7 @@ export const EventCard = React.memo(function _EventCard({
 	const router = useRouter();
 	return (
 		<Card
-			className={`p-5 flex-1 hover:bg-cyan-400 hover:text-white h-full`}
+			className={`p-5 basis-5/12 hover:bg-cyan-400 hover:text-white h-full`}
 			onClick={() => router.push(`events/${event.uuid}`)}
 		>
 			<div className="flex flex-row justify-between items-center h-3/4">
@@ -42,17 +42,17 @@ export const EventCard = React.memo(function _EventCard({
 				</div>
 			</div>
 			<Divider style={{ margin: '0.5rem auto' }} />
-			<div className="h-1/2 flex flex-row space-x-8 divide-x-2">
+			<div className="h-1/2 flex flex-row divide-x-2 space-x-8">
 				<div>
-					<h3 className="text-slate-400 text-sm">CREATED BY</h3>
+					<h3 className="flex-3 text-slate-400 text-sm">CREATED BY</h3>
 					<div>{event.creatorId}</div>
 				</div>
 				<div className="pl-8">
-					<h3 className="text-slate-400 text-sm">CREATED AT</h3>
+					<h3 className="flex-1 text-slate-400 text-sm">CREATED AT</h3>
 					<div>{moment(event.createdAt).format(EVENT_DATETIME_FORMAT)}</div>
 				</div>
 				<div className="pl-8">
-					<h3 className="text-slate-400 text-sm"># PARTICIPANTS</h3>
+					<h3 className="flex-1 text-slate-400 text-sm"># PARTICIPANTS</h3>
 					<div>{event.participants.length}</div>
 				</div>
 			</div>
