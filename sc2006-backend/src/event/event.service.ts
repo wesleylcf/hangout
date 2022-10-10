@@ -4,6 +4,7 @@ import {
 	DbEvent,
 	DbEventRes,
 	EVENT_DATETIME_FORMAT,
+	AuthEventParticipant,
 } from '../../../sc2006-common/src';
 import { db } from 'src/firebase.config';
 import {
@@ -43,6 +44,17 @@ export class EventService {
 			const newEventDocRef = doc(collection(db, 'events'));
 			const creatorDocRef = doc(db, 'users', creatorId);
 			const eventUuid = newEventDocRef.id;
+
+			const authParticipantIds = event.participants.filter(
+				(p) => 'uuid' in p,
+			) as AuthEventParticipant[];
+
+			authParticipantIds.forEach((participant) => {
+				const authParticipantDocRef = doc(db, 'users', participant.uuid);
+				batch.update(authParticipantDocRef, {
+					eventIds: arrayUnion(eventUuid),
+				});
+			});
 
 			batch.set(newEventDocRef, newEvent);
 			batch.update(creatorDocRef, {

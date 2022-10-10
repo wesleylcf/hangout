@@ -13,8 +13,15 @@ import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateEventDto } from './create-event.dto';
 import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
-import { DetailedEventRes, EventParticipant } from '../../../sc2006-common/src';
+import {
+	DetailedEventRes,
+	EventParticipant,
+	EVENT_DATETIME_FORMAT,
+	ListBriefEventRes,
+} from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';
+import * as moment from 'moment';
+import { ListEventsDto } from './list-events.dto';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -29,23 +36,47 @@ export class EventController {
 	async getEvent(@Body() body: { uuid: string }): Promise<DetailedEventRes> {
 		const { uuid } = body;
 		const event = await this.eventService.findOne(uuid);
-		const { authParticipantIds, eventResultId, ...rest } = event;
+		const { eventResultId, ...rest } = event;
 		const eventResult = await this.eventResultService.findOne(eventResultId);
 		return {
 			...rest,
-			authParticipants: authParticipantIds.map((id) => ({
-				uuid: id,
-				isCreator: false,
-			})),
 			eventResult,
 		};
 	}
 
 	@Post('brief/list')
-	async getEvents(@Body() body: { uuids: string[] }) {
-		const { uuids } = body;
-		const events = await this.eventService.findMany(uuids);
-		return events;
+	async getEvents(@Body() body: ListEventsDto): Promise<ListBriefEventRes> {
+		const { eventUuids, userUuid } = body;
+		const events = await this.eventService.findMany(eventUuids);
+		const now = moment();
+		const activeEvents = events.filter((e) =>
+			now.isSameOrBefore(moment(e.expiresAt, EVENT_DATETIME_FORMAT)),
+		);
+		const activeAndCreatedEvents = [];
+		const activeAndParticipantEvent = [];
+		activeEvents.forEach((event) => {
+			if (event.creatorId === userUuid) activeAndCreatedEvents.push(event);
+			else activeAndParticipantEvent.push(event);
+		});
+		const expiredEvents = events.filter((e) =>
+			now.isAfter(moment(e.expiresAt, EVENT_DATETIME_FORMAT)),
+		);
+		const expiredAndCreatedEvents = [];
+		const expiredAndParticipantEvent = [];
+		expiredEvents.forEach((event) => {
+			if (event.creatorId === userUuid) expiredAndCreatedEvents.push(event);
+			else expiredAndParticipantEvent.push(event);
+		});
+		return {
+			active: {
+				creator: activeAndCreatedEvents,
+				participant: activeAndParticipantEvent,
+			},
+			expired: {
+				creator: expiredAndCreatedEvents,
+				participant: expiredAndParticipantEvent,
+			},
+		};
 	}
 
 	@UseGuards(JwtAuthGuard)
@@ -56,29 +87,11 @@ export class EventController {
 	) {
 		const { name, participants } = body;
 
-		const manuallyAddedUsers = [];
-		const authUserUuids = [];
-		let creator: EventParticipant;
-		participants.forEach((participant) => {
-			if (participant.isCreator) {
-				creator = participant;
-			}
-			if (participant.uuid) {
-				authUserUuids.push(participant['uuid']);
-			} else {
-				manuallyAddedUsers.push(participant);
-			}
-		});
+		const creator = participants.find((p) => p.isCreator);
 
-		const authUsers = authUserUuids.length
-			? await this.userService.bulkFindAllById(authUserUuids)
-			: [];
-
-		const { result, error } = await this.eventResultService.createOne([
-			...manuallyAddedUsers,
-			...authUsers,
-			creator,
-		]);
+		const { result, error } = await this.eventResultService.createOne(
+			participants,
+		);
 
 		if (error) {
 			res.status(HttpStatus.BAD_REQUEST).json({ error, uuid: null });
@@ -93,49 +106,48 @@ export class EventController {
 			expiresAt,
 			creatorId: creator.name,
 			eventResultId,
-			authParticipantIds: authUserUuids,
-			manualParticipants: manuallyAddedUsers,
+			participants,
 		});
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
 	}
 
-	@UseGuards(JwtAuthGuard)
-	@Post('update')
-	async updateEvent(@Body() body: UpdateEventDto) {
-		const { newEvent, uuid, eventResultId } = body;
-		const { name, participants } = newEvent;
-		const manuallyAddedUsers = [];
-		const authUserUuids = [];
-		let creator: EventParticipant;
-		participants.forEach((participant) => {
-			if (participant.isCreator) {
-				creator = participant;
-			}
-			if (participant.uuid) {
-				authUserUuids.push(participant['uuid']);
-			} else {
-				manuallyAddedUsers.push(participant);
-			}
-		});
+	// 	@UseGuards(JwtAuthGuard)
+	// 	@Post('update')
+	// 	async updateEvent(@Body() body: UpdateEventDto) {
+	// 		const { newEvent, uuid, eventResultId } = body;
+	// 		const { name, participants } = newEvent;
+	// 		const manuallyAddedUsers = [];
+	// 		const authUserUuids = [];
+	// 		let creator: EventParticipant;
+	// 		participants.forEach((participant) => {
+	// 			if (participant.isCreator) {
+	// 				creator = participant;
+	// 			}
+	// 			if (participant.uuid) {
+	// 				authUserUuids.push(participant['uuid']);
+	// 			} else {
+	// 				manuallyAddedUsers.push(participant);
+	// 			}
+	// 		});
 
-		const authUsers = authUserUuids.length
-			? await this.userService.bulkFindAllById(authUserUuids)
-			: [];
+	// 		const authUsers = authUserUuids.length
+	// 			? await this.userService.bulkFindAllById(authUserUuids)
+	// 			: [];
 
-		const { error, result } = await this.eventResultService.updateOne({
-			uuid: eventResultId,
-			participants: [...manuallyAddedUsers, ...authUsers, creator],
-		});
-		if (error) {
-			return { error };
-		}
+	// 		const { error, result } = await this.eventResultService.updateOne({
+	// 			uuid: eventResultId,
+	// 			participants: [...manuallyAddedUsers, ...authUsers, creator],
+	// 		});
+	// 		if (error) {
+	// 			return { error };
+	// 		}
 
-		await this.eventService.updateOne({
-			uuid,
-			name,
-			authParticipantIds: authUserUuids,
-			manualParticipants: manuallyAddedUsers,
-		});
-		return { error };
-	}
+	// 		await this.eventService.updateOne({
+	// 			uuid,
+	// 			name,
+	// 			authParticipantIds: authUserUuids,
+	// 			manualParticipants: manuallyAddedUsers,
+	// 		});
+	// 		return { error };
+	// 	}
 }

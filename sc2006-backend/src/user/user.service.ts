@@ -55,6 +55,7 @@ export class UserService {
 				password,
 				createdAt: serverTimestamp() as Timestamp,
 				eventIds: [],
+				preferences: [],
 				schedule: {},
 				notificationIds: [],
 				address: null,

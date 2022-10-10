@@ -26,10 +26,11 @@ export class CreateEventDto implements CreateEventReq {
 
 export class ParticipantDto {
 	@ValidateIf((o) => typeof o.name === 'undefined')
+	@IsString()
 	uuid?: string;
 
 	@IsBoolean()
-	isCreator?: boolean;
+	isCreator: boolean;
 
 	@ValidateIf((o) => typeof o.uuid === 'undefined')
 	@IsString()
