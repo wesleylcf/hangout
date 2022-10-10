@@ -6,6 +6,7 @@ export interface SeedUser {
 	username: string;
 	eventIds: string[];
 	schedule: Record<string, Array<TimeRange>>;
+	preferences: string[];
 	notifications: Pick<DbNotification, 'title' | 'description'>[];
 	address: number | null;
 	friendIds: string[];
@@ -16,6 +17,7 @@ export interface DbUser {
 	eventIds: string[];
 	friendIds: string[];
 	schedule: Record<string, Array<TimeRange>>;
+	preferences: string[];
 	notificationIds: string[];
 	address: number | null;
 	password: string;

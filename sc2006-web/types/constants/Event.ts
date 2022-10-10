@@ -1,11 +1,8 @@
 import { Timestamp } from 'firebase/firestore';
+import { CreateEventReq } from '../api-models';
 import { DbEventResultRes } from './EventResult';
-import { DbUserRes } from './User';
 
-export interface DbEvent {
-	name: string;
-	authParticipantIds: string[];
-	manualParticipants: PublicEventParticipant[];
+export interface DbEvent extends CreateEventReq {
 	creatorId: string;
 	createdAt: Timestamp;
 	eventResultId: string;
@@ -17,43 +14,20 @@ export interface DbEventRes extends Omit<DbEvent, 'createdAt'> {
 	createdAt: string;
 }
 
-export type DetailedEventRes = Omit<
-	DbEventRes,
-	'authParticipantIds' | 'eventResultId'
-> & {
+export type DetailedEventRes = Omit<DbEventRes, 'eventResultId'> & {
 	eventResult: DbEventResultRes;
-	authParticipants: PublicEventParticipant[];
 };
 
-export interface CreateEventReq {
-	name: string;
-	participants: EventParticipant[];
-}
-
-export interface UpdateEventReq {
-	uuid: string;
-	newEvent: CreateEventReq;
-	eventResultId: string;
-}
-
-interface BaseEventParticipant {
+export interface PublicEventParticipant {
 	isCreator: boolean;
-}
-
-export interface PublicEventParticipant extends BaseEventParticipant {
 	name: string;
 	preferences: Array<string>;
 	schedule: Record<string, Array<{ start: string; end: string }>>;
 	address: string;
-	uuid?: never;
 }
 
-export interface AuthEventParticipant extends BaseEventParticipant {
+export interface AuthEventParticipant extends PublicEventParticipant {
 	uuid: string;
-	name?: never;
-	preferences?: never;
-	schedule?: never;
-	address?: never;
 }
 
 export type EventParticipant = PublicEventParticipant | AuthEventParticipant;
