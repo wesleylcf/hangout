@@ -31,15 +31,9 @@ export const EventCard = React.memo(function _EventCard({
 						<h1 className="font-bold text-base m-0">{event.name}</h1>
 					</div>
 				</div>
-				<div className="space-x-4">
-					{event.creatorId === me?.uuid && (
-						<Badge status="processing" text="creator" />
-					)}
-					<Badge
-						status={now.isSameOrBefore(event.expiresAt) ? 'success' : 'error'}
-						text={now.isSameOrBefore(event.expiresAt) ? 'active' : 'expired'}
-					/>
-				</div>
+				{event.creatorId === me?.uuid && (
+					<Badge status="success" text="creator" />
+				)}
 			</div>
 			<Divider style={{ margin: '0.5rem auto' }} />
 			<div className="h-1/2 flex flex-row divide-x-2 space-x-8">

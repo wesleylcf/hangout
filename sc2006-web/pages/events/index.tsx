@@ -1,8 +1,7 @@
 import React, {
 	useState,
 	ReactNode,
-	useMemo,
-	useRef,
+	useLayoutEffect,
 	useEffect,
 	useContext,
 } from 'react';
@@ -40,7 +39,7 @@ function ListEventsPage() {
 
 	const router = useRouter();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const pullAndSetEvents = async () => {
 			try {
 				const events = await eventService.getBriefEvents({
@@ -86,16 +85,6 @@ function ListEventsPage() {
 	return (
 		<div className="w-full h-full p-12">
 			<Tabs items={tabs} />
-			{/* <ListCreatedEvents events={createdEvents} />
-			<div className="flex flex-col p-12">
-				<h1 className="text-2xl">Participating Events</h1>
-				<h2 className="text-lg" ref={refs.active}>
-					Current Events
-				</h2>
-				<h2 className="text-lg" ref={refs.expired}>
-					Past Events
-				</h2>
-			</div> */}
 			<PlusCircleFilled
 				style={{
 					color: 'rgb(34 211 238)',

@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import { Card, CollapseItemHeader } from '../../components/common';
 import { Collapse, Form, PageHeader } from 'antd';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useLayoutEffect } from 'react';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import {
@@ -61,7 +61,7 @@ const EventPage = () => {
 		}
 	};
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		setLoading(true);
 		pullAndSetEvent();
 		setLoading(false);

@@ -150,7 +150,7 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 			{...modalProps}
 			onOk={() => onOk(internalBusyTimeRanges)}
 			style={{ maxHeight: '80vh' }}
-			footer={!viewOnly}
+			{...(viewOnly && { footer: null })}
 		>
 			<div className="flex flex-row" style={{ height: '70vh' }}>
 				<Calendar

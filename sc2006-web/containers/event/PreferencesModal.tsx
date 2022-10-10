@@ -260,7 +260,11 @@ export const PreferencesModal = React.memo(function _PreferencesModal({
 	);
 
 	return (
-		<Modal {...modalProps} onOk={() => onOk(selectedTypes)} footer={!viewOnly}>
+		<Modal
+			{...modalProps}
+			onOk={() => onOk(selectedTypes)}
+			{...(viewOnly && { footer: null })}
+		>
 			<div className="flex flex-row p-8">
 				<p>
 					Please be as specific as you can in choosing your preferences,

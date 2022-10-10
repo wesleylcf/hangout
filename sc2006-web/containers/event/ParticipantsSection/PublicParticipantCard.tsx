@@ -132,6 +132,35 @@ export const PublicParticipantCard = React.memo(
 						if (key === 'preferences') {
 							modal = PreferencesModal;
 						}
+
+						if (['preferences', 'schedule'.includes(key)]) {
+							return (
+								<FieldRow
+									key={key}
+									label={label}
+									value={participant[key] as any}
+									highlight={index % 2 == 0}
+									allowEdit={allowEdit}
+									CancelEditIcon={CheckOutlined}
+									AllowEditIcon={EditOutlined}
+									Editable={getEditable(key)}
+									onEditFinish={(value?: any) => onEditFinish(key, value)}
+									Presentable={modal}
+									presentableProps={{
+										width: '90%',
+										...(key === 'schedule' && {
+											busyTimeRanges: participant[key],
+										}),
+										...(key === 'preferences' && {
+											selectedPreferences: participant[key],
+										}),
+										destroyOnClose: true,
+									}}
+									formFieldName={key}
+									fieldFormRules={getFormRule(key)}
+								/>
+							);
+						}
 						return (
 							<FieldRow
 								key={key}
@@ -142,19 +171,8 @@ export const PublicParticipantCard = React.memo(
 								CancelEditIcon={CheckOutlined}
 								AllowEditIcon={EditOutlined}
 								Editable={getEditable(key)}
-								onEditFinish={(value?: string) => onEditFinish(key, value)}
-								Modal={modal}
-								modalProps={{
-									width: '90%',
-									...(key === 'schedule' && {
-										busyTimeRanges: participant[key],
-									}),
-									...(key === 'preferences' && {
-										selectedPreferences: participant[key],
-									}),
-									destroyOnClose: true,
-								}}
-								isValuePresentable={!['schedule', 'preferences'].includes(key)}
+								onEditFinish={(value?: any) => onEditFinish(key, value)}
+								isValuePresentable
 								formFieldName={key}
 								fieldFormRules={getFormRule(key)}
 							/>

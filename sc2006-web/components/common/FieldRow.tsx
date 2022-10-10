@@ -7,11 +7,25 @@ import { PreferencesModalProps } from '../../containers/event/PreferencesModal';
 
 type FieldRowType = string | string[] | Record<string, [string, string]>;
 
-type FieldRowProps<T extends FieldRowType> = {
+interface FieldValuePresentableProps<T> extends FieldRowBaseProps<T> {
+	value?: T;
+	isValuePresentable?: true;
+	Presentable?: undefined;
+	presentableProps?: undefined;
+}
+
+interface FieldValueNotPresentableProps<T> extends FieldRowBaseProps<T> {
+	value?: T;
+	isValuePresentable?: false;
+	Presentable?: React.ElementType;
+	presentableProps?:
+		| Partial<ScheduleModalProps>
+		| Partial<PreferencesModalProps>;
+}
+
+type FieldRowBaseProps<T> = {
 	ref?: RefObject<any>;
 	label?: string;
-	value?: T;
-	isValuePresentable?: boolean;
 	onClick?: () => void;
 	isClickDisabled?: boolean;
 	highlight?: boolean;
@@ -21,11 +35,13 @@ type FieldRowProps<T extends FieldRowType> = {
 	onEditFinish?: (value?: T) => void;
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
-	Modal?: React.ElementType;
-	modalProps?: Partial<ScheduleModalProps> | Partial<PreferencesModalProps>;
 	formFieldName?: string;
 	fieldFormRules?: Rule[];
 };
+
+type FieldRowProps<T extends FieldRowType> =
+	| FieldValuePresentableProps<T>
+	| FieldValueNotPresentableProps<T>;
 
 export function FieldRow<T extends FieldRowType>({
 	ref,
@@ -41,8 +57,8 @@ export function FieldRow<T extends FieldRowType>({
 	onEditFinish,
 	AllowEditIcon,
 	CancelEditIcon,
-	Modal,
-	modalProps,
+	Presentable,
+	presentableProps,
 	formFieldName,
 	fieldFormRules,
 	...formItemProps
@@ -153,8 +169,8 @@ export function FieldRow<T extends FieldRowType>({
 					{allowEdit ? EditableField : FixedField}
 				</div>
 			</Form.Item>
-			{Modal && (
-				<Modal
+			{Presentable && (
+				<Presentable
 					open={isEditing || modalViewOnly}
 					onOk={(value: T) => {
 						onEditFinish && onEditFinish(value);
@@ -167,7 +183,7 @@ export function FieldRow<T extends FieldRowType>({
 						// onEditFinish && onEditFinish(internalValue);
 					}}
 					viewOnly={modalViewOnly}
-					{...modalProps}
+					{...presentableProps}
 				/>
 			)}
 		</>
