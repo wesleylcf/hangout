@@ -90,7 +90,7 @@ export function FieldRow<T extends FieldRowType>({
 		/>
 	);
 
-	const FixedField = <div className="w-5/6">{internalValue as string}</div>;
+	const FixedField = <div className="w-5/6">{PresentableValue}</div>;
 	const EditableField = (
 		<>
 			<div className="w-5/6 flex flex-row justify-between items-center">
@@ -131,9 +131,30 @@ export function FieldRow<T extends FieldRowType>({
 							/>
 					  )}
 			</div>
+		</>
+	);
+
+	return (
+		<>
+			<Form.Item
+				name={formFieldName}
+				rules={fieldFormRules ? fieldFormRules : undefined}
+				style={{ margin: 0 }}
+				className={`p-2 w-full h-full ${getClassName()}`}
+				{...formItemProps}
+			>
+				<div
+					ref={ref}
+					onClick={isClickDisabled ? undefined : onClickHandler}
+					className="w-full h-full flex flex-row p-2"
+				>
+					{label && <b className="w-1/6">{label} </b>}
+					{allowEdit ? EditableField : FixedField}
+				</div>
+			</Form.Item>
 			{Modal && (
 				<Modal
-					visible={isEditing || modalViewOnly}
+					open={isEditing || modalViewOnly}
 					onOk={(value: T) => {
 						onEditFinish && onEditFinish(value);
 						setIsEditing(false);
@@ -149,25 +170,6 @@ export function FieldRow<T extends FieldRowType>({
 				/>
 			)}
 		</>
-	);
-
-	return (
-		<Form.Item
-			name={formFieldName}
-			rules={fieldFormRules ? fieldFormRules : undefined}
-			style={{ margin: 0 }}
-			className={`p-2 w-full h-full ${getClassName()}`}
-			{...formItemProps}
-		>
-			<div
-				ref={ref}
-				onClick={isClickDisabled ? undefined : onClickHandler}
-				className="w-full h-full flex flex-row p-2"
-			>
-				{label && <b className="w-1/6">{label} </b>}
-				{allowEdit ? EditableField : FixedField}
-			</div>
-		</Form.Item>
 	);
 }
 

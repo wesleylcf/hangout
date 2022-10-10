@@ -35,7 +35,6 @@ const EventPage = () => {
 
 	const onSubmit = async (form: CreateEventReq) => {
 		try {
-			const { authParticipants, manualParticipants, ...rest } = event!;
 			await eventService.updateResult({
 				uuid: event!.uuid,
 				eventResultId: eventResult!.uuid,
@@ -191,10 +190,7 @@ const EventPage = () => {
 							form={form}
 							initialValues={{
 								name: event.name,
-								participants: [
-									...event.authParticipants,
-									...event.manualParticipants,
-								],
+								participants: event.participants,
 							}}
 							onSubmitHandler={onSubmit}
 							submitText="Update Event"

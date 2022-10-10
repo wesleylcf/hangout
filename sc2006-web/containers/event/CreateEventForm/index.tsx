@@ -7,6 +7,7 @@ import { AddUserToEventModal } from '../AddUserToEventModal';
 import { ParticipantsSection } from '../ParticipantsSection';
 import {
 	CreateEventRes,
+	DbUserRes,
 	EventParticipant,
 	PublicEventParticipant,
 } from '../../../types';
@@ -37,35 +38,55 @@ export const CreateEventForm = ({
 	const { setFieldValue, getFieldValue, validateFields } = form;
 
 	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
-	const [addedParticipants, setAddedParticipants] = useState<Set<string>>(
-		new Set(me ? [me.uuid] : []),
-	);
+	const [addedAuthParticipants, setAddedAuthParticipants] = useState<
+		Set<string>
+	>(new Set(me ? [me.uuid] : []));
 	const [publicParticipantFormInstances, setPublicParticipantFormInstances] =
 		useState<FormInstance<PublicEventParticipant>[]>([]);
 	const [expandedParticipants, setExpandedParticipants] = useState<Set<string>>(
 		new Set(),
 	);
 
-	const onAddAuthUser = (userEmail: string) => {
+	const onAddAuthUser = (userEmail: string, user: DbUserRes) => {
 		const currentParticipants = getFieldValue('participants');
-		setFieldValue(
-			'participants',
-			currentParticipants.concat({ uuid: userEmail, isCreator: false }),
-		);
+
+		if (limitFeatures && currentParticipants.length >= 5) {
+			notification.warning(
+				'Please log in to remove restricted usage of the app',
+				'Cannot add anymore participants',
+			);
+			return;
+		}
+
+		const newParticipant: EventParticipant = {
+			uuid: userEmail,
+			isCreator: false,
+			name: userEmail,
+			preferences: user.preferences,
+			address: user.address ? user.address.toString() : '',
+			schedule: user.schedule,
+		};
+		const newParticipants = [...currentParticipants, newParticipant];
+
+		setFieldValue('participants', newParticipants);
+		setAddedAuthParticipants((added) => {
+			const copy = new Set(added);
+			return copy.add(userEmail);
+		});
 	};
 
 	const onRemoveParticipant = (name: string) => {
 		const currentParticipants: EventParticipant[] =
 			getFieldValue('participants');
 		const newParticipants = currentParticipants.filter((participant) => {
-			if ('name' in participant) {
-				return participant.name !== name;
-			}
 			if ('uuid' in participant) {
 				return participant.uuid !== name;
 			}
+			if ('name' in participant) {
+				return participant.name !== name;
+			}
 		});
-		setAddedParticipants((added) => {
+		setAddedAuthParticipants((added) => {
 			const newAdded = new Set(added);
 			newAdded.delete(name);
 			return newAdded;
@@ -175,16 +196,15 @@ export const CreateEventForm = ({
 			</Card>
 			{!limitFeatures && (
 				<AddUserToEventModal
-					me={me!}
-					isOpen={isInviteUserModal}
-					onOk={(uuid: string) => {
-						onAddAuthUser(uuid);
+					open={isInviteUserModal}
+					onOk={(uuid: string, user: DbUserRes) => {
+						onAddAuthUser(uuid, user);
 						setIsInviteUserModalOpen(false);
 					}}
 					onCancel={() => {
 						setIsInviteUserModalOpen(false);
 					}}
-					addedParticipants={addedParticipants}
+					addedParticipants={addedAuthParticipants}
 				/>
 			)}
 		</>

@@ -4,6 +4,7 @@ import {
 	CreateEventRes,
 	DbEventRes,
 	DetailedEventRes,
+	ListBriefEventRes,
 	ListEventsReq,
 	UpdateEventReq,
 } from '../types';
@@ -58,7 +59,7 @@ export class EventService {
 			},
 			body: JSON.stringify(req),
 		});
-		const data = await throwErrorOrGetData<DbEventRes[]>(response, {
+		const data = await throwErrorOrGetData<ListBriefEventRes>(response, {
 			fallbackMessage: 'Please try again later or alert us',
 			fallbackTitle: 'Failed to retrieve events',
 		});

@@ -1,10 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useEffect, useMemo } from 'react';
-import {
-	EventParticipant,
-	PublicEventParticipant,
-	Regex,
-} from '../../../types';
+import { EventParticipant, Regex } from '../../../types';
 import { TextInput } from '../../../components/common';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { FieldRow } from '../../../components/common/FieldRow';
@@ -21,11 +17,12 @@ import { PreferencesModal } from '../PreferencesModal';
 type FieldName = 'name' | 'preferences' | 'schedule' | 'address';
 type PublicParticipantCardProps = CollapsePanelProps & {
 	setFormInstances: React.Dispatch<
-		React.SetStateAction<Array<FormInstance<PublicEventParticipant>>>
+		React.SetStateAction<Array<FormInstance<EventParticipant>>>
 	>;
-	participant: PublicEventParticipant;
+	participant: EventParticipant;
 	onUpdateParticipant: (participant: EventParticipant, index: number) => void;
 	index: number;
+	isAuthParticipant: boolean;
 };
 
 interface ParticipantItem {
@@ -39,9 +36,10 @@ export const PublicParticipantCard = React.memo(
 		onUpdateParticipant,
 		index,
 		setFormInstances,
+		isAuthParticipant,
 		...panelProps
 	}: PublicParticipantCardProps) {
-		const [form] = Form.useForm<PublicEventParticipant>();
+		const [form] = Form.useForm<EventParticipant>();
 		const { getFieldValue, setFieldsValue } = form;
 
 		useEffect(() => {
@@ -140,7 +138,7 @@ export const PublicParticipantCard = React.memo(
 								label={label}
 								value={participant[key] as any}
 								highlight={index % 2 == 0}
-								allowEdit={true}
+								allowEdit={!isAuthParticipant}
 								CancelEditIcon={CheckOutlined}
 								AllowEditIcon={EditOutlined}
 								Editable={getEditable(key)}

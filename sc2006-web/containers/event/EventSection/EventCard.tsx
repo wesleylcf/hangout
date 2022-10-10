@@ -1,10 +1,11 @@
 import { Badge } from 'antd';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { Card } from '../../../components/common';
 import { Divider } from 'antd';
 import { DbEventRes, EVENT_DATETIME_FORMAT } from '../../../types';
 import moment from 'moment';
 import { useRouter } from 'next/router';
+import { GlobalContext } from '../../../contexts';
 
 interface EventCardProps {
 	icon?: ReactNode;
@@ -15,24 +16,30 @@ export const EventCard = React.memo(function _EventCard({
 	icon,
 	event,
 }: EventCardProps) {
+	const { me } = useContext(GlobalContext);
 	const now = moment();
 	const router = useRouter();
 	return (
 		<Card
-			className={`p-5 w-full hover:bg-cyan-400 hover:text-white`}
+			className={`p-5 flex-1 hover:bg-cyan-400 hover:text-white h-full`}
 			onClick={() => router.push(`events/${event.uuid}`)}
 		>
 			<div className="flex flex-row justify-between items-center h-3/4">
-				<div className="w-5/6 flex flex-row items-center justify-between">
+				<div className="w-4/6 flex flex-row items-center justify-between">
 					<div>
 						{icon && <div className="flex flex-row items-center">{icon}</div>}
 						<h1 className="font-bold text-base m-0">{event.name}</h1>
 					</div>
 				</div>
-				<Badge
-					status={now.isSameOrBefore(event.expiresAt) ? 'success' : 'error'}
-					text={now.isSameOrBefore(event.expiresAt) ? 'active' : 'expired'}
-				/>
+				<div className="space-x-4">
+					{event.creatorId === me?.uuid && (
+						<Badge status="processing" text="creator" />
+					)}
+					<Badge
+						status={now.isSameOrBefore(event.expiresAt) ? 'success' : 'error'}
+						text={now.isSameOrBefore(event.expiresAt) ? 'active' : 'expired'}
+					/>
+				</div>
 			</div>
 			<Divider style={{ margin: '0.5rem auto' }} />
 			<div className="h-1/2 flex flex-row space-x-8 divide-x-2">
@@ -46,9 +53,7 @@ export const EventCard = React.memo(function _EventCard({
 				</div>
 				<div className="pl-8">
 					<h3 className="text-slate-400 text-sm"># PARTICIPANTS</h3>
-					<div>
-						{event.authParticipantIds.length + event.manualParticipants.length}
-					</div>
+					<div>{event.participants.length}</div>
 				</div>
 			</div>
 		</Card>

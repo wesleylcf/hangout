@@ -49,7 +49,7 @@ export const ParticipantsSection = ({
 }: ParticipantsSectionProps) => {
 	const notification = useNotification();
 	const { getFieldValue, setFieldValue } = form;
-	const participants: EventParticipant[] = getFieldValue('participants');
+	const participants: PublicEventParticipant[] = getFieldValue('participants');
 
 	const onUpdateParticipant = (
 		participant: EventParticipant,
@@ -86,7 +86,7 @@ export const ParticipantsSection = ({
 		const newParticipants = [...currentParticipants, newParticipant];
 		setFieldValue('participants', newParticipants);
 	};
-
+	console.log('p', participants);
 	return (
 		<>
 			<div className="flex flew-row justify-between items-center">
@@ -110,56 +110,23 @@ export const ParticipantsSection = ({
 			>
 				{participants &&
 					participants.map((participant, index) => {
-						if ('uuid' in participant) {
-							return (
-								<div className="p-4" key={participant.uuid! + index}>
-									<Card className="p-5 flex flex-row justify-between">
-										<div className="w-5/6 flex flex-row items-center">
-											{participant.isCreator ? (
-												<CrownOutlined
-													className="pr-2 "
-													style={{
-														color: 'rgb(232 121 249)',
-													}}
-												/>
-											) : (
-												<UserOutlined
-													className="pr-2 "
-													style={{
-														color: 'rgb(232 121 249)',
-													}}
-												/>
-											)}
-
-											{participant.uuid}
-										</div>
-										<div className="flex flex-row items-center hover:text-red-400">
-											<DeleteOutlined
-												onClick={() => onRemoveParticipant(participant.uuid!)}
-												style={{ fontSize: '1.25rem' }}
-											/>
-										</div>
-									</Card>
-								</div>
-							);
-						} else {
-							return (
-								<PublicParticipantCard
-									key={index}
-									participant={participant}
-									header={
-										<ParticipantCardHeader
-											title={participant.name}
-											isExpanded={expanded.has(index.toString())}
-											isCreator={participant.isCreator}
-										/>
-									}
-									onUpdateParticipant={onUpdateParticipant}
-									index={index}
-									setFormInstances={setFormInstances}
-								/>
-							);
-						}
+						return (
+							<PublicParticipantCard
+								key={index}
+								participant={participant}
+								header={
+									<ParticipantCardHeader
+										title={participant.name}
+										isExpanded={expanded.has(index.toString())}
+										isCreator={participant.isCreator}
+									/>
+								}
+								onUpdateParticipant={onUpdateParticipant}
+								index={index}
+								setFormInstances={setFormInstances}
+								isAuthParticipant={'uuid' in participant}
+							/>
+						);
 					})}
 				<div className="w-full p-4 flex flex-row justify-center items-center space-x-4">
 					{!limitFeatures && (

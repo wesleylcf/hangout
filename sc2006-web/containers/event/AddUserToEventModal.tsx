@@ -1,23 +1,20 @@
 import { Modal, ModalProps, Form } from 'antd';
 import { Me } from '../../contexts';
 import { TextInput } from '../../components/common';
-import { Regex } from '../../types/constants';
+import { DbUserRes, Regex } from '../../types/constants';
 import { userService } from '../../services';
 import { useNotification } from '../../hooks';
 
 type AddUserToEventModalProps = Omit<ModalProps, 'onOk'> & {
-	me: Me;
-	isOpen: boolean;
-	onOk: (user: string) => void;
+	onOk: (email: string, user: DbUserRes) => void;
 	addedParticipants: Set<string>;
 };
 
 export const AddUserToEventModal = ({
-	me,
-	isOpen,
 	onOk,
 	onCancel,
 	addedParticipants,
+	...modalProps
 }: AddUserToEventModalProps) => {
 	const notification = useNotification();
 	const [form] = Form.useForm();
@@ -29,7 +26,6 @@ export const AddUserToEventModal = ({
 	return (
 		<Modal
 			title="Add A User By Email"
-			visible={isOpen}
 			onOk={async () => {
 				try {
 					await validateFields();
@@ -41,8 +37,8 @@ export const AddUserToEventModal = ({
 						);
 						return;
 					}
-					await userService.checkExistingUser(email);
-					onOk(email);
+					const { user } = await userService.getUser(email);
+					onOk(email, user!);
 				} catch (e: any) {
 					// If it is a PresentableError
 					if (e.level) {
@@ -54,6 +50,7 @@ export const AddUserToEventModal = ({
 			}}
 			onCancel={onCancel}
 			destroyOnClose
+			{...modalProps}
 		>
 			<Form form={form} initialValues={formInitialValues}>
 				<Form.Item

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, ReactNode } from 'react';
 import { DbEventRes } from '../../../types';
 import { EventCard } from './EventCard';
 
@@ -10,7 +10,7 @@ export const EventSection = React.memo(function _EventSection({
 	events,
 }: EventSectionProps) {
 	return (
-		<div className="space-y-4">
+		<div className="flex flex-wrap flex-row gap-x-12 gap-y-12">
 			{events &&
 				events.map((event) => <EventCard key={event.uuid} event={event} />)}
 		</div>

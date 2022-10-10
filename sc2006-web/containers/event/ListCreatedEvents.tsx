@@ -5,12 +5,10 @@ import { EventSection } from './EventSection';
 import moment from 'moment';
 
 interface ListCreatedEventsProps {
-	headerRef: RefObject<HTMLHeadingElement>;
 	events: Array<DbEventRes>;
 }
 
 export const ListCreatedEvents = React.memo(function _ListCreatedEvents({
-	headerRef,
 	events,
 }: ListCreatedEventsProps) {
 	const activeEvents = useMemo(() => {
@@ -25,9 +23,7 @@ export const ListCreatedEvents = React.memo(function _ListCreatedEvents({
 
 	return (
 		<div className="flex flex-col p-12">
-			<h1 className="text-2xl mb-4" ref={headerRef}>
-				Created Events
-			</h1>
+			<h1 className="text-2xl mb-4">Created Events</h1>
 			<EventSection events={activeEvents} />
 			<EventSection events={expiredEvents} />
 		</div>

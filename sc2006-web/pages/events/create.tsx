@@ -21,7 +21,7 @@ const CreateEventPage = () => {
 				if (prevMe) {
 					return {
 						...prevMe,
-						eventIds: [...prevMe.eventIds, eventUuid],
+						eventIds: [...prevMe.eventIds, eventUuid!],
 					};
 				}
 			});
@@ -34,6 +34,7 @@ const CreateEventPage = () => {
 			);
 			router.push('/events');
 		} catch (e) {
+			console.log(e);
 			const error = e.title
 				? e
 				: {
@@ -53,11 +54,10 @@ const CreateEventPage = () => {
 		name: '',
 		participants: [
 			{
-				name: me.uuid,
-				preferences: [],
-				schedule: me.schedule,
-				address: me.address?.toString() || '',
+				...me,
 				isCreator: true,
+				name: me.uuid,
+				address: me.address?.toString() || '',
 			},
 		],
 	};
