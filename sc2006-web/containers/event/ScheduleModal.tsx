@@ -9,11 +9,13 @@ import { EVENT_DATE_FORMAT } from '../../types';
 export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
 	busyTimeRanges: Record<string, Array<{ start: string; end: string }>>;
+	viewOnly: boolean;
 };
 
 export const ScheduleModal = React.memo(function _ScheduleModal({
 	onOk,
 	busyTimeRanges,
+	viewOnly,
 	...modalProps
 }: ScheduleModalProps) {
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(
@@ -148,11 +150,12 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 			{...modalProps}
 			onOk={() => onOk(internalBusyTimeRanges)}
 			style={{ maxHeight: '80vh' }}
+			footer={!viewOnly}
 		>
 			<div className="flex flex-row" style={{ height: '70vh' }}>
 				<Calendar
 					validRange={[startDate, endDate]}
-					onSelect={onSelectDate}
+					onSelect={!viewOnly ? onSelectDate : undefined}
 					className="w-4/6"
 					dateCellRender={(moment) => {
 						if (moment.isBetween(startDate, endDate, undefined, '[]')) {

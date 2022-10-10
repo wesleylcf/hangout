@@ -22,7 +22,7 @@ type PublicParticipantCardProps = CollapsePanelProps & {
 	participant: EventParticipant;
 	onUpdateParticipant: (participant: EventParticipant, index: number) => void;
 	index: number;
-	isAuthParticipant: boolean;
+	allowEdit: boolean;
 };
 
 interface ParticipantItem {
@@ -36,7 +36,7 @@ export const PublicParticipantCard = React.memo(
 		onUpdateParticipant,
 		index,
 		setFormInstances,
-		isAuthParticipant,
+		allowEdit,
 		...panelProps
 	}: PublicParticipantCardProps) {
 		const [form] = Form.useForm<EventParticipant>();
@@ -138,7 +138,7 @@ export const PublicParticipantCard = React.memo(
 								label={label}
 								value={participant[key] as any}
 								highlight={index % 2 == 0}
-								allowEdit={!isAuthParticipant}
+								allowEdit={allowEdit}
 								CancelEditIcon={CheckOutlined}
 								AllowEditIcon={EditOutlined}
 								Editable={getEditable(key)}

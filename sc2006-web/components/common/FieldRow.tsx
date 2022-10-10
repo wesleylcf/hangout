@@ -3,6 +3,7 @@ import React, { useState, RefObject, useEffect } from 'react';
 import { EyeOutlined } from '@ant-design/icons';
 import { ScheduleModalProps } from '../../containers/event/ScheduleModal';
 import Form, { Rule } from 'antd/lib/form';
+import { PreferencesModalProps } from '../../containers/event/PreferencesModal';
 
 type FieldRowType = string | string[] | Record<string, [string, string]>;
 
@@ -21,7 +22,7 @@ type FieldRowProps<T extends FieldRowType> = {
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
 	Modal?: React.ElementType;
-	modalProps?: Partial<ScheduleModalProps>;
+	modalProps?: Partial<ScheduleModalProps> | Partial<PreferencesModalProps>;
 	formFieldName?: string;
 	fieldFormRules?: Rule[];
 };
@@ -165,7 +166,7 @@ export function FieldRow<T extends FieldRowType>({
 						setModalViewOnly(false);
 						// onEditFinish && onEditFinish(internalValue);
 					}}
-					{...(modalViewOnly && { footer: null })}
+					viewOnly={modalViewOnly}
 					{...modalProps}
 				/>
 			)}

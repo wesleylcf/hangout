@@ -34,7 +34,6 @@ const CreateEventPage = () => {
 			);
 			router.push('/events');
 		} catch (e) {
-			console.log(e);
 			const error = e.title
 				? e
 				: {

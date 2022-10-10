@@ -3,14 +3,16 @@ import React, { useState, useMemo } from 'react';
 import { Modal, ModalProps } from 'antd';
 import { TreeSelect } from 'antd';
 
-type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
+export type PreferencesModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
 	selectedPreferences: Array<string>;
+	viewOnly: boolean;
 };
 
 export const PreferencesModal = React.memo(function _PreferencesModal({
 	onOk,
 	selectedPreferences,
+	viewOnly,
 	...modalProps
 }: PreferencesModalProps) {
 	const treeData = useMemo(
@@ -258,13 +260,14 @@ export const PreferencesModal = React.memo(function _PreferencesModal({
 	);
 
 	return (
-		<Modal {...modalProps} onOk={() => onOk(selectedTypes)}>
+		<Modal {...modalProps} onOk={() => onOk(selectedTypes)} footer={!viewOnly}>
 			<div className="flex flex-row p-8">
 				<p>
 					Please be as specific as you can in choosing your preferences,
 					otherwise the results suggested to you may not be ideal.
 				</p>
 				<TreeSelect
+					disabled={viewOnly}
 					treeData={treeData}
 					value={Array.from(selectedTypes)}
 					onChange={(values) => setSelectedTypes(values)}

@@ -1,23 +1,18 @@
-import React, { Dispatch } from 'react';
+import React, { Dispatch, useContext } from 'react';
 import { Collapse, FormInstance } from 'antd';
-import {
-	UserOutlined,
-	DeleteOutlined,
-	UserAddOutlined,
-	PlusOutlined,
-	CrownOutlined,
-} from '@ant-design/icons';
+import { UserAddOutlined, PlusOutlined } from '@ant-design/icons';
 import { Card, InputLabel } from '../../../components/common';
 import { PublicParticipantCard } from './PublicParticipantCard';
-import { EventParticipant, PublicEventParticipant } from '../../../types';
+import { EventParticipant } from '../../../types';
 import { AUTH_USER_MAX_PARTICIPANTS } from '../../../constants';
 import { ParticipantCardHeader } from './ParticipantCardHeader';
 import { useNotification } from '../../../hooks';
+import { GlobalContext } from '../../../contexts';
 
 interface BaseParticipantsSectionProps {
-	formInstances: Array<FormInstance<PublicEventParticipant>>;
+	formInstances: Array<FormInstance<EventParticipant>>;
 	setFormInstances: Dispatch<
-		React.SetStateAction<Array<FormInstance<PublicEventParticipant>>>
+		React.SetStateAction<Array<FormInstance<EventParticipant>>>
 	>;
 	onRemoveParticipant: (id: string) => void;
 	form: FormInstance;
@@ -47,9 +42,10 @@ export const ParticipantsSection = ({
 	expanded,
 	setExpanded,
 }: ParticipantsSectionProps) => {
+	const { me } = useContext(GlobalContext);
 	const notification = useNotification();
 	const { getFieldValue, setFieldValue } = form;
-	const participants: PublicEventParticipant[] = getFieldValue('participants');
+	const participants: EventParticipant[] = getFieldValue('participants');
 
 	const onUpdateParticipant = (
 		participant: EventParticipant,
@@ -86,7 +82,7 @@ export const ParticipantsSection = ({
 		const newParticipants = [...currentParticipants, newParticipant];
 		setFieldValue('participants', newParticipants);
 	};
-	console.log('p', participants);
+
 	return (
 		<>
 			<div className="flex flew-row justify-between items-center">
@@ -124,7 +120,9 @@ export const ParticipantsSection = ({
 								onUpdateParticipant={onUpdateParticipant}
 								index={index}
 								setFormInstances={setFormInstances}
-								isAuthParticipant={'uuid' in participant}
+								allowEdit={
+									!('uuid' in participant) || participant.uuid === me!.uuid
+								}
 							/>
 						);
 					})}

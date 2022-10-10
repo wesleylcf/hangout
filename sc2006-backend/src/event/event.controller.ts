@@ -111,43 +111,25 @@ export class EventController {
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
 	}
 
-	// 	@UseGuards(JwtAuthGuard)
-	// 	@Post('update')
-	// 	async updateEvent(@Body() body: UpdateEventDto) {
-	// 		const { newEvent, uuid, eventResultId } = body;
-	// 		const { name, participants } = newEvent;
-	// 		const manuallyAddedUsers = [];
-	// 		const authUserUuids = [];
-	// 		let creator: EventParticipant;
-	// 		participants.forEach((participant) => {
-	// 			if (participant.isCreator) {
-	// 				creator = participant;
-	// 			}
-	// 			if (participant.uuid) {
-	// 				authUserUuids.push(participant['uuid']);
-	// 			} else {
-	// 				manuallyAddedUsers.push(participant);
-	// 			}
-	// 		});
+	@UseGuards(JwtAuthGuard)
+	@Post('update')
+	async updateEvent(@Body() body: UpdateEventDto) {
+		const { newEvent, uuid, eventResultId } = body;
+		const { name, participants } = newEvent;
 
-	// 		const authUsers = authUserUuids.length
-	// 			? await this.userService.bulkFindAllById(authUserUuids)
-	// 			: [];
+		const { error } = await this.eventResultService.updateOne({
+			uuid: eventResultId,
+			participants: newEvent.participants,
+		});
+		if (error) {
+			return { error };
+		}
 
-	// 		const { error, result } = await this.eventResultService.updateOne({
-	// 			uuid: eventResultId,
-	// 			participants: [...manuallyAddedUsers, ...authUsers, creator],
-	// 		});
-	// 		if (error) {
-	// 			return { error };
-	// 		}
-
-	// 		await this.eventService.updateOne({
-	// 			uuid,
-	// 			name,
-	// 			authParticipantIds: authUserUuids,
-	// 			manualParticipants: manuallyAddedUsers,
-	// 		});
-	// 		return { error };
-	// 	}
+		await this.eventService.updateOne({
+			uuid,
+			name,
+			participants,
+		});
+		return { error };
+	}
 }
