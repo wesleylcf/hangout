@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { db } from 'src/firebase.config';
 const bcrypt = require('bcrypt'); // eslint-disable-line
 import { WriteBatch, writeBatch } from 'firebase/firestore';
+import { DbUser } from '../../../sc2006-common/src';
 
 @Injectable()
 export class SeedDataService {
@@ -61,15 +62,17 @@ export class SeedDataService {
 	}
 
 	private async seedUsers(notificationIds: Array<string[]>) {
-		const users = this.emails.map((email, index) => ({
-			username: email,
-			password: 'password',
-			eventIds: [],
-			schedule: {},
-			notificationIds: notificationIds[index],
-			address: null,
-			friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
-		}));
+		const users: (Omit<DbUser, 'createdAt'> & { username: string })[] =
+			this.emails.map((email, index) => ({
+				username: email,
+				password: 'password',
+				preferences: ['catering.cafe'],
+				eventIds: [],
+				schedule: {},
+				notificationIds: notificationIds[index],
+				address: 163009,
+				friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
+			}));
 		const passwords = await this.authService.hashPasswords(users);
 		const hashedUsers = passwords.map((hash, index) => ({
 			...users[index],
