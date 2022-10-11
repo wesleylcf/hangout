@@ -133,7 +133,7 @@ export const PublicParticipantCard = React.memo(
 							modal = PreferencesModal;
 						}
 
-						if (['preferences', 'schedule'.includes(key)]) {
+						if (['preferences', 'schedule'].includes(key)) {
 							return (
 								<FieldRow
 									key={key}
