@@ -7,16 +7,17 @@ import { PreferencesModalProps } from '../../containers/event/PreferencesModal';
 
 type FieldRowType = string | string[] | Record<string, [string, string]>;
 
+// Ideally isValuePresentable should be true or false, but false is not assignable to true so use undefined or true instead
 interface FieldValuePresentableProps<T> extends FieldRowBaseProps<T> {
 	value?: T;
-	isValuePresentable?: true;
-	Presentable?: undefined;
-	presentableProps?: undefined;
+	isValuePresentable: true;
+	Presentable?: never;
+	presentableProps?: never;
 }
 
 interface FieldValueNotPresentableProps<T> extends FieldRowBaseProps<T> {
 	value?: T;
-	isValuePresentable?: false;
+	isValuePresentable: undefined;
 	Presentable?: React.ElementType;
 	presentableProps?:
 		| Partial<ScheduleModalProps>

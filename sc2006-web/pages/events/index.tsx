@@ -1,19 +1,11 @@
-import React, {
-	useState,
-	ReactNode,
-	useLayoutEffect,
-	useEffect,
-	useContext,
-} from 'react';
-import { Layout, Divider, Menu, Tabs } from 'antd';
+import React, { useState, ReactNode, useLayoutEffect, useContext } from 'react';
+import { Tabs } from 'antd';
 import { useRouter } from 'next/router';
-import { NAVIGATION_HEIGHT } from '../../constants';
 import { PlusCircleFilled } from '@ant-design/icons';
-import { DbEventRes, ListBriefEventRes } from '../../types';
+import { ListBriefEventRes } from '../../types';
 import { GlobalContext, PageContext } from '../../contexts';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
-import { ListCreatedEvents } from '../../containers/event/ListCreatedEvents';
 import { EventSection } from '../../containers/event/EventSection';
 
 enum EventMenuItemType {

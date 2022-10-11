@@ -2,7 +2,7 @@ import { throwErrorOrGetData } from '../lib/error';
 import {
 	CreateEventReq,
 	CreateEventRes,
-	DbEventRes,
+	DbEventResultRes,
 	DetailedEventRes,
 	ListBriefEventRes,
 	ListEventsReq,
@@ -22,6 +22,25 @@ export class EventService {
 			body: JSON.stringify(req),
 		});
 		const data = await throwErrorOrGetData<CreateEventRes>(response, {
+			fallbackMessage:
+				'Please check your inputs. Otherwise please try again later or send us an alert',
+			fallbackTitle: 'Failed to create event',
+		});
+		return data;
+	}
+
+	async generateEventResult(req: CreateEventReq) {
+		const response = await fetch(`${process.env.API_URL}/events/demo/create`, {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			mode: 'cors', // no-cors, *cors, same-origin
+			cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(req),
+		});
+		const data = await throwErrorOrGetData<DbEventResultRes>(response, {
 			fallbackMessage:
 				'Please check your inputs. Otherwise please try again later or send us an alert',
 			fallbackTitle: 'Failed to create event',

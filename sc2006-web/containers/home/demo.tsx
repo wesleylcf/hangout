@@ -61,7 +61,7 @@ export const Demo = () => {
 					</Timeline>
 				</div>
 			</section>
-			<section className="flex flex-col space-y-8 items-center h-screen">
+			<section className="flex flex-col space-y-8 items-center min-h-screen">
 				<h1 className="text-2xl text-yellow-400 left-1/2 mt-8">Try it out!</h1>
 				<DemoApp />
 			</section>

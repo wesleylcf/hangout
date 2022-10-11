@@ -158,6 +158,7 @@ export const PublicParticipantCard = React.memo(
 									}}
 									formFieldName={key}
 									fieldFormRules={getFormRule(key)}
+									isValuePresentable={undefined}
 								/>
 							);
 						}

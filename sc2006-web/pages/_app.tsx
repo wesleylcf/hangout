@@ -14,6 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 	const [isAppLoading, setIsAppLoading] = useState(true);
 	const [isPageLoading, setIsPageLoading] = useState(false);
 	const [postLoginPath, setPostLoginPath] = useState('/home');
+
 	const globalContext: GlobalContextProps = {
 		wasLoggedIn,
 		setWasLoggedIn: (bool: boolean) => setWasLoggedIn(bool),
