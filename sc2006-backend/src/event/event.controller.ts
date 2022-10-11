@@ -15,9 +15,10 @@ import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
 import {
 	DetailedEventRes,
-	EventParticipant,
+	DbEventResultRes,
 	EVENT_DATETIME_FORMAT,
 	ListBriefEventRes,
+	PresentableError,
 } from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';
 import * as moment from 'moment';
@@ -131,5 +132,24 @@ export class EventController {
 			participants,
 		});
 		return { error };
+	}
+
+	@Post('demo/create')
+	async createDemoEvent(
+		@Body() body: CreateEventDto,
+	): Promise<DbEventResultRes | Omit<PresentableError, 'name'>> {
+		const { participants } = body;
+
+		const { result, error } = await this.eventResultService.createOne(
+			participants,
+			true,
+		);
+		if (error) return error;
+		const { eventResultId } = result;
+		return {
+			...result,
+			createdAt: moment().format(EVENT_DATETIME_FORMAT), //Since Timestamp is not actually created until it reaches FireStore
+			uuid: eventResultId,
+		};
 	}
 }

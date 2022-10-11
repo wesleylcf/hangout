@@ -2,6 +2,7 @@ import {
 	ArrayMinSize,
 	IsArray,
 	IsBoolean,
+	IsOptional,
 	IsString,
 	Length,
 	Matches,
@@ -25,7 +26,7 @@ export class CreateEventDto implements CreateEventReq {
 }
 
 export class ParticipantDto {
-	@ValidateIf((o) => typeof o.name === 'undefined')
+	@IsOptional()
 	@IsString()
 	uuid?: string;
 

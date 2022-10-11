@@ -24,9 +24,9 @@ import {
 import { db } from 'src/firebase.config';
 import * as moment from 'moment'; // otherwise error moment is not a function
 
-interface CreateOneResult {
-	eventResultId: string;
-	expiresAt: string;
+export interface CreateOneResult extends DbEventResult {
+	eventResultId?: string;
+	expiresAt?: string;
 }
 
 @Injectable()
@@ -51,12 +51,16 @@ export class EventResultService {
 		};
 	}
 
-	async createOne(participants: EventParticipant[]): Promise<{
+	async createOne(
+		participants: EventParticipant[],
+		isDemo = false,
+	): Promise<{
 		result: CreateOneResult | null;
 		error: PresentableError | null;
 	}> {
 		try {
 			const result = await this.getEventResult(participants);
+			if (isDemo) return { result, error: null };
 			const newResultDocRef = doc(collection(db, 'event-results'));
 			await setDoc(newResultDocRef, result);
 			this.logger.log(
@@ -66,6 +70,7 @@ export class EventResultService {
 
 			return {
 				result: {
+					...result,
 					eventResultId: newResultDocRef.id,
 					expiresAt: moment()
 						.add(7, 'day')
