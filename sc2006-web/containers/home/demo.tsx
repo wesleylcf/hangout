@@ -34,28 +34,29 @@ export const Demo = () => {
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">Tell us your address</p>
 							<p>
-								This is used to suggest places which are most commute-friendly
-								for everyone involved
+								We will calculate the most central point from all participants'
+								addresses, then suggest places closest to that point.
 							</p>
 						</Timeline.Item>
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">Tell us your preferences</p>
 							<p>
-								This is used to suggest places which fall under the interests of
-								most or everyone involved.
+								We will grab all common preferences and suggest 5 places for
+								each preference. Note that the app will complain if there are no
+								common preferences among the participants!
 							</p>
 						</Timeline.Item>
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">Tell us what your schedule looks like</p>
 							<p>
-								This is used to suggest the time and duration of the event, and
-								affects the places that we will suggest.
+								Let us know when you are busy, and our app will show all time
+								ranges where every participant is free.
 							</p>
 						</Timeline.Item>
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">
 								Once we have the details of everyone involved, give us a moment
-								to generate the results!
+								or two to generate the results!
 							</p>
 						</Timeline.Item>
 					</Timeline>

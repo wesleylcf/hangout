@@ -1,45 +1,66 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { Form } from 'antd';
 import { CreateEventForm } from '../event/CreateEventForm';
 import { CreateEventReq, DbEventResultRes } from '../../types';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { EventResultCard } from '../event/EventResultCard';
-import { PageContext } from '../../contexts';
 
 export const DemoApp = () => {
 	const notification = useNotification();
-	const { setLoading } = useContext(PageContext);
+	const eventResultRef = useRef<HTMLDivElement>(null);
 	const [form] = Form.useForm<CreateEventReq>();
 	const [eventResult, setEventResult] = useState<DbEventResultRes>();
 	const initialFormValues: CreateEventReq = {
 		name: 'This is a demo, some features may be limited.',
 		participants: [],
 	};
-	const onSubmit = async (form: CreateEventReq) => {
-		console.log(form);
+	const onSubmit = async (formValues: CreateEventReq) => {
+		console.log(formValues);
+		let hasError = false;
+
 		try {
-			const result = await eventService.generateEventResult(form);
+			const result = await eventService.generateEventResult(formValues);
 			setEventResult(result);
 		} catch (e) {
+			hasError = true;
 			if ('title' in e) {
 				notification.apiError(e);
 			} else {
 				notification.error(e.message, 'Could not generate a result');
 			}
 		}
+
+		if (!hasError) {
+			window.scrollTo({
+				top: eventResultRef.current?.offsetTop,
+				behavior: 'smooth',
+			});
+		}
 	};
 
 	return (
-		<div className="w-10/12 space-y-16">
-			<CreateEventForm
-				limitFeatures
-				form={form}
-				onSubmitHandler={onSubmit}
-				initialValues={initialFormValues}
-			/>
-			<h1 className="m-0 text-2xl">Event Result</h1>
-			{eventResult && <EventResultCard eventResult={eventResult} />}
-		</div>
+		<>
+			<div className="flex flex-row justify-center w-full min-h-screen space-y-16">
+				<div className="w-10/12 h-fit">
+					<CreateEventForm
+						limitFeatures
+						form={form}
+						onSubmitHandler={onSubmit}
+						initialValues={initialFormValues}
+					/>
+				</div>
+			</div>
+
+			<div ref={eventResultRef} />
+			{eventResult && (
+				<div className="w-full min-h-screen flex flex-col items-center bg-slate-50">
+					<div className="w-10/12 space-y-16">
+						<h1 className="mt-4 text-2xl text-center">Event Result</h1>
+						<EventResultCard eventResult={eventResult} />
+					</div>
+				</div>
+			)}
+		</>
 	);
 };
