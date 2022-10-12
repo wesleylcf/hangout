@@ -1,4 +1,4 @@
-import React, { Dispatch, useContext } from 'react';
+import React, { Dispatch, useContext, useState } from 'react';
 import { Collapse, FormInstance } from 'antd';
 import { UserAddOutlined, PlusOutlined } from '@ant-design/icons';
 import { Card, InputLabel } from '../../../components/common';
@@ -14,7 +14,7 @@ interface BaseParticipantsSectionProps {
 	setFormInstances: Dispatch<
 		React.SetStateAction<Array<FormInstance<EventParticipant>>>
 	>;
-	onRemoveParticipant: (id: string) => void;
+	onRemoveParticipant: (name: string) => void;
 	form: FormInstance;
 	limitFeatures?: boolean;
 	expanded: Set<string>;
@@ -46,6 +46,7 @@ export const ParticipantsSection = ({
 	const notification = useNotification();
 	const { getFieldValue, setFieldValue } = form;
 	const participants: EventParticipant[] = getFieldValue('participants');
+	const [addedCount, setAddedCount] = useState(0);
 
 	const onUpdateParticipant = (
 		participant: EventParticipant,
@@ -73,7 +74,7 @@ export const ParticipantsSection = ({
 		}
 
 		const newParticipant: EventParticipant = {
-			name: `New Participant ${currentParticipants.length + 1}`,
+			name: `New Participant ${addedCount + 1}`,
 			preferences: [],
 			schedule: {},
 			address: '',
@@ -81,6 +82,7 @@ export const ParticipantsSection = ({
 		};
 		const newParticipants = [...currentParticipants, newParticipant];
 		setFieldValue('participants', newParticipants);
+		setAddedCount((prevCount) => prevCount + 1);
 	};
 
 	return (
@@ -115,6 +117,11 @@ export const ParticipantsSection = ({
 										title={participant.name}
 										isExpanded={expanded.has(index.toString())}
 										isCreator={participant.isCreator}
+										onDelete={
+											participant.isCreator
+												? undefined
+												: () => onRemoveParticipant(participant.name)
+										}
 									/>
 								}
 								onUpdateParticipant={onUpdateParticipant}

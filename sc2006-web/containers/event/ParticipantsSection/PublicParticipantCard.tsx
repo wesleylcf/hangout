@@ -40,7 +40,7 @@ export const PublicParticipantCard = React.memo(
 		...panelProps
 	}: PublicParticipantCardProps) {
 		const [form] = Form.useForm<EventParticipant>();
-		const { getFieldValue, setFieldsValue } = form;
+		const { setFieldsValue } = form;
 
 		useEffect(() => {
 			setFormInstances((prevFormInstances) => [...prevFormInstances, form]);

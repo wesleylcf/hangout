@@ -5,10 +5,12 @@ interface ParticipantCardHeaderProps {
 	title: string;
 	isCreator: boolean;
 	isExpanded: boolean;
+	onDelete?: (name: string) => void;
 }
 
 export const ParticipantCardHeader = ({
 	isCreator,
+	onDelete,
 	...headerProps
 }: ParticipantCardHeaderProps) => {
 	const icon = isCreator ? (
@@ -26,5 +28,7 @@ export const ParticipantCardHeader = ({
 			}}
 		/>
 	);
-	return <CollapseItemHeader icon={icon} {...headerProps} />;
+	return (
+		<CollapseItemHeader icon={icon} {...headerProps} onDelete={onDelete} />
+	);
 };

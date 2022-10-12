@@ -118,6 +118,7 @@ export function FieldRow<T extends FieldRowType>({
 								value={internalValue}
 								onChange={onChangeHandler}
 								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+									event.stopPropagation();
 									if (event.code === 'Enter') {
 										setIsEditing(false);
 										onEditFinish && onEditFinish(internalValue);

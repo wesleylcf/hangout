@@ -17,7 +17,6 @@ export const EventCard = React.memo(function _EventCard({
 	event,
 }: EventCardProps) {
 	const { me } = useContext(GlobalContext);
-	const now = moment();
 	const router = useRouter();
 	return (
 		<Card

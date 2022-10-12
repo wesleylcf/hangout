@@ -78,14 +78,9 @@ export const CreateEventForm = ({
 	const onRemoveParticipant = (name: string) => {
 		const currentParticipants: EventParticipant[] =
 			getFieldValue('participants');
-		const newParticipants = currentParticipants.filter((participant) => {
-			if ('uuid' in participant) {
-				return participant.uuid !== name;
-			}
-			if ('name' in participant) {
-				return participant.name !== name;
-			}
-		});
+		const newParticipants = currentParticipants.filter(
+			(participant) => participant.name !== name,
+		);
 		setAddedAuthParticipants((added) => {
 			const newAdded = new Set(added);
 			newAdded.delete(name);

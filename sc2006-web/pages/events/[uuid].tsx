@@ -93,7 +93,10 @@ const EventPage = () => {
 
 	return (
 		<div className="w-full h-full flex flex-col">
-			<PageHeader onBack={() => router.back()} title={`Event ${uuid}`} />
+			<PageHeader
+				onBack={() => router.back()}
+				title={`Event ${event?.name} (ref: ${uuid})`}
+			/>
 			<div className="px-16 pb-16">
 				<h1 className="text-2xl">Event Result</h1>
 				{eventResult && <EventResultCard eventResult={eventResult} />}
