@@ -4,6 +4,7 @@ import { NotificationBell } from '../../components/common';
 import { DbNotificationRes } from '../../types';
 import { notificationService } from '../../services';
 import { useNotification } from '../../hooks';
+import moment from 'moment';
 
 interface NotificationInboxProps {
 	uuids: string[];
@@ -22,6 +23,11 @@ export const NotificationInbox = ({ uuids }: NotificationInboxProps) => {
 					await notificationService.getUserNotifications({
 						notificationUuids: uuids,
 					});
+				notificationResult.sort((n1, n2) => {
+					const m1 = moment(n1.createdAt);
+					const m2 = moment(n2.createdAt);
+					return m1.isBefore(m2) ? 1 : -1;
+				});
 				setNotifications(notificationResult);
 				const unseenCount = notificationResult.reduce(
 					(previousValue: number, nextNotification: DbNotificationRes) =>
@@ -85,13 +91,13 @@ export const NotificationInbox = ({ uuids }: NotificationInboxProps) => {
 				className="w-full"
 				placement="bottom"
 				color="white"
-				open={isInboxOpen}
+				visible={isInboxOpen}
 				trigger="click"
 				onOpenChange={(visible) => setIsInboxOpen(visible)}
 				overlayInnerStyle={{ padding: 0 }}
 				title={
-					<div className="overflow-y-auto w-60 min-h-60 max-h-98">
-						<div className="grid grid-cols-1">
+					<div className="w-60" style={{ height: '25rem' }}>
+						<div className="grid grid-cols-1 overflow-y-auto h-full">
 							{notifications.map(({ title, description, seenAt, uuid }) => {
 								return seenAt ? (
 									<react.Fragment key={uuid}>
