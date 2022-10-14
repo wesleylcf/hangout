@@ -8,7 +8,7 @@ export interface SeedUser {
 	schedule: Record<string, Array<TimeRange>>;
 	preferences: string[];
 	notifications: Pick<DbNotification, 'title' | 'description'>[];
-	address: number | null;
+	address: string | null;
 	friendIds: string[];
 }
 
@@ -16,10 +16,10 @@ export interface DbUser {
 	createdAt: Timestamp;
 	eventIds: string[];
 	friendIds: string[];
-	schedule: Record<string, Array<TimeRange>>;
+	schedule: Schedule;
 	preferences: string[];
 	notificationIds: string[];
-	address: number | null;
+	address: string | null;
 	password: string;
 }
 
@@ -32,10 +32,9 @@ export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
 	uuid: string;
 }
 
-type TimeRange = [start: string, end: string];
+export type Schedule = Record<string, Array<TimeRange>>;
 
-export interface PublicUser {
-	schedule: Record<string, Array<TimeRange>>;
-	address: string;
-	preferences: string[];
+export interface TimeRange {
+	start: string;
+	end: string;
 }

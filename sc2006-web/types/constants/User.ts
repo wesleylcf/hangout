@@ -19,7 +19,7 @@ export interface DbUser {
 	schedule: Record<string, Array<TimeRange>>;
 	preferences: string[];
 	notificationIds: string[];
-	address: number | null;
+	address: string | null;
 	password: string;
 }
 
@@ -32,10 +32,9 @@ export interface UserRes extends Omit<DbUser, 'createdAt' | 'password'> {
 	uuid: string;
 }
 
-type TimeRange = { start: string; end: string };
+export type Schedule = Record<string, Array<TimeRange>>;
 
-export interface PublicUser {
-	schedule: Record<string, Array<TimeRange>>;
-	address: string;
-	preferences: string[];
+export interface TimeRange {
+	start: string;
+	end: string;
 }

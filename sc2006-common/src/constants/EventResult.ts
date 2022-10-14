@@ -21,7 +21,7 @@ export const EVENT_DATE_FORMAT = 'ddd (DD MMM)';
 export interface DbPlace {
 	name: string;
 	address: string;
-	postal: number;
+	postal: string;
 	coordinates: [lat: number, lng: number];
 	distanceFromCenter: number;
 }
