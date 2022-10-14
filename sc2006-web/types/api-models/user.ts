@@ -8,5 +8,10 @@ export interface GetUserRes {
 
 export interface UpdateUserReq {
 	uuid: string;
-	user: Pick<DbUserRes, 'address' | 'preferences' | 'schedule'>;
+	user: UpdatableUserProps;
 }
+
+export type UpdatableUserProps = Pick<
+	DbUserRes,
+	'address' | 'preferences' | 'schedule' | 'friendIds'
+>;

@@ -132,36 +132,4 @@ export class UserService {
 			);
 		}
 	}
-
-	// async seedUsers(
-	// 	users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
-	// ) {
-	// 	try {
-	// 		const batch = writeBatch(db);
-
-	// 		const usersNotifications = users.map((user) => user.notifications);
-
-	// 		const usersNotificationUuids = await Promise.all(
-	// 			usersNotifications.map(
-	// 				async (userNotification) =>
-	// 					await this.notificationService.bulkCreate(userNotification),
-	// 			),
-	// 		);
-
-	// 		users.forEach((user, index) => {
-	// 			const { username, notifications, ...rest } = user;
-
-	// 			const docRef = doc(db, 'users', username);
-	// 			batch.set(docRef, {
-	// 				createdAt: serverTimestamp(),
-	// 				notificationIds: usersNotificationUuids[index].uuids,
-	// 				...rest,
-	// 			});
-	// 		});
-
-	// 		await batch.commit();
-	// 	} catch (e) {
-	// 		this.logger.warn('Could not batch write users', 'UserService');
-	// 	}
-	// }
 }

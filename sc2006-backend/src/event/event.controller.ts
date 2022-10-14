@@ -85,7 +85,6 @@ export class EventController {
 		@Res({ passthrough: true }) res,
 	) {
 		const { name, participants } = body;
-		console.log('body', body);
 
 		const creator = participants.find((p) => p.isCreator);
 

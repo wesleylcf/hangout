@@ -14,6 +14,7 @@ import {
 	CreateEventReq,
 	DbUserRes,
 	EventParticipant,
+	UpdatableUserProps,
 	UpdateUserReq,
 } from '../../../sc2006-common/src';
 import { Regex } from '../../../sc2006-common/src';
@@ -24,12 +25,10 @@ export class UpdateUserDto implements UpdateUserReq {
 
 	@ValidateNested()
 	@Type(() => UserDto)
-	user: DbUserRes;
+	user: UpdatableUserProps;
 }
 
-export class UserDto
-	implements Pick<DbUserRes, 'address' | 'preferences' | 'schedule'>
-{
+export class UserDto implements UpdatableUserProps {
 	@IsOptional()
 	@IsArray()
 	@IsString({ each: true })
@@ -42,4 +41,9 @@ export class UserDto
 	@IsString()
 	@Matches(Regex.POSTAL_CODE)
 	address: string;
+
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	friendIds: string[];
 }

@@ -49,5 +49,5 @@ export class ParticipantDto {
 
 	@IsString()
 	@Matches(Regex.POSTAL_CODE)
-	address: number;
+	address: string;
 }
