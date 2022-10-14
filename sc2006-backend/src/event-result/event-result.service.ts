@@ -245,7 +245,7 @@ export class EventResultService {
 				return {
 					name: name || street,
 					address: formatted,
-					postal: parseInt(postcode),
+					postal: postcode,
 					coordinates: [lat, lon],
 					distanceFromCenter: distance,
 				};

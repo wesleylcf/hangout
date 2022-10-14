@@ -15,7 +15,7 @@ import {
 	documentId,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser, DbUserRes } from '../../../sc2006-common/';
+import { DbUser, DbUserRes, PresentableError } from '../../../sc2006-common/';
 import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
@@ -42,6 +42,28 @@ export class UserService {
 			...rest,
 			createdAt: createdAt.toDate(),
 		};
+	}
+
+	async updateOne(
+		uuid: string,
+		user: Partial<DbUserRes>,
+	): Promise<Omit<PresentableError, 'name'> | null> {
+		try {
+			const docRef = doc(db, 'users', uuid);
+			const docSnap = await getDoc(docRef);
+			if (!docSnap.exists()) {
+				throw new Error(`User ${uuid} does not exist`);
+			}
+			await setDoc(docRef, user, { merge: true });
+			return null;
+		} catch (e) {
+			this.logger.error(e.message, 'userService');
+			return {
+				title: 'Failed to update user',
+				message: e.message,
+				level: 'error',
+			};
+		}
 	}
 
 	async create({ username, password }: AuthUserDto) {

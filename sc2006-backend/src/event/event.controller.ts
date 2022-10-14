@@ -11,7 +11,6 @@ import { LoggingInterceptor } from 'src/logging.interceptor';
 import { EventService } from './event.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { CreateEventDto } from './create-event.dto';
-import { UserService } from 'src/user/user.service';
 import { EventResultService } from 'src/event-result/event-result.service';
 import {
 	DetailedEventRes,
@@ -29,7 +28,6 @@ import { ListEventsDto } from './list-events.dto';
 export class EventController {
 	constructor(
 		private readonly eventService: EventService,
-		private readonly userService: UserService,
 		private readonly eventResultService: EventResultService,
 	) {}
 
@@ -87,6 +85,7 @@ export class EventController {
 		@Res({ passthrough: true }) res,
 	) {
 		const { name, participants } = body;
+		console.log('body', body);
 
 		const creator = participants.find((p) => p.isCreator);
 
@@ -109,6 +108,7 @@ export class EventController {
 			eventResultId,
 			participants,
 		});
+
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
 	}
 

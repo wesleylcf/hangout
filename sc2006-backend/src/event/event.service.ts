@@ -5,6 +5,7 @@ import {
 	DbEventRes,
 	EVENT_DATETIME_FORMAT,
 	AuthEventParticipant,
+	DbUser,
 } from '../../../sc2006-common/src';
 import { db } from 'src/firebase.config';
 import {
@@ -24,10 +25,14 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import * as moment from 'moment';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class EventService {
-	constructor(private readonly logger: Logger) {}
+	constructor(
+		private readonly logger: Logger,
+		private readonly notificationService: NotificationService,
+	) {}
 
 	async createOne(
 		event: Omit<DbEvent, 'createdAt' | 'eventResultIds'>,
@@ -41,6 +46,13 @@ export class EventService {
 				creatorId,
 			};
 
+			const { uuid } = await this.notificationService.createOne({
+				title: `You have been added to event ${event.name}`,
+				description: `${creatorId} has added you as a participant on ${moment().format(
+					EVENT_DATETIME_FORMAT,
+				)}`,
+			});
+
 			const newEventDocRef = doc(collection(db, 'events'));
 			const creatorDocRef = doc(db, 'users', creatorId);
 			const eventUuid = newEventDocRef.id;
@@ -51,15 +63,18 @@ export class EventService {
 
 			authParticipantIds.forEach((participant) => {
 				const authParticipantDocRef = doc(db, 'users', participant.uuid);
-				batch.update(authParticipantDocRef, {
-					eventIds: arrayUnion(eventUuid),
-				});
+				const updatedParticipant: Partial<DbUser> = {
+					eventIds: arrayUnion(eventUuid) as any,
+					notificationIds: arrayUnion(uuid) as any,
+				};
+				batch.update(authParticipantDocRef, updatedParticipant);
 			});
 
 			batch.set(newEventDocRef, newEvent);
 			batch.update(creatorDocRef, {
 				eventIds: arrayUnion(eventUuid),
 			});
+
 			await batch.commit();
 
 			this.logger.log(

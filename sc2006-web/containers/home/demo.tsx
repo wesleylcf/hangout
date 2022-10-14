@@ -34,8 +34,9 @@ export const Demo = () => {
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">Tell us your address</p>
 							<p>
-								We will calculate the most central point from all participants'
-								addresses, then suggest places closest to that point.
+								We will calculate the most central point from all
+								participants&#39; addresses, then suggest places closest to that
+								point.
 							</p>
 						</Timeline.Item>
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>

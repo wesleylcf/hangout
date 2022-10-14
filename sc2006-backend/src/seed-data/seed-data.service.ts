@@ -70,7 +70,7 @@ export class SeedDataService {
 				eventIds: [],
 				schedule: {},
 				notificationIds: notificationIds[index],
-				address: 163009,
+				address: '163009',
 				friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
 			}));
 		const passwords = await this.authService.hashPasswords(users);

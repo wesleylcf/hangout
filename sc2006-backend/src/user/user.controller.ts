@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { GetUserDto } from './get-user.dto';
 import { GetUserRes, PresentableError } from '../../../sc2006-common/src';
+import { UpdateUserDto } from './update-user.dto';
 
 @Controller('users')
 export class UserController {
@@ -37,5 +38,15 @@ export class UserController {
 			};
 		}
 		return { error: null, user };
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Post('updateOne')
+	async updateOne(
+		@Body() body: UpdateUserDto,
+	): Promise<{ error: null | Omit<PresentableError, 'name'> }> {
+		const { uuid, user } = body;
+		const error = await this.userService.updateOne(uuid, user);
+		return { error };
 	}
 }

@@ -12,42 +12,34 @@ import {
 import { Type } from 'class-transformer';
 import {
 	CreateEventReq,
+	DbUserRes,
 	EventParticipant,
-	Schedule,
+	UpdateUserReq,
 } from '../../../sc2006-common/src';
 import { Regex } from '../../../sc2006-common/src';
 
-export class CreateEventDto implements CreateEventReq {
+export class UpdateUserDto implements UpdateUserReq {
 	@IsString()
-	@Length(10, 50)
-	name: string;
+	uuid: string;
 
-	@IsArray()
-	@ArrayMinSize(2)
-	@ValidateNested({ each: true })
-	@Type(() => ParticipantDto)
-	participants: Array<EventParticipant>;
+	@ValidateNested()
+	@Type(() => UserDto)
+	user: DbUserRes;
 }
 
-export class ParticipantDto {
+export class UserDto
+	implements Pick<DbUserRes, 'address' | 'preferences' | 'schedule'>
+{
 	@IsOptional()
-	@IsString()
-	uuid?: string;
-
-	@IsBoolean()
-	isCreator: boolean;
-
-	@IsString()
-	name: string;
-
 	@IsArray()
 	@IsString({ each: true })
 	preferences: Array<string>;
 
 	@IsOptional()
-	schedule: Record<string, Array<{ start: string; end: string }>>;
+	schedule: Record<string, { start: string; end: string }[]>;
 
+	@IsOptional()
 	@IsString()
 	@Matches(Regex.POSTAL_CODE)
-	address: number;
+	address: string;
 }
