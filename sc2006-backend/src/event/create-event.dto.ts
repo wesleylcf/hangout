@@ -6,15 +6,10 @@ import {
 	IsString,
 	Length,
 	Matches,
-	ValidateIf,
 	ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-	CreateEventReq,
-	EventParticipant,
-	Schedule,
-} from '../../../sc2006-common/src';
+import { CreateEventReq, EventParticipant } from '../../../sc2006-common/src';
 import { Regex } from '../../../sc2006-common/src';
 
 export class CreateEventDto implements CreateEventReq {

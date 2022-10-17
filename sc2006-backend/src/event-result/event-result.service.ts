@@ -10,7 +10,6 @@ import {
 	GeoapifyResponse,
 	getLatLngCenter,
 	PresentableError,
-	UpdateEventReq,
 } from '../../../sc2006-common/src';
 import fetch from 'node-fetch';
 import {

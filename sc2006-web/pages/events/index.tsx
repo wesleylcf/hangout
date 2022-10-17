@@ -8,21 +8,6 @@ import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { EventSection } from '../../containers/event/EventSection';
 
-enum EventMenuItemType {
-	CREATED_EVENTS = '#created',
-	PARTICIPATING_EVENTS = '#participating',
-	ACTIVE_EVENTS = '#active',
-	EXPIRED_EVENTS = '#past',
-}
-
-interface EventMenuItem {
-	label?: ReactNode;
-	key: EventMenuItemType;
-	icon?: ReactNode;
-	title?: string;
-	children?: Array<ReactNode | EventMenuItem>;
-}
-
 function ListEventsPage() {
 	const { me } = useContext(GlobalContext);
 	const { setLoading } = useContext(PageContext);

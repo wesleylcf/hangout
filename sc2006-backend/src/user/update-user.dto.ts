@@ -1,22 +1,12 @@
 import {
-	ArrayMinSize,
 	IsArray,
-	IsBoolean,
 	IsOptional,
 	IsString,
-	Length,
 	Matches,
-	ValidateIf,
 	ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-	CreateEventReq,
-	DbUserRes,
-	EventParticipant,
-	UpdatableUserProps,
-	UpdateUserReq,
-} from '../../../sc2006-common/src';
+import { UpdatableUserProps, UpdateUserReq } from '../../../sc2006-common/src';
 import { Regex } from '../../../sc2006-common/src';
 
 export class UpdateUserDto implements UpdateUserReq {
