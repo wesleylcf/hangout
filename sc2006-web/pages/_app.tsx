@@ -7,6 +7,7 @@ import { Me, GlobalContextProps } from '../contexts/';
 import { meService } from '../services';
 import { Spin } from '../components/common';
 import { PageContextProps } from '../contexts/PageContext';
+import { useUpdateUser } from '../hooks';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, setMe] = useState<Me | undefined>(undefined as any);
@@ -43,6 +44,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 		};
 		reconstructUser();
 	}, []);
+
+	useUpdateUser({ me, setMe });
+
 	if (isAppLoading) {
 		return (
 			<div className="w-screen h-screen flex flex-row justify-center items-center">

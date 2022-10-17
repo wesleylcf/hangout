@@ -91,7 +91,7 @@ export const NotificationInbox = ({ uuids }: NotificationInboxProps) => {
 				className="w-full"
 				placement="bottom"
 				color="white"
-				visible={isInboxOpen}
+				open={isInboxOpen}
 				trigger="click"
 				onOpenChange={(visible) => setIsInboxOpen(visible)}
 				overlayInnerStyle={{ padding: 0 }}
