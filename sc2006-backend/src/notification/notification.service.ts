@@ -14,6 +14,7 @@ import {
 	getDocs,
 	documentId,
 	WriteBatch,
+	DocumentReference,
 } from 'firebase/firestore';
 
 @Injectable()
@@ -60,21 +61,40 @@ export class NotificationService {
 	async findMany(uuids: string[]) {
 		const notificationsRef = collection(db, 'notifications');
 		const docRefs = uuids.map((uuid) => doc(db, 'notifications', uuid));
-		const qry = query(notificationsRef, where(documentId(), 'in', docRefs));
-		const querySnapshot = await getDocs(qry);
+
+		const batchedDocRefs: DocumentReference[][] = [];
+		docRefs.forEach((ref, index) => {
+			if (index % 10 == 0) {
+				batchedDocRefs.push([ref]);
+			} else {
+				batchedDocRefs[Math.floor(index / 10)].push(ref);
+			}
+		});
+		const batchedQuerySnapshots = await Promise.all(
+			batchedDocRefs.map(async (docRef) => {
+				const qry = query(notificationsRef, where(documentId(), 'in', docRef));
+				return await getDocs(qry);
+			}),
+		);
+
+		// const qry = query(notificationsRef, where(documentId(), 'in', docRefs));
+		// const querySnapshot = await getDocs(qry);
 		const result: DbNotificationRes[] = [];
-		querySnapshot.forEach((doc) => {
-			const { createdAt, seenAt, ...rest } = doc.data() as Omit<
-				DbNotification,
-				'uuid'
-			>;
-			result.push({
-				uuid: doc.id,
-				createdAt: createdAt.toDate(),
-				seenAt: seenAt ? seenAt.toDate() : null,
-				...rest,
+		batchedQuerySnapshots.forEach((querySnapshotBatch) => {
+			querySnapshotBatch.forEach((doc) => {
+				const { createdAt, seenAt, ...rest } = doc.data() as Omit<
+					DbNotification,
+					'uuid'
+				>;
+				result.push({
+					uuid: doc.id,
+					createdAt: createdAt.toDate(),
+					seenAt: seenAt ? seenAt.toDate() : null,
+					...rest,
+				});
 			});
 		});
+
 		return result;
 	}
 
