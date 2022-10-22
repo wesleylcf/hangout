@@ -19,7 +19,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 			doc(db, 'users', me.uuid),
 			(snapshot) => {
 				const data = snapshot.data() as DbUser;
-				console.log('snapshot recevied', snapshot, snapshot.data());
+				console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
 					const { notificationIds, eventIds, friendIds } = data;

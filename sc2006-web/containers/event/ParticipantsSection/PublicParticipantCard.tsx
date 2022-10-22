@@ -43,7 +43,17 @@ export const PublicParticipantCard = React.memo(
 		const { setFieldsValue } = form;
 
 		useEffect(() => {
-			setFormInstances((prevFormInstances) => [...prevFormInstances, form]);
+			let index: number;
+			setFormInstances((prevFormInstances) => {
+				index = prevFormInstances.length;
+				return [...prevFormInstances, form];
+			});
+
+			return () => {
+				setFormInstances((prevFormInstances) =>
+					prevFormInstances.filter((_, i) => i !== index),
+				);
+			};
 		}, []);
 
 		useEffect(() => {

@@ -48,36 +48,62 @@ export const TimeRangesCard = ({
 
 	return (
 		<div className="space-y-2">
-			<b>Please pick the time ranges you are free</b>
+			<div>
+				Please pick the time ranges you are{' '}
+				<b className="text-cyan-500">busy</b>
+			</div>
 			<div className="flex flex-row items-center space-x-4">
 				<RangePicker
 					minuteStep={15}
 					format={TIME_FORMAT}
 					onChange={(values) => {
+						console.log(values);
 						setSelectedTimeRange(values as any);
 					}}
+					value={
+						selectedTimeRange.length
+							? [
+									moment(selectedTimeRange[0], EVENT_DATETIME_FORMAT),
+									moment(selectedTimeRange[1], EVENT_DATETIME_FORMAT),
+							  ]
+							: [moment().startOf('day'), moment().endOf('day').minutes(0)]
+					}
 				/>
-				<Button onClick={() => onAddTimeRange(selectedTimeRange)}>Add</Button>
+				<Button
+					onClick={() => {
+						onAddTimeRange(selectedTimeRange);
+						setSelectedTimeRange((prevTimeRange) => [
+							prevTimeRange[1],
+							moment().endOf('day').minutes(0).format(EVENT_DATETIME_FORMAT),
+						]);
+					}}
+				>
+					Add
+				</Button>
 			</div>
 			<div className="flex flex-col">
 				<b>Selected time ranges</b>
-				{addedTimeRanges.length
-					? addedTimeRanges.map((range, index) => {
-							const { start, end } = range;
-							return (
-								<div
-									key={index}
-									className="flex flex-row items-center space-x-2"
-								>
-									<p className="my-auto">
-										[{moment(start).format(TIME_FORMAT)},{' '}
-										{moment(end).format(TIME_FORMAT)}]
-									</p>
-									<Button onClick={() => removeTimeRange(index)}>Remove</Button>
-								</div>
-							);
-					  })
-					: '-'}
+				<div className="space-y-2">
+					{addedTimeRanges.length
+						? addedTimeRanges.map((range, index) => {
+								const { start, end } = range;
+								return (
+									<div
+										key={index}
+										className="flex flex-row items-center space-x-2"
+									>
+										<p className="my-auto">
+											[{moment(start).format(TIME_FORMAT)},{' '}
+											{moment(end).format(TIME_FORMAT)}]
+										</p>
+										<Button onClick={() => removeTimeRange(index)}>
+											Remove
+										</Button>
+									</div>
+								);
+						  })
+						: '-'}
+				</div>
 			</div>
 		</div>
 	);
