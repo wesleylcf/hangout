@@ -13,7 +13,7 @@ import { PresentablePlaceTypeMap } from '.././../constants';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
 interface EventResultCardProps {
-	eventResult: DbEventResultRes;
+	eventResult: DbEventResultRes & { proposedDate: string };
 }
 
 type PresentablePlaceProps = 'name' | 'address' | 'postal';
@@ -59,7 +59,7 @@ export const EventResultCard = ({ eventResult }: EventResultCardProps) => {
 	};
 
 	const [expandedPlaceTypes, setExpandedPlaceTypes] = useState<Set<string>>(
-		new Set(),
+		new Set([Object.keys(eventResult.suggestions)[0]]),
 	);
 
 	const presentablePlaceProps: PresentablePlaceProps[] = ['name', 'address'];

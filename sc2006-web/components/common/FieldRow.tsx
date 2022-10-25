@@ -97,8 +97,6 @@ export function FieldRow<T extends FieldRowType>({
 		else if (isSelected) _className += ' text-white bg-cyan-400';
 		else if (highlight) _className += ' bg-sky-100';
 		if (className) _className += ` ${className}`;
-
-		console.log(_className);
 		return _className;
 	};
 

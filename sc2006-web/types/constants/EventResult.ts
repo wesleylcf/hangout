@@ -5,7 +5,6 @@ export interface DbEventResultRes extends Omit<DbEventResult, 'createdAt'> {
 	createdAt: string;
 }
 export interface DbEventResult {
-	proposedDate: string;
 	// Because firebase doesn't allow directly nested arrays
 	suggestedDates: Record<string, Array<{ start: string; end: string }>>;
 	suggestions: DbEventSuggestion;
@@ -22,7 +21,7 @@ export const EVENT_DATE_FORMAT = 'ddd (DD MMM)';
 export interface DbPlace {
 	name: string;
 	address: string;
-	postal: number;
+	postal: string;
 	coordinates: [lat: number, lng: number];
 	distanceFromCenter: number;
 }

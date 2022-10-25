@@ -109,6 +109,7 @@ export class EventController {
 			creatorId: creator.name,
 			eventResultId,
 			participants,
+			proposedDate,
 		});
 
 		const authUserUuids = [];

@@ -27,17 +27,6 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 				if (!snapshot.metadata.hasPendingWrites) {
 					// const { notificationIds, eventIds, friendIds } = data;
 					setInternalUser((prevMe) => {
-						console.log(
-							'set prev',
-							prevMe!.notificationIds.length === data.notificationIds.length &&
-								prevMe!.eventIds.length === data.eventIds.length &&
-								prevMe!.friendIds.length === data.friendIds.length &&
-								isScheduleEqual(prevMe?.schedule, data.schedule),
-							prevMe!.notificationIds.length === data.notificationIds.length,
-							prevMe!.eventIds.length === data.eventIds.length,
-							prevMe!.friendIds.length === data.friendIds.length,
-							isScheduleEqual(prevMe?.schedule, data.schedule),
-						);
 						if (
 							prevMe!.notificationIds.length === data.notificationIds.length &&
 							prevMe!.eventIds.length === data.eventIds.length &&
@@ -45,7 +34,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 							isScheduleEqual(prevMe?.schedule, data.schedule)
 						)
 							return prevMe;
-						console.log('set new');
+
 						return {
 							...prevMe!,
 							notificationIds: data.notificationIds,

@@ -8,6 +8,7 @@ export interface DbEvent extends CreateEventReq {
 	createdAt: Timestamp;
 	eventResultId: string;
 	expiresAt: string;
+	proposedDate: string;
 }
 
 export interface DbEventRes extends Omit<DbEvent, 'createdAt'> {
@@ -18,14 +19,6 @@ export interface DbEventRes extends Omit<DbEvent, 'createdAt'> {
 export type DetailedEventRes = Omit<DbEventRes, 'eventResultId'> & {
 	eventResult: DbEventResultRes;
 };
-
-// export interface PublicEventParticipant {
-// 	isCreator: boolean;
-// 	name: string;
-// 	preferences: Array<string>;
-// 	schedule: Record<string, Array<{ start: string; end: string }>>;
-// 	address: string;
-// }
 
 export type PublicEventParticipant = Pick<
 	DbUserRes,

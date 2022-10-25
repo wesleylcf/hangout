@@ -26,6 +26,7 @@ import * as moment from 'moment'; // otherwise error moment is not a function
 export interface CreateOneResult extends DbEventResult {
 	eventResultId?: string;
 	expiresAt?: string;
+	proposedDate?: string;
 }
 
 @Injectable()
@@ -138,7 +139,7 @@ export class EventResultService {
 
 	private async getEventResult(
 		participants: EventParticipant[],
-	): Promise<DbEventResult> {
+	): Promise<DbEventResult & { proposedDate: string }> {
 		const commonPreferences = this.getCommonPreferences(participants);
 		const center = await this.getCentralLatLng(participants);
 		const suggestions = await this.getSuggestedPlaces(
@@ -148,7 +149,6 @@ export class EventResultService {
 
 		const { proposedDate, suggestedDates } =
 			this.getSuggestedDates(participants);
-
 		// store result and return uuid of stored result
 		return {
 			proposedDate,
@@ -302,7 +302,6 @@ export class EventResultService {
 							busyDateTime[date][h] = 59;
 						}
 					}
-					console.log('busy date time', busyDateTime);
 				});
 			});
 		});

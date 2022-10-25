@@ -40,7 +40,9 @@ export class EventService {
 			},
 			body: JSON.stringify(req),
 		});
-		const data = await throwErrorOrGetData<DbEventResultRes>(response, {
+		const data = await throwErrorOrGetData<
+			DbEventResultRes & { proposedDate: string }
+		>(response, {
 			fallbackMessage:
 				'Please check your inputs. Otherwise please try again later or send us an alert',
 			fallbackTitle: 'Failed to create event',

@@ -157,14 +157,6 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 					validRange={[startDate, endDate]}
 					onSelect={!viewOnly ? onSelectDate : undefined}
 					className="w-4/6"
-					dateCellRender={(moment) => {
-						if (moment.isBetween(startDate, endDate, undefined, '[]')) {
-							const presentableDate = moment.format(EVENT_DATE_FORMAT);
-							return busyTimeRanges
-								? getBadge(busyTimeRanges[presentableDate])
-								: null;
-						}
-					}}
 					dateFullCellRender={renderDateCellOverride}
 				/>
 				<div className="w-2/6 pl-4 overflow-y-auto scroll-m-4">

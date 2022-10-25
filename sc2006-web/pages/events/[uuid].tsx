@@ -104,7 +104,11 @@ const EventPage = () => {
 			/>
 			<div className="px-16 pb-16">
 				<h1 className="text-2xl">Event Result</h1>
-				{eventResult && <EventResultCard eventResult={eventResult} />}
+				{eventResult && (
+					<EventResultCard
+						eventResult={{ ...eventResult, proposedDate: event!.proposedDate }}
+					/>
+				)}
 				<h1 className="text-2xl">Edit and re-generate result</h1>
 				<div className="w-full flex flex-row justify-center">
 					{event && (

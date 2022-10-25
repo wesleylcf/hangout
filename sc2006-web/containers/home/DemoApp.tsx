@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Form } from 'antd';
 import { CreateEventForm } from '../event/CreateEventForm';
 import { CreateEventReq, DbEventResultRes } from '../../types';
@@ -10,7 +10,9 @@ export const DemoApp = () => {
 	const notification = useNotification();
 	const eventResultRef = useRef<HTMLDivElement>(null);
 	const [form] = Form.useForm<CreateEventReq>();
-	const [eventResult, setEventResult] = useState<DbEventResultRes>();
+	const [eventResult, setEventResult] = useState<
+		DbEventResultRes & { proposedDate: string }
+	>();
 	const initialFormValues: CreateEventReq = {
 		name: 'This is a demo, some features may be limited.',
 		participants: [],
@@ -30,14 +32,16 @@ export const DemoApp = () => {
 				notification.error(e.message, 'Could not generate a result');
 			}
 		}
+	};
 
-		if (!hasError) {
+	useEffect(() => {
+		if (eventResult) {
 			window.scrollTo({
 				top: eventResultRef.current?.offsetTop,
 				behavior: 'smooth',
 			});
 		}
-	};
+	}, [eventResult]);
 
 	return (
 		<>
@@ -52,15 +56,16 @@ export const DemoApp = () => {
 				</div>
 			</div>
 
-			<div ref={eventResultRef} />
-			{eventResult && (
-				<div className="w-full min-h-screen flex flex-col items-center bg-slate-50">
-					<div className="w-10/12 space-y-16">
-						<h1 className="mt-4 text-2xl text-center">Event Result</h1>
-						<EventResultCard eventResult={eventResult} />
+			<div ref={eventResultRef}>
+				{eventResult && (
+					<div className="w-screen h-screen flex flex-col items-center bg-slate-50">
+						<div className="w-10/12 space-y-16">
+							<h1 className="mt-4 text-2xl text-center">Event Result</h1>
+							<EventResultCard eventResult={eventResult} />
+						</div>
 					</div>
-				</div>
-			)}
+				)}
+			</div>
 		</>
 	);
 };
