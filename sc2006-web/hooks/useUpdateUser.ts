@@ -1,6 +1,6 @@
 import { doc, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { GlobalContextProps } from '../contexts';
 import { db } from '../services';
 import { DbUser, EVENT_DATETIME_FORMAT, TimeRange } from '../types';
@@ -13,35 +13,45 @@ type useUpdateUserProps = Pick<GlobalContextProps, 'me' | 'setMe'>;
 	a backend call by the current user and will be set by calling setMe(<Result of making backend call>)
 */
 export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
+	const [internalUser, setInternalUser] = useState(me);
+
 	useEffect(() => {
-		if (!me) return;
+		if (!internalUser) return;
 
 		const unsub = onSnapshot(
-			doc(db, 'users', me.uuid),
+			doc(db, 'users', internalUser.uuid),
 			(snapshot) => {
 				const data = snapshot.data() as DbUser;
 				console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
 					// const { notificationIds, eventIds, friendIds } = data;
-					setMe((prevMe) => {
+					setInternalUser((prevMe) => {
 						console.log(
-							prevMe?.schedule,
-							data?.schedule,
-							isScheduleEqual(prevMe?.schedule, data?.schedule),
+							'set prev',
+							prevMe!.notificationIds.length === data.notificationIds.length &&
+								prevMe!.eventIds.length === data.eventIds.length &&
+								prevMe!.friendIds.length === data.friendIds.length &&
+								isScheduleEqual(prevMe?.schedule, data.schedule),
+							prevMe!.notificationIds.length === data.notificationIds.length,
+							prevMe!.eventIds.length === data.eventIds.length,
+							prevMe!.friendIds.length === data.friendIds.length,
+							isScheduleEqual(prevMe?.schedule, data.schedule),
 						);
 						if (
-							prevMe?.notificationIds.length === data?.notificationIds.length &&
-							prevMe?.eventIds.length === data?.eventIds.length &&
-							prevMe?.friendIds.length === data?.friendIds.length &&
-							isScheduleEqual(prevMe?.schedule, data?.schedule)
+							prevMe!.notificationIds.length === data.notificationIds.length &&
+							prevMe!.eventIds.length === data.eventIds.length &&
+							prevMe!.friendIds.length === data.friendIds.length &&
+							isScheduleEqual(prevMe?.schedule, data.schedule)
 						)
 							return prevMe;
+						console.log('set new');
 						return {
 							...prevMe!,
-							notificationIds: data?.notificationIds,
-							eventIds: data?.eventIds,
-							friendIds: data?.friendIds,
+							notificationIds: data.notificationIds,
+							eventIds: data.eventIds,
+							friendIds: data.friendIds,
+							schedule: data.schedule,
 						};
 					});
 				}
