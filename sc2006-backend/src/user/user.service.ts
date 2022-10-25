@@ -132,4 +132,26 @@ export class UserService {
 			);
 		}
 	}
+
+	async bulkUpdate(
+		{ uuids, users }: { uuids: string[]; users: Partial<DbUserRes>[] },
+		existingBatch?: WriteBatch,
+	) {
+		const batch = existingBatch ? existingBatch : writeBatch(db);
+		try {
+			if (uuids.length !== users.length) {
+				throw new Error('uuids and users must be of the same length');
+			}
+			uuids.forEach((uuid, index) => {
+				const docRef = doc(db, 'users', uuid);
+				batch.set(docRef, users[index], { merge: true });
+			});
+			if (!existingBatch) {
+				await batch.commit();
+			}
+		} catch (e) {
+			this.logger.error(e.message, 'UserService');
+			throw e;
+		}
+	}
 }

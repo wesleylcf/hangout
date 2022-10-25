@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { ReactNode, useEffect } from 'react';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { isLatLngLiteral } from '@googlemaps/typescript-guards';

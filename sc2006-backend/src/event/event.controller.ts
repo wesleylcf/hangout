@@ -18,10 +18,12 @@ import {
 	EVENT_DATETIME_FORMAT,
 	ListBriefEventRes,
 	PresentableError,
+	EVENT_DATE_FORMAT,
 } from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';
 import * as moment from 'moment';
 import { ListEventsDto } from './list-events.dto';
+import { UserService } from 'src/user/user.service';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -29,6 +31,7 @@ export class EventController {
 	constructor(
 		private readonly eventService: EventService,
 		private readonly eventResultService: EventResultService,
+		private readonly userService: UserService,
 	) {}
 
 	@Post('detailed/one')
@@ -98,7 +101,7 @@ export class EventController {
 			return;
 		}
 
-		const { eventResultId, expiresAt } = result;
+		const { eventResultId, expiresAt, proposedDate, suggestedDates } = result;
 
 		const { eventUuid } = await this.eventService.createOne({
 			name,
@@ -106,6 +109,33 @@ export class EventController {
 			creatorId: creator.name,
 			eventResultId,
 			participants,
+		});
+
+		const authUserUuids = [];
+		const authUsers = [];
+		participants.map((p) => {
+			if ('uuid' in p) {
+				authUserUuids.push(p.uuid);
+				authUsers.push({
+					schedule: {
+						[proposedDate]: [
+							{
+								start: moment(proposedDate, EVENT_DATE_FORMAT)
+									.startOf('day')
+									.format(EVENT_DATETIME_FORMAT),
+								end: moment(proposedDate, EVENT_DATE_FORMAT)
+									.endOf('day')
+									.format(EVENT_DATETIME_FORMAT),
+							},
+						],
+					},
+				});
+			}
+		});
+
+		await this.userService.bulkUpdate({
+			uuids: authUserUuids,
+			users: authUsers,
 		});
 
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });

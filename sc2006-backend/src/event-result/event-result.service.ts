@@ -146,10 +146,12 @@ export class EventResultService {
 			center,
 		);
 
-		const suggestedDates = this.getSuggestedDates(participants);
+		const { proposedDate, suggestedDates } =
+			this.getSuggestedDates(participants);
 
 		// store result and return uuid of stored result
 		return {
+			proposedDate,
 			suggestedDates,
 			suggestions,
 			createdAt: serverTimestamp() as Timestamp,
@@ -326,13 +328,17 @@ export class EventResultService {
 		}
 
 		// Iterate over dates and set the free time intervals
+		const maxFreeTime = 0;
+		let proposedDate = Object.keys(busyDateTime)[0];
 		Object.keys(busyDateTime).map((dateString) => {
 			const hours = busyDateTime[dateString];
 			const freeTimes = [];
 			let index = 0;
+			let freeTime = 0;
 			while (index < 24) {
 				const start = index;
 				while (index < 24 && hours[index] == -1) {
+					freeTime++;
 					index++;
 				}
 
@@ -352,8 +358,11 @@ export class EventResultService {
 				}
 				suggestedDates[dateString] = freeTimes;
 			}
+			if (freeTime > maxFreeTime) {
+				proposedDate = dateString;
+			}
 		});
-		return suggestedDates;
+		return { proposedDate, suggestedDates };
 	}
 
 	public static readonly DEFAULT_PREFERENCES = [
