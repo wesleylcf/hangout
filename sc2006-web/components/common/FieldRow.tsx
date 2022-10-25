@@ -38,6 +38,7 @@ type FieldRowBaseProps<T> = {
 	CancelEditIcon?: React.ElementType;
 	formFieldName?: string;
 	fieldFormRules?: Rule[];
+	className?: string;
 };
 
 type FieldRowProps<T extends FieldRowType> =
@@ -62,6 +63,7 @@ export function FieldRow<T extends FieldRowType>({
 	presentableProps,
 	formFieldName,
 	fieldFormRules,
+	className,
 	...formItemProps
 }: FieldRowProps<T>) {
 	const [isEditing, setIsEditing] = useState(false);
@@ -90,10 +92,14 @@ export function FieldRow<T extends FieldRowType>({
 	}, [value]);
 
 	const getClassName = () => {
-		if (isClickDisabled) return 'text-black bg-neutral-400';
-		if (isSelected) return 'text-white bg-cyan-400';
-		if (highlight) return 'bg-sky-100';
-		return '';
+		let _className = '';
+		if (isClickDisabled) _className += ' text-black bg-neutral-400';
+		else if (isSelected) _className += ' text-white bg-cyan-400';
+		else if (highlight) _className += ' bg-sky-100';
+		if (className) _className += ` ${className}`;
+
+		console.log(_className);
+		return _className;
 	};
 
 	const PresentableValue = isValuePresentable ? (
@@ -103,7 +109,6 @@ export function FieldRow<T extends FieldRowType>({
 			style={{ fontSize: '1rem' }}
 			onClick={() => {
 				setModalViewOnly(true);
-				// setIsEditing(true);
 			}}
 		/>
 	);

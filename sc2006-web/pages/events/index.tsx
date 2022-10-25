@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useLayoutEffect, useContext } from 'react';
+import React, { useState, useLayoutEffect, useContext } from 'react';
 import { Tabs } from 'antd';
 import { useRouter } from 'next/router';
 import { PlusCircleFilled } from '@ant-design/icons';
@@ -29,9 +29,12 @@ function ListEventsPage() {
 			}
 		};
 		setLoading(true);
-		pullAndSetEvents();
+		if (me) {
+			pullAndSetEvents();
+		}
+
 		setLoading(false);
-	}, [me?.eventIds]);
+	}, [me]);
 
 	const onCreateEvent = () => {
 		router.push('/events/create');

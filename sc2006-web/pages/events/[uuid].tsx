@@ -96,7 +96,7 @@ const EventPage = () => {
 			<PageHeader
 				onBack={() => router.back()}
 				title={
-					<h1 className="m-0">
+					<h1 className="m-0 text-3xl">
 						Event <span className="text-cyan-400">{event?.name}</span> (ref:{' '}
 						{uuid})
 					</h1>

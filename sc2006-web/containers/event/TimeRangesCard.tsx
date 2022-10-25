@@ -57,7 +57,6 @@ export const TimeRangesCard = ({
 					minuteStep={15}
 					format={TIME_FORMAT}
 					onChange={(values) => {
-						console.log(values);
 						setSelectedTimeRange(values as any);
 					}}
 					value={

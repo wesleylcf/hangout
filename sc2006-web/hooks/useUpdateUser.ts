@@ -1,8 +1,9 @@
 import { doc, onSnapshot } from 'firebase/firestore';
+import moment from 'moment';
 import { useEffect } from 'react';
 import { GlobalContextProps } from '../contexts';
 import { db } from '../services';
-import { DbUser } from '../types';
+import { DbUser, EVENT_DATETIME_FORMAT, TimeRange } from '../types';
 
 type useUpdateUserProps = Pick<GlobalContextProps, 'me' | 'setMe'>;
 
@@ -22,19 +23,25 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 				console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
-					const { notificationIds, eventIds, friendIds } = data;
+					// const { notificationIds, eventIds, friendIds } = data;
 					setMe((prevMe) => {
+						console.log(
+							prevMe?.schedule,
+							data?.schedule,
+							isScheduleEqual(prevMe?.schedule, data?.schedule),
+						);
 						if (
-							prevMe!.notificationIds.length === notificationIds.length &&
-							prevMe!.eventIds.length === eventIds.length &&
-							prevMe!.friendIds.length === friendIds.length
+							prevMe?.notificationIds.length === data?.notificationIds.length &&
+							prevMe?.eventIds.length === data?.eventIds.length &&
+							prevMe?.friendIds.length === data?.friendIds.length &&
+							isScheduleEqual(prevMe?.schedule, data?.schedule)
 						)
 							return prevMe;
 						return {
 							...prevMe!,
-							notificationIds,
-							eventIds,
-							friendIds,
+							notificationIds: data?.notificationIds,
+							eventIds: data?.eventIds,
+							friendIds: data?.friendIds,
 						};
 					});
 				}
@@ -49,3 +56,29 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 		};
 	}, [me]);
 };
+
+function isScheduleEqual(
+	current?: Record<string, TimeRange[]>,
+	next?: Record<string, TimeRange[]>,
+) {
+	if (!current || !next) return false;
+	if (Object.keys(current).length !== Object.keys(next).length) return false;
+	Object.keys(next).forEach((date) => {
+		if (!(date in current)) return false;
+		if (current[date].length != next[date].length) return false;
+		for (let i = 0; i < current[date].length; i++) {
+			if (
+				!moment(current[date][i].start, EVENT_DATETIME_FORMAT).isSame(
+					moment(next[date][i].start),
+				) ||
+				!moment(current[date][i].end, EVENT_DATETIME_FORMAT).isSame(
+					moment(next[date][i].end),
+				)
+			) {
+				return false;
+			}
+		}
+	});
+
+	return true;
+}

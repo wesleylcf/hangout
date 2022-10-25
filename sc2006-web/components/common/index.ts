@@ -9,3 +9,4 @@ export * from './CollapseItemHeader';
 export * from './IconBase';
 export * from './GreetingHeader';
 export * from './FieldRow';
+export * from './Map';

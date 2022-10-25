@@ -20,7 +20,7 @@ export const EventCard = React.memo(function _EventCard({
 	const router = useRouter();
 	return (
 		<Card
-			className={`p-5 flex-grow hover:bg-cyan-100 h-full`}
+			className={`p-5 flex-grow basis-5/12 hover:bg-cyan-100 h-full`}
 			onClick={() => router.push(`events/${event.uuid}`)}
 		>
 			<div className="flex flex-row justify-between items-center h-3/4">
