@@ -6,7 +6,7 @@ import { AppContainer } from '../containers/app';
 import { Me, GlobalContextProps } from '../contexts/';
 import { meService } from '../services';
 import { Spin } from '../components/common';
-import { PageContextProps } from '../contexts/PageContext';
+import { PageTransitionContextProps } from '../contexts/PageTransitionContext';
 import { useUpdateUser } from '../hooks';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -24,7 +24,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 		postLoginPath: postLoginPath,
 		setPostLoginPath: (path: string) => setPostLoginPath(path),
 	};
-	const pageContext: PageContextProps = {
+	const PageTransitionContext: PageTransitionContextProps = {
 		loading: isPageLoading,
 		setLoading: setIsPageLoading,
 	};
@@ -56,8 +56,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 	}
 
 	return (
-		<AppContainer meContext={globalContext} pageContext={pageContext}>
-			<Component {...pageProps} />
+		<AppContainer
+			meContext={globalContext}
+			pageTransitionContext={PageTransitionContext}
+		>
+			{<Component {...pageProps} />}
 		</AppContainer>
 	);
 }

@@ -10,7 +10,7 @@ import {
 	DetailedEventRes,
 	EVENT_DATE_FORMAT,
 } from '../../types';
-import { PageContext } from '../../contexts';
+import { PageTransitionContext } from '../../contexts';
 import moment from 'moment';
 import { CreateEventForm } from '../../containers/event/CreateEventForm';
 import { EventResultCard } from '../../containers/event/EventResultCard';
@@ -18,7 +18,7 @@ import { EventResultCard } from '../../containers/event/EventResultCard';
 const EventPage = () => {
 	const router = useRouter();
 	const notification = useNotification();
-	const { setLoading } = useContext(PageContext);
+	const { setLoading } = useContext(PageTransitionContext);
 	const { uuid } = router.query;
 
 	const [eventResult, setEventResult] = useState<DbEventResultRes>();
@@ -28,6 +28,7 @@ const EventPage = () => {
 
 	const onSubmit = async (form: CreateEventReq) => {
 		try {
+			setLoading(true);
 			await eventService.updateResult({
 				uuid: event!.uuid,
 				eventResultId: eventResult!.uuid,
@@ -52,12 +53,11 @@ const EventPage = () => {
 				  };
 			notification.apiError(error);
 		}
+		setLoading(false);
 	};
 
 	useLayoutEffect(() => {
-		setLoading(true);
 		pullAndSetEvent();
-		setLoading(false);
 	}, []);
 
 	async function pullAndSetEvent() {

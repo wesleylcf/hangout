@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { createContext, Dispatch } from 'react';
 
-export interface PageContextProps {
+export interface PageTransitionContextProps {
 	loading: boolean;
 	setLoading: Dispatch<boolean>;
 }
 
-export const PageContext = createContext<PageContextProps>({
+export const PageTransitionContext = createContext<PageTransitionContextProps>({
 	loading: false,
 	setLoading: () => {},
 });

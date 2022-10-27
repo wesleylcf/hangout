@@ -1,6 +1,6 @@
 import React, { useContext, useLayoutEffect, useState } from 'react';
 import { GreetingHeader, Card } from '../../components/common';
-import { Me, PageContext } from '../../contexts';
+import { Me, PageTransitionContext } from '../../contexts';
 import { ScheduleSection } from './ScheduleSection';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
@@ -16,10 +16,11 @@ export const Home = ({ me }: HomePageProps) => {
 	const now = new Date();
 	const [events, setEvents] = useState<ListBriefEventRes>();
 	const notification = useNotification();
-	const { setLoading } = useContext(PageContext);
+	const { setLoading } = useContext(PageTransitionContext);
 
 	useLayoutEffect(() => {
 		const pullAndSetEvents = async () => {
+			setLoading(true);
 			try {
 				const events = await eventService.getBriefEvents({
 					eventUuids: me!.eventIds,
@@ -29,13 +30,11 @@ export const Home = ({ me }: HomePageProps) => {
 			} catch (e) {
 				notification.apiError(e);
 			}
+			setLoading(false);
 		};
-		setLoading(true);
 		if (me) {
 			pullAndSetEvents();
 		}
-
-		setLoading(false);
 	}, [me]);
 	console.log(events);
 	return (

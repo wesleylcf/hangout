@@ -3,14 +3,14 @@ import { Tabs } from 'antd';
 import { useRouter } from 'next/router';
 import { PlusCircleFilled } from '@ant-design/icons';
 import { ListBriefEventRes } from '../../types';
-import { GlobalContext, PageContext } from '../../contexts';
+import { GlobalContext, PageTransitionContext } from '../../contexts';
 import { eventService } from '../../services';
 import { useNotification } from '../../hooks';
 import { EventSection } from '../../containers/event/EventSection';
 
 function ListEventsPage() {
 	const { me } = useContext(GlobalContext);
-	const { setLoading } = useContext(PageContext);
+	const { setLoading } = useContext(PageTransitionContext);
 	const notification = useNotification();
 	const [events, setEvents] = useState<ListBriefEventRes>();
 
@@ -18,6 +18,7 @@ function ListEventsPage() {
 
 	useLayoutEffect(() => {
 		const pullAndSetEvents = async () => {
+			setLoading(true);
 			try {
 				const events = await eventService.getBriefEvents({
 					eventUuids: me!.eventIds,
@@ -27,13 +28,11 @@ function ListEventsPage() {
 			} catch (e) {
 				notification.apiError(e);
 			}
+			setLoading(false);
 		};
-		setLoading(true);
 		if (me) {
 			pullAndSetEvents();
 		}
-
-		setLoading(false);
 	}, [me]);
 
 	const onCreateEvent = () => {

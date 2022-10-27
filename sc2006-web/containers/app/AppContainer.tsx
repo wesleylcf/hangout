@@ -4,21 +4,21 @@ import { MenuBar, PageTransitionWrapper } from '.';
 import {
 	GlobalContextProps,
 	GlobalContext,
-	PageContext,
-	PageContextProps,
+	PageTransitionContext,
+	PageTransitionContextProps,
 } from '../../contexts/';
 import { NotificationContainer } from '../notification';
 
 interface AppContainerProps {
 	children: React.ReactNode;
 	meContext: GlobalContextProps;
-	pageContext: PageContextProps;
+	pageTransitionContext: PageTransitionContextProps;
 }
 
 export const AppContainer: React.FC<AppContainerProps> = ({
 	children,
 	meContext,
-	pageContext,
+	pageTransitionContext,
 }) => {
 	return (
 		<AntdLayout
@@ -28,9 +28,9 @@ export const AppContainer: React.FC<AppContainerProps> = ({
 			<GlobalContext.Provider value={meContext}>
 				<NotificationContainer>
 					<MenuBar />
-					<PageContext.Provider value={pageContext}>
+					<PageTransitionContext.Provider value={pageTransitionContext}>
 						<PageTransitionWrapper>{children}</PageTransitionWrapper>
-					</PageContext.Provider>
+					</PageTransitionContext.Provider>
 				</NotificationContainer>
 			</GlobalContext.Provider>
 		</AntdLayout>
