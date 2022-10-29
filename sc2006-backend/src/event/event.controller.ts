@@ -1,3 +1,4 @@
+/*eslint-disable no-mixed-spaces-and-tabs */
 import {
 	Body,
 	Controller,
@@ -6,6 +7,7 @@ import {
 	UseGuards,
 	Res,
 	HttpStatus,
+	Param,
 } from '@nestjs/common';
 import { LoggingInterceptor } from 'src/logging.interceptor';
 import { EventService } from './event.service';
@@ -17,11 +19,13 @@ import {
 	EVENT_DATETIME_FORMAT,
 	ListBriefEventRes,
 	EVENT_DATE_FORMAT,
+	EventFilterType,
 } from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';
 import * as moment from 'moment';
 import { ListEventsDto } from './list-events.dto';
 import { UserService } from 'src/user/user.service';
+import { Moment } from 'moment';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -45,7 +49,7 @@ export class EventController {
 	}
 
 	@Post('brief/list')
-	async getEvents(@Body() body: ListEventsDto): Promise<ListBriefEventRes> {
+	async getFilteredEvents(@Body() body: ListEventsDto) {
 		const { eventUuids, userUuid } = body;
 		const events = await this.eventService.findMany(eventUuids);
 		const now = moment();
@@ -67,6 +71,69 @@ export class EventController {
 			if (event.creatorId === userUuid) expiredAndCreatedEvents.push(event);
 			else expiredAndParticipantEvent.push(event);
 		});
+
+		return {
+			active: {
+				creator: activeAndCreatedEvents,
+				participant: activeAndParticipantEvent,
+			},
+			expired: {
+				creator: expiredAndCreatedEvents,
+				participant: expiredAndParticipantEvent,
+			},
+		};
+	}
+
+	@Post('brief/list/:filter')
+	async getEvents(
+		@Body() body: ListEventsDto,
+		@Param() params: { filter: EventFilterType },
+	): Promise<ListBriefEventRes> {
+		console.log('filtering');
+		const { eventUuids, userUuid } = body;
+		const events = await this.eventService.findMany(eventUuids);
+		const now = moment();
+
+		const filterFunction = params.filter
+			? (function (filter: EventFilterType) {
+					switch (filter) {
+						case 'month':
+							return function (mmt: Moment) {
+								const lowerBound = moment().subtract(31, 'days').startOf('day');
+								const upperBound = moment().add(7, 'days').endOf('day');
+								return mmt.isBetween(lowerBound, upperBound, undefined, '[]');
+							};
+					}
+			  })(params.filter)
+			: null;
+
+		const activeEvents = events.filter((e) => {
+			const expiry = moment(e.expiresAt, EVENT_DATETIME_FORMAT);
+			return (
+				now.isSameOrBefore(expiry) &&
+				(filterFunction ? filterFunction(expiry) : true)
+			);
+		});
+		const activeAndCreatedEvents = [];
+		const activeAndParticipantEvent = [];
+		activeEvents.forEach((event) => {
+			if (event.creatorId === userUuid) activeAndCreatedEvents.push(event);
+			else activeAndParticipantEvent.push(event);
+		});
+
+		const expiredEvents = events.filter((e) => {
+			const expiry = moment(e.expiresAt, EVENT_DATETIME_FORMAT);
+			return (
+				now.isAfter(expiry) && (filterFunction ? filterFunction(expiry) : true)
+			);
+		});
+		const expiredAndCreatedEvents = [];
+		const expiredAndParticipantEvent = [];
+		expiredEvents.forEach((event) => {
+			if (event.creatorId === userUuid) expiredAndCreatedEvents.push(event);
+			else expiredAndParticipantEvent.push(event);
+		});
+
 		return {
 			active: {
 				creator: activeAndCreatedEvents,

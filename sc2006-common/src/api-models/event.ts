@@ -31,3 +31,5 @@ export interface UpdateEventReq {
 	newEvent: CreateEventReq;
 	eventResultId: string;
 }
+
+export type EventFilterType = 'month';

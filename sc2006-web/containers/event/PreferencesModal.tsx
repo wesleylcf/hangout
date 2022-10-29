@@ -265,11 +265,11 @@ export const PreferencesModal = React.memo(function _PreferencesModal({
 			onOk={() => onOk(selectedTypes)}
 			{...(viewOnly && { footer: null })}
 		>
-			<div className="flex flex-row p-8">
-				<p>
+			<div className="flex flex-col p-8">
+				<b>
 					Please be as specific as you can in choosing your preferences,
 					otherwise the results suggested to you may not be ideal.
-				</p>
+				</b>
 				<TreeSelect
 					disabled={viewOnly}
 					treeData={treeData}

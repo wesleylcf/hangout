@@ -22,7 +22,7 @@ export const Home = ({ me }: HomePageProps) => {
 		const pullAndSetEvents = async () => {
 			setLoading(true);
 			try {
-				const events = await eventService.getBriefEvents({
+				const events = await eventService.getBriefMonthEvents({
 					eventUuids: me!.eventIds,
 					userUuid: me!.uuid,
 				});

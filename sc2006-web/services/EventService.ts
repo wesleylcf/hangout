@@ -87,6 +87,27 @@ export class EventService {
 		return data;
 	}
 
+	async getBriefMonthEvents(req: ListEventsReq) {
+		const response = await fetch(
+			`${process.env.API_URL}/events/brief/list/month`,
+			{
+				method: 'POST', // *GET, POST, PUT, DELETE, etc.
+				mode: 'cors', // no-cors, *cors, same-origin
+				cache: 'no-cache', // *default, no-cache, reload, force-cache, only-
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(req),
+			},
+		);
+		const data = await throwErrorOrGetData<ListBriefEventRes>(response, {
+			fallbackMessage: 'Please try again later or alert us',
+			fallbackTitle: 'Failed to retrieve events',
+		});
+		return data;
+	}
+
 	async getDetailedEvent(req: { uuid: string }) {
 		const response = await fetch(`${process.env.API_URL}/events/detailed/one`, {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.

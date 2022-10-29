@@ -17,6 +17,8 @@ import { EventController } from './event/event.controller';
 import { EventService } from './event/event.service';
 import { EventResultModule } from './event-result/event-result.module';
 import { EventResultService } from './event-result/event-result.service';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 /*
   Joi used to define an Object Schema which is compared to Config Object,
@@ -35,6 +37,10 @@ import { EventResultService } from './event-result/event-result.service';
 				AUTH_TOKEN_EXPIRY_MSEC: Joi.number().required(),
 				GEOAPIFY_API_KEY: Joi.string().required(),
 			}),
+		}),
+		ThrottlerModule.forRoot({
+			ttl: 60,
+			limit: 10,
 		}),
 		AuthModule,
 		UserModule,
@@ -57,6 +63,10 @@ import { EventResultService } from './event-result/event-result.service';
 		NotificationService,
 		EventService,
 		EventResultService,
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard,
+		},
 	],
 })
 export class AppModule {}
