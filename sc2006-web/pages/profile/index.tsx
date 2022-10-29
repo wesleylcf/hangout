@@ -138,7 +138,7 @@ const ProfilePage = function () {
 	setFieldsValue(me!);
 
 	return (
-		<div className="w-full h-full space-y-8">
+		<div className="w-1/2 h-full space-y-8 top-1/4 relative">
 			<Form form={form} onFinish={onSubmit}>
 				{participantItems.map(({ label, key }, index) => {
 					let modal;
