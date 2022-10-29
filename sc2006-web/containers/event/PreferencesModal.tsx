@@ -19,7 +19,7 @@ export const PreferencesModal = React.memo(function _PreferencesModal({
 		() => [
 			{
 				title: 'Activities',
-				value: 'activities',
+				value: 'activity',
 				children: [
 					{
 						title: 'Community Centres',

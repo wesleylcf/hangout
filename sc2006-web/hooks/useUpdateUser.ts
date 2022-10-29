@@ -13,20 +13,19 @@ type useUpdateUserProps = Pick<GlobalContextProps, 'me' | 'setMe'>;
 	a backend call by the current user and will be set by calling setMe(<Result of making backend call>)
 */
 export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
-	const [internalUser, setInternalUser] = useState(me);
+	// const [internalUser, setInternalUser] = useState(me);
 
 	useEffect(() => {
-		if (!internalUser) return;
+		if (!me) return;
 
 		const unsub = onSnapshot(
-			doc(db, 'users', internalUser.uuid),
+			doc(db, 'users', me.uuid),
 			(snapshot) => {
 				const data = snapshot.data() as DbUser;
 				console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
-					// const { notificationIds, eventIds, friendIds } = data;
-					setInternalUser((prevMe) => {
+					setMe((prevMe) => {
 						if (
 							prevMe!.notificationIds.length === data.notificationIds.length &&
 							prevMe!.eventIds.length === data.eventIds.length &&

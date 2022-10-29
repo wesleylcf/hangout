@@ -1,36 +1,35 @@
 import React from 'react';
 import { Timeline } from 'antd';
 import { DemoApp } from './DemoApp';
+import Image from 'next/image';
 
 export const Demo = () => {
 	return (
 		<div className="w-full h-full space-y-10">
-			<section className="flex flex-col space-y-8 items-center h-screen">
-				<div className="w-full h-3/5 flex flex-row items-center justify-center">
-					Insert graphics
+			<section className="flex flex-col items-center h-screen space-y-8">
+				<div className="w-3/5 h-3/5 flex flex-row items-center justify-center relative">
+					<Image src="/hangout.png" layout="fill" />
 				</div>
-				<h1 className="text-2xl text-pink-400 left-1/2 mt-8">
+				<h1 className="text-3xl text-pink-400 left-1/2">
 					Planning outings made simple.
 				</h1>
-				<div className="flex flex-col items-center text-xl space-y-4">
-					<p>
-						Always end up rescheduling outings? Have no idea where to go next?
-					</p>
-					<p>
-						Simply add an existing user or manually enter someone&#39;s
-						preferences, schedule, and address and leave the rest to us!
-					</p>
-				</div>
+				<p className="text-xl">
+					Find the place that best suits everyone&39;s schedule, preferences,
+					and is central to everyone&39;s address!{' '}
+				</p>
 			</section>
 			<section className="flex flex-col space-y-8 items-center bg-gray-50">
 				<h1 className="text-2xl text-sky-400 left-1/2 mt-8">
 					Here&#39;s how it works.
 				</h1>
 				<div className="w-full flex flex-row">
-					<div className="w-1/2 pl-16 flex flex-row items-center justify-center">
-						Insert graphics
+					<div className="w-1/2 flex flex-row items-center justify-center relative">
+						<Image src="/outing.png" layout="fill" />
 					</div>
-					<Timeline className="w-1/2" style={{ padding: '4rem' }}>
+					<Timeline
+						className="w-1/2"
+						style={{ padding: '4rem', paddingLeft: 0 }}
+					>
 						<Timeline.Item color="green" style={{ paddingBottom: '3rem' }}>
 							<p className="text-xl">Tell us your address</p>
 							<p>

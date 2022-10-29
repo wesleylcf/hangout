@@ -1,4 +1,4 @@
-import { PresentableError, throwErrorOrGetData } from '../lib/error';
+import { throwErrorOrGetData } from '../lib/error';
 import { GetUserRes, UpdateUserReq } from '../types/api-models/user';
 
 export class UserService {

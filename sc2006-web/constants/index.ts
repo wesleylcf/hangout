@@ -3,7 +3,7 @@ export const NAVIGATION_HEIGHT = 45;
 export const AUTH_USER_MAX_PARTICIPANTS = 10;
 
 export const PresentablePlaceTypeMap: Record<string, string> = {
-	activities: 'Activities',
+	activity: 'Activities',
 	'activity.community_center': 'Community Centres',
 	'activity.sport_club': 'Sport Clubs',
 	commercial: 'Shopping',

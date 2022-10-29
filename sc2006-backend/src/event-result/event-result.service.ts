@@ -238,6 +238,7 @@ export class EventResultService {
 		);
 
 		const suggestions: DbEventSuggestion = {};
+
 		places.forEach((place, index) => {
 			const preference = commonPreferences[index];
 			suggestions[preference] = place.features.map(({ properties }) => {
@@ -328,7 +329,7 @@ export class EventResultService {
 
 		// Iterate over dates and set the free time intervals
 		const maxFreeTime = 0;
-		let proposedDate = Object.keys(busyDateTime)[0];
+		let proposedDate = null;
 		Object.keys(busyDateTime).map((dateString) => {
 			const hours = busyDateTime[dateString];
 			const freeTimes = [];
@@ -361,11 +362,16 @@ export class EventResultService {
 				proposedDate = dateString;
 			}
 		});
+
+		if (!proposedDate)
+			throw new Error(
+				'No free time range found such that all participants are available',
+			);
 		return { proposedDate, suggestedDates };
 	}
 
 	public static readonly DEFAULT_PREFERENCES = [
-		'activities',
+		'activity',
 		'commercial',
 		'catering',
 		'entertainment',

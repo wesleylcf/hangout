@@ -45,7 +45,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 		reconstructUser();
 	}, []);
 
-	// useUpdateUser({ me, setMe });
+	useUpdateUser({ me, setMe });
 
 	if (isAppLoading) {
 		return (

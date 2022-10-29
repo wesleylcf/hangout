@@ -167,14 +167,17 @@ export class EventController {
 	@Post('demo/create')
 	async createDemoEvent(
 		@Body() body: CreateEventDto,
-	): Promise<DbEventResultRes | Omit<PresentableError, 'name'>> {
+		@Res({ passthrough: true }) res,
+	) {
 		const { participants } = body;
 
 		const { result, error } = await this.eventResultService.createOne(
 			participants,
 			true,
 		);
-		if (error) return error;
+
+		if (error) return { error };
+
 		const { eventResultId } = result;
 		return {
 			...result,

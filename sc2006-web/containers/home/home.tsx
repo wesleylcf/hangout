@@ -36,7 +36,7 @@ export const Home = ({ me }: HomePageProps) => {
 			pullAndSetEvents();
 		}
 	}, [me]);
-	console.log(events);
+
 	return (
 		<div className="w-full h-full p-16">
 			<GreetingHeader
