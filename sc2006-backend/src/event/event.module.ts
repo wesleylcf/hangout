@@ -9,6 +9,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { NotificationModule } from 'src/notification/notification.module';
 import { EventResultModule } from 'src/event-result/event-result.module';
 import { EventResultService } from 'src/event-result/event-result.service';
+import { EmailModule } from 'src/email/email.module';
+import { EmailService } from 'src/email/email.service';
 
 @Module({
 	imports: [
@@ -17,6 +19,7 @@ import { EventResultService } from 'src/event-result/event-result.service';
 		JwtModule,
 		NotificationModule,
 		EventResultModule,
+		EmailModule,
 	],
 	providers: [
 		EventService,
@@ -24,6 +27,7 @@ import { EventResultService } from 'src/event-result/event-result.service';
 		AuthService,
 		UserService,
 		EventResultService,
+		EmailService,
 	],
 	controllers: [EventController],
 })

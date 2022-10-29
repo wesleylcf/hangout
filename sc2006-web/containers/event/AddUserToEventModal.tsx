@@ -39,6 +39,7 @@ export const AddUserToEventModal = ({
 					}
 					const { user } = await userService.getUser(email);
 					onOk(email, user!);
+					setFieldValue('email', '');
 				} catch (e: any) {
 					// If it is a PresentableError
 					if (e.level) {

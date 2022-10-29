@@ -16,7 +16,7 @@ export const Demo = () => {
 					</h1>
 					<p className="text-2xl">
 						Find the place that best suits everyone&#39;s schedule, preferences,
-						and is equidistant to everyone!{' '}
+						and is equidistant from everyone!{' '}
 					</p>
 				</div>
 			</section>

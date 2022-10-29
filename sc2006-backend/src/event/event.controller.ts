@@ -26,6 +26,7 @@ import * as moment from 'moment';
 import { ListEventsDto } from './list-events.dto';
 import { UserService } from 'src/user/user.service';
 import { Moment } from 'moment';
+import { EmailService } from 'src/email/email.service';
 
 @UseInterceptors(LoggingInterceptor)
 @Controller('events')
@@ -34,6 +35,7 @@ export class EventController {
 		private readonly eventService: EventService,
 		private readonly eventResultService: EventResultService,
 		private readonly userService: UserService,
+		private readonly emailService: EmailService,
 	) {}
 
 	@Post('detailed/one')
@@ -46,6 +48,7 @@ export class EventController {
 			...rest,
 			eventResult,
 		};
+		('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');
 	}
 
 	@Post('brief/list')
@@ -203,7 +206,12 @@ export class EventController {
 			uuids: authUserUuids,
 			users: authUsers,
 		});
-
+		this.emailService.onCreateEvent({
+			to: authUserUuids.filter((uuid) => uuid !== creator.name),
+			eventName: name,
+			eventCreator: creator.name,
+			proposedDate,
+		});
 		res.status(HttpStatus.ACCEPTED).json({ error: null, eventUuid });
 	}
 

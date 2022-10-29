@@ -19,6 +19,7 @@ import { EventResultModule } from './event-result/event-result.module';
 import { EventResultService } from './event-result/event-result.service';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { EmailModule } from './email/email.module';
 
 /*
   Joi used to define an Object Schema which is compared to Config Object,
@@ -48,6 +49,7 @@ import { APP_GUARD } from '@nestjs/core';
 		NotificationModule,
 		EventModule,
 		EventResultModule,
+		EmailModule,
 	],
 	controllers: [
 		AppController,
