@@ -18,17 +18,26 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 	viewOnly,
 	...modalProps
 }: ScheduleModalProps) {
+	const now = moment();
+	const startDate = moment(now).add(1, 'days').startOf('day');
+	const endDate = moment(startDate).add(6, 'days').endOf('day');
+
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(
-		new Set(Object.keys(busyTimeRanges || [])),
+		new Set(
+			Object.keys(busyTimeRanges || []).filter((date) =>
+				moment(date, EVENT_DATE_FORMAT).isBetween(
+					startDate,
+					endDate,
+					undefined,
+					'[]',
+				),
+			),
+		),
 	);
 	const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
 	const [internalBusyTimeRanges, setInternalBusyTimeRanges] = useState<
 		Record<string, Array<{ start: string; end: string }>>
 	>(busyTimeRanges || {});
-
-	const now = moment();
-	const startDate = moment(now).add(1, 'days').startOf('day');
-	const endDate = moment(startDate).add(6, 'days').endOf('day');
 
 	const onSelectDate = (moment: Moment) => {
 		const presentableDate = moment.format(EVENT_DATE_FORMAT);
@@ -55,8 +64,7 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 		const isInRange = moment.isBetween(startDate, endDate, undefined, '[]');
 		if (!isInRange) {
 			bgColorClassName = 'bg-gray-50';
-		}
-		if (selectedDates.has(presentableDate)) {
+		} else if (selectedDates.has(presentableDate)) {
 			bgColorClassName = 'bg-cyan-50';
 		}
 

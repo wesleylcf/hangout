@@ -14,10 +14,8 @@ import { CreateEventDto } from './create-event.dto';
 import { EventResultService } from 'src/event-result/event-result.service';
 import {
 	DetailedEventRes,
-	DbEventResultRes,
 	EVENT_DATETIME_FORMAT,
 	ListBriefEventRes,
-	PresentableError,
 	EVENT_DATE_FORMAT,
 } from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';

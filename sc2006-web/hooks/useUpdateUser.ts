@@ -13,8 +13,6 @@ type useUpdateUserProps = Pick<GlobalContextProps, 'me' | 'setMe'>;
 	a backend call by the current user and will be set by calling setMe(<Result of making backend call>)
 */
 export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
-	// const [internalUser, setInternalUser] = useState(me);
-
 	useEffect(() => {
 		if (!me) return;
 

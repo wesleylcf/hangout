@@ -278,7 +278,6 @@ export class EventResultService {
 			dates.forEach((date) => {
 				const timeRanges = schedule[date];
 				timeRanges.forEach((timeRange) => {
-					console.log('time range', timeRange);
 					const { start, end } = timeRange;
 					const startMoment = moment(start, EVENT_DATETIME_FORMAT);
 					const endMoment = moment(end, EVENT_DATETIME_FORMAT);
@@ -288,19 +287,21 @@ export class EventResultService {
 					const endMinutes = endMoment.minutes();
 
 					for (let h = startHour; h < endHour + 1; h++) {
-						const minute = busyDateTime[date][h];
-						if (h == startHour) {
-							busyDateTime[date][h] =
-								minute < 0 ? startMinutes : Math.min(minute, startMinutes);
-							busyDateTime;
-						} else if (h == endHour) {
-							if (endMinutes === 0) {
-								continue; // since we have already set h-1 to 59 minutes
+						if (busyDateTime[date]) {
+							const minute = busyDateTime[date][h];
+							if (h == startHour) {
+								busyDateTime[date][h] =
+									minute < 0 ? startMinutes : Math.min(minute, startMinutes);
+								busyDateTime;
+							} else if (h == endHour) {
+								if (endMinutes === 0) {
+									continue; // since we have already set h-1 to 59 minutes
+								}
+								busyDateTime[date][h] =
+									minute < 0 ? endMinutes : Math.max(minute, endMinutes);
+							} else if (h > startHour && h < endHour) {
+								busyDateTime[date][h] = 59;
 							}
-							busyDateTime[date][h] =
-								minute < 0 ? endMinutes : Math.max(minute, endMinutes);
-						} else if (h > startHour && h < endHour) {
-							busyDateTime[date][h] = 59;
 						}
 					}
 				});
