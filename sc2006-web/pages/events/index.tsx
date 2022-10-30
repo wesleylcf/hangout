@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useContext } from 'react';
-import { Tabs } from 'antd';
+import { Divider, Tabs } from 'antd';
 import { useRouter } from 'next/router';
 import { PlusCircleFilled } from '@ant-design/icons';
 import { ListBriefEventRes } from '../../types';
@@ -46,6 +46,7 @@ function ListEventsPage() {
 			children: (
 				<>
 					<EventSection events={events?.active.creator || []} />
+					<Divider />
 					<EventSection events={events?.active.participant || []} />
 				</>
 			),
@@ -56,6 +57,7 @@ function ListEventsPage() {
 			children: (
 				<>
 					<EventSection events={events?.expired.creator || []} />
+					<Divider />
 					<EventSection events={events?.expired.participant || []} />
 				</>
 			),

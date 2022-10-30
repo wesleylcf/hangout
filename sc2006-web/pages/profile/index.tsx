@@ -32,7 +32,7 @@ const ProfilePage = function () {
 	const { setFieldValue, getFieldValue, setFieldsValue } = form;
 	const { me, setMe } = useContext(GlobalContext);
 	const notification = useNotification();
-	console.log(me);
+
 	const getEditable = (name: FieldName) => {
 		switch (name) {
 			case 'schedule':

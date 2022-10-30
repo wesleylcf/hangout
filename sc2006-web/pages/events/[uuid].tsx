@@ -9,6 +9,7 @@ import {
 	DbEventResultRes,
 	DetailedEventRes,
 	EVENT_DATE_FORMAT,
+	TimeRange,
 } from '../../types';
 import { PageTransitionContext } from '../../contexts';
 import moment from 'moment';
@@ -85,7 +86,20 @@ const EventPage = () => {
 				...eventResultRest,
 				suggestedDates: sortedSuggestDates,
 			});
-			setEvent(eventRest);
+
+			// Since we are updating the event we should remove the current proposedDate from participants' schedules
+			const { participants, proposedDate } = eventRest;
+			const prevParticipants = participants.map((participant) => {
+				const { schedule } = participant;
+				const prevSchedule: Record<string, TimeRange[]> = {};
+				Object.keys(schedule).forEach((date) => {
+					if (date !== proposedDate) {
+						prevSchedule[date] = schedule[date];
+					}
+				});
+				return { ...participant, schedule: prevSchedule };
+			});
+			setEvent({ ...eventRest, participants: prevParticipants });
 		} catch (e) {
 			notification.apiError(e);
 		}

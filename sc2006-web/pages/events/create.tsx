@@ -16,15 +16,7 @@ const CreateEventPage = () => {
 	const onSubmit = async (form: CreateEventReq) => {
 		try {
 			console.log(form);
-			const { eventUuid } = await eventService.create(form);
-			setMe((prevMe) => {
-				if (prevMe) {
-					return {
-						...prevMe,
-						eventIds: [...prevMe.eventIds, eventUuid!],
-					};
-				}
-			});
+			await eventService.create(form);
 
 			notification.success(
 				<div>

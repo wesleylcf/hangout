@@ -21,7 +21,10 @@ export const TimeRangesCard = ({
 	const TIME_FORMAT = 'HH:mm';
 	const [selectedTimeRange, setSelectedTimeRange] = useState<
 		[start: string, end: string]
-	>([] as any);
+	>([
+		moment().startOf('day').format(EVENT_DATETIME_FORMAT),
+		moment().endOf('day').minutes(0).format(EVENT_DATETIME_FORMAT),
+	]);
 
 	const notification = useNotification();
 
@@ -33,15 +36,17 @@ export const TimeRangesCard = ({
 			);
 		}
 		const [start, end] = range;
-		if (start.isAfter(end)) {
+		const startMoment = moment(start, EVENT_DATETIME_FORMAT);
+		const endMoment = moment(end, EVENT_DATETIME_FORMAT);
+		if (startMoment.isAfter(endMoment)) {
 			return notification.error(
 				'Please start time must be before end time',
 				'Invalid Time Range',
 			);
 		}
 		const formattedTimeRange = [
-			start.format(EVENT_DATETIME_FORMAT),
-			end.format(EVENT_DATETIME_FORMAT),
+			startMoment.format(EVENT_DATETIME_FORMAT),
+			endMoment.format(EVENT_DATETIME_FORMAT),
 		] as [string, string];
 		addTimeRange(formattedTimeRange);
 	};

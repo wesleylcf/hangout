@@ -89,9 +89,31 @@ export class EventService {
 	}
 
 	async updateOne(event: Partial<DbEvent> & { uuid: string }) {
+		const batch = writeBatch(db);
 		const { uuid, ...rest } = event;
 		const eventDocRef = doc(db, 'events', uuid);
-		await setDoc(eventDocRef, rest, { merge: true });
+
+		const notification = await this.notificationService.createOne({
+			title: `Event ${event.name} has been updated`,
+			description: `${event.name} was updated on ${moment().format(
+				EVENT_DATETIME_FORMAT,
+			)}`,
+		});
+
+		const authParticipantIds = event.participants.filter(
+			(p) => 'uuid' in p,
+		) as AuthEventParticipant[];
+
+		authParticipantIds.forEach((participant) => {
+			const authParticipantDocRef = doc(db, 'users', participant.uuid);
+			const updatedParticipant: Partial<DbUser> = {
+				notificationIds: arrayUnion(notification.uuid) as any,
+			};
+			batch.update(authParticipantDocRef, updatedParticipant);
+		});
+
+		batch.set(eventDocRef, rest, { merge: true });
+		await batch.commit();
 	}
 
 	async findOne(uuid: string): Promise<DbEventRes | undefined> {

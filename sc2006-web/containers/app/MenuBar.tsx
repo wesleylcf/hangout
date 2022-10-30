@@ -39,7 +39,7 @@ interface MenuBarItem {
 
 export function MenuBar() {
 	const router = useRouter();
-	const { me, setMe } = useContext(GlobalContext);
+	const { me, setMe, setWasLoggedIn } = useContext(GlobalContext);
 	const notification = useNotification();
 
 	const ProtectedItems: MenuBarItem[] = useMemo(
@@ -101,6 +101,8 @@ export function MenuBar() {
 		try {
 			await meService.logout();
 			setMe(undefined);
+			setWasLoggedIn(false);
+
 			notification.success('Logged out successfully');
 		} catch (e: any) {
 			notification.apiError(e);

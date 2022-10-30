@@ -24,7 +24,7 @@ export function useProtectRoutes() {
 					'You do not have permission to access that page',
 					'Unauthorized',
 				);
-				setPostLoginPath(path);
+				setPostLoginPath(path === '/login' ? '/home' : path);
 			}
 			return true;
 		});

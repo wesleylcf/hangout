@@ -31,13 +31,11 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 							isScheduleEqual(prevMe?.schedule, data.schedule)
 						)
 							return prevMe;
-
+						const { password, createdAt, ...rest } = data;
 						return {
-							...prevMe!,
-							notificationIds: data.notificationIds,
-							eventIds: data.eventIds,
-							friendIds: data.friendIds,
-							schedule: data.schedule,
+							uuid: prevMe!.uuid,
+							...rest,
+							createdAt: createdAt.toDate(),
 						};
 					});
 				}

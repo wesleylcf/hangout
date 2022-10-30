@@ -104,7 +104,7 @@ export class EventResultService {
 		uuid: string;
 		participants: EventParticipant[];
 	}): Promise<{
-		result: string | null;
+		proposedDate: string | null;
 		error: PresentableError | null;
 	}> {
 		try {
@@ -115,8 +115,9 @@ export class EventResultService {
 				`Successfully stored updated event result ${newResultDocRef.id}`,
 				'EventResultService',
 			);
+			console.log('prop', result.proposedDate);
 			return {
-				result: uuid,
+				proposedDate: result.proposedDate,
 				error: null,
 			};
 		} catch (e) {
@@ -126,7 +127,7 @@ export class EventResultService {
 				'EventResultService',
 			);
 			return {
-				result: null,
+				proposedDate: null,
 				error: {
 					name: '',
 					level: 'error',
@@ -189,8 +190,12 @@ export class EventResultService {
 					).then((response) => response.json());
 				}),
 			);
+
 			const coordinates: [lat: number, lng: number][] = geoCodes.map(
 				(geoCode, index) => {
+					if (geoCode.found < 1) {
+						throw new Error('One or more postal codes are invalid');
+					}
 					const { LATITUDE, LONGTITUDE } = geoCode.results[0];
 					if (!LATITUDE || !LONGTITUDE) {
 						this.logger.warn(
@@ -209,7 +214,7 @@ export class EventResultService {
 			${e.message}
 			${e.stack}
 			`);
-			throw new Error('There was an unknown error while generating results');
+			throw e;
 		}
 	}
 
@@ -329,7 +334,7 @@ export class EventResultService {
 		}
 
 		// Iterate over dates and set the free time intervals
-		const maxFreeTime = 0;
+		let maxFreeTime = 0;
 		let proposedDate = null;
 		Object.keys(busyDateTime).map((dateString) => {
 			const hours = busyDateTime[dateString];
@@ -361,6 +366,7 @@ export class EventResultService {
 			}
 			if (freeTime > maxFreeTime) {
 				proposedDate = dateString;
+				maxFreeTime = freeTime;
 			}
 		});
 

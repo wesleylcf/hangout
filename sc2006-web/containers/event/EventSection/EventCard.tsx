@@ -30,8 +30,10 @@ export const EventCard = React.memo(function _EventCard({
 						<h1 className="font-bold text-base m-0">{event.name}</h1>
 					</div>
 				</div>
-				{event.creatorId === me?.uuid && (
+				{event.creatorId === me?.uuid ? (
 					<Badge status="success" text="creator" />
+				) : (
+					<Badge status="warning" text="participant" />
 				)}
 			</div>
 			<Divider style={{ margin: '0.5rem auto' }} />

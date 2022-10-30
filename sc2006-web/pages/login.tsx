@@ -22,8 +22,8 @@ const Login = () => {
 		const { email, password } = form;
 		try {
 			const user = await meService.login({ username: email, password });
-			router.push(postLoginPath);
 			setMe(user!);
+			router.push(postLoginPath);
 		} catch (e: any) {
 			notification.apiError(e);
 		}

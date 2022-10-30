@@ -92,7 +92,6 @@ export class EventController {
 		@Body() body: ListEventsDto,
 		@Param() params: { filter: EventFilterType },
 	): Promise<ListBriefEventRes> {
-		console.log('filtering');
 		const { eventUuids, userUuid } = body;
 		const events = await this.eventService.findMany(eventUuids);
 		const now = moment();
@@ -171,35 +170,69 @@ export class EventController {
 
 		const { eventResultId, expiresAt, proposedDate, suggestedDates } = result;
 
+		const authUserUuids = [];
+		const authUsers = [];
+		const updatedParticipants = participants.map((p) => {
+			if ('uuid' in p) {
+				const newSchedule = {
+					...p.schedule,
+					[proposedDate]: [
+						{
+							start: moment(proposedDate, EVENT_DATE_FORMAT)
+								.startOf('day')
+								.format(EVENT_DATETIME_FORMAT),
+							end: moment(proposedDate, EVENT_DATE_FORMAT)
+								.endOf('day')
+								.format(EVENT_DATETIME_FORMAT),
+						},
+					],
+				};
+				authUserUuids.push(p.uuid);
+				if (p.isCreator) {
+					authUsers.push({
+						...p,
+						schedule: {
+							[proposedDate]: [
+								{
+									start: moment(proposedDate, EVENT_DATE_FORMAT)
+										.startOf('day')
+										.format(EVENT_DATETIME_FORMAT),
+									end: moment(proposedDate, EVENT_DATE_FORMAT)
+										.endOf('day')
+										.format(EVENT_DATETIME_FORMAT),
+								},
+							],
+						},
+					});
+				} else {
+					authUsers.push({
+						schedule: {
+							[proposedDate]: [
+								{
+									start: moment(proposedDate, EVENT_DATE_FORMAT)
+										.startOf('day')
+										.format(EVENT_DATETIME_FORMAT),
+									end: moment(proposedDate, EVENT_DATE_FORMAT)
+										.endOf('day')
+										.format(EVENT_DATETIME_FORMAT),
+								},
+							],
+						},
+					});
+				}
+
+				return { ...p, schedule: newSchedule };
+			}
+			return p;
+		});
+
 		const { eventUuid } = await this.eventService.createOne({
 			name,
 			expiresAt,
 			creatorId: creator.name,
 			eventResultId,
-			participants,
+			participants: updatedParticipants,
 			proposedDate,
-		});
-
-		const authUserUuids = [];
-		const authUsers = [];
-		participants.map((p) => {
-			if ('uuid' in p) {
-				authUserUuids.push(p.uuid);
-				authUsers.push({
-					schedule: {
-						[proposedDate]: [
-							{
-								start: moment(proposedDate, EVENT_DATE_FORMAT)
-									.startOf('day')
-									.format(EVENT_DATETIME_FORMAT),
-								end: moment(proposedDate, EVENT_DATE_FORMAT)
-									.endOf('day')
-									.format(EVENT_DATETIME_FORMAT),
-							},
-						],
-					},
-				});
-			}
 		});
 
 		await this.userService.bulkUpdate({
@@ -220,8 +253,7 @@ export class EventController {
 	async updateEvent(@Body() body: UpdateEventDto) {
 		const { newEvent, uuid, eventResultId } = body;
 		const { name, participants } = newEvent;
-
-		const { error } = await this.eventResultService.updateOne({
+		const { error, proposedDate } = await this.eventResultService.updateOne({
 			uuid: eventResultId,
 			participants: newEvent.participants,
 		});
@@ -229,11 +261,64 @@ export class EventController {
 			return { error };
 		}
 
+		const authUserUuids = [];
+		const authUsers = [];
+
+		const updatedParticipants = participants.map((p) => {
+			if ('uuid' in p) {
+				const newSchedule = {
+					...p.schedule,
+					[proposedDate]: [
+						{
+							start: moment(proposedDate, EVENT_DATE_FORMAT)
+								.startOf('day')
+								.format(EVENT_DATETIME_FORMAT),
+							end: moment(proposedDate, EVENT_DATE_FORMAT)
+								.endOf('day')
+								.format(EVENT_DATETIME_FORMAT),
+						},
+					],
+				};
+				authUserUuids.push(p.uuid);
+				authUsers.push({
+					schedule: {
+						[proposedDate]: [
+							{
+								start: moment(proposedDate, EVENT_DATE_FORMAT)
+									.startOf('day')
+									.format(EVENT_DATETIME_FORMAT),
+								end: moment(proposedDate, EVENT_DATE_FORMAT)
+									.endOf('day')
+									.format(EVENT_DATETIME_FORMAT),
+							},
+						],
+					},
+				});
+				return { ...p, schedule: newSchedule };
+			}
+			return p;
+		});
+
 		await this.eventService.updateOne({
 			uuid,
 			name,
-			participants,
+			participants: updatedParticipants,
+			proposedDate,
 		});
+
+		await this.userService.bulkUpdate({
+			uuids: authUserUuids,
+			users: authUsers,
+		});
+
+		const creator = participants.find((p) => p.isCreator);
+		this.emailService.onUpdateEvent({
+			to: authUserUuids.filter((uuid) => uuid !== creator.name),
+			eventName: name,
+			eventCreator: creator.name,
+			proposedDate,
+		});
+
 		return { error };
 	}
 
