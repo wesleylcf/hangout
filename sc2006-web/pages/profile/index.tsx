@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { useMemo, useContext, useState } from 'react';
+import React, { useMemo, useContext, useState, useEffect } from 'react';
 import { Regex } from '../../types';
 import { UpdateUserReq, UpdatableUserProps } from '../../types/api-models/user';
 import { TextInput } from '../../components/common';
@@ -29,9 +29,13 @@ const ProfilePage = function () {
 	const [isDirty, setIsDirty] = useState(false);
 	const [dirtyMap, setDirtyMap] =
 		useState<Record<FieldName, boolean>>(initialDirtyMap);
-	const { setFieldValue, getFieldValue, setFieldsValue } = form;
+	const { setFieldValue, getFieldValue, setFieldsValue, getFieldsValue } = form;
 	const { me, setMe } = useContext(GlobalContext);
 	const notification = useNotification();
+
+	if (me && !Object.keys(getFieldsValue()).length) {
+		setFieldsValue(me);
+	}
 
 	const getEditable = (name: FieldName) => {
 		switch (name) {
@@ -135,21 +139,49 @@ const ProfilePage = function () {
 			notification.apiError(error);
 		}
 	};
-	setFieldsValue(me!);
 
 	return (
 		<div className="w-8/12 h-full space-y-8 top-1/4 relative">
-			<Form form={form} onFinish={onSubmit}>
-				{participantItems.map(({ label, key }, index) => {
-					let modal;
-					if (key === 'schedule') {
-						modal = ScheduleModal;
-					}
-					if (key === 'preferences') {
-						modal = PreferencesModal;
-					}
+			{me && (
+				<Form form={form} onFinish={onSubmit} initialValues={me}>
+					{participantItems.map(({ label, key }, index) => {
+						let modal;
+						if (key === 'schedule') {
+							modal = ScheduleModal;
+						}
+						if (key === 'preferences') {
+							modal = PreferencesModal;
+						}
 
-					if (['preferences', 'schedule'].includes(key)) {
+						if (['preferences', 'schedule'].includes(key)) {
+							return (
+								<FieldRow
+									key={key}
+									label={label}
+									value={getFieldValue(key) as any}
+									highlight={index % 2 == 0}
+									allowEdit
+									CancelEditIcon={CheckOutlined}
+									AllowEditIcon={EditOutlined}
+									Editable={getEditable(key)}
+									onEditFinish={(value?: any) => onEditFinish(key, value)}
+									Presentable={modal}
+									presentableProps={{
+										width: '90%',
+										...(key === 'schedule' && {
+											busyTimeRanges: getFieldValue(key),
+										}),
+										...(key === 'preferences' && {
+											selectedPreferences: getFieldValue(key),
+										}),
+										destroyOnClose: true,
+									}}
+									formFieldName={key}
+									fieldFormRules={getFormRule(key)}
+									isValuePresentable={undefined}
+								/>
+							);
+						}
 						return (
 							<FieldRow
 								key={key}
@@ -161,41 +193,15 @@ const ProfilePage = function () {
 								AllowEditIcon={EditOutlined}
 								Editable={getEditable(key)}
 								onEditFinish={(value?: any) => onEditFinish(key, value)}
-								Presentable={modal}
-								presentableProps={{
-									width: '90%',
-									...(key === 'schedule' && {
-										busyTimeRanges: getFieldValue(key),
-									}),
-									...(key === 'preferences' && {
-										selectedPreferences: getFieldValue(key),
-									}),
-									destroyOnClose: true,
-								}}
+								isValuePresentable
 								formFieldName={key}
 								fieldFormRules={getFormRule(key)}
-								isValuePresentable={undefined}
 							/>
 						);
-					}
-					return (
-						<FieldRow
-							key={key}
-							label={label}
-							value={getFieldValue(key) as any}
-							highlight={index % 2 == 0}
-							allowEdit
-							CancelEditIcon={CheckOutlined}
-							AllowEditIcon={EditOutlined}
-							Editable={getEditable(key)}
-							onEditFinish={(value?: any) => onEditFinish(key, value)}
-							isValuePresentable
-							formFieldName={key}
-							fieldFormRules={getFormRule(key)}
-						/>
-					);
-				})}
-			</Form>
+					})}
+				</Form>
+			)}
+
 			<div className="w-full flex flex-row justify-center">
 				<Button onClick={() => form.submit()} disabled={!isDirty}>
 					{' '}
