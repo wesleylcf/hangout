@@ -4,26 +4,33 @@ import React, { useState } from 'react';
 import { Button, TimePicker } from 'antd';
 import moment from 'moment';
 import { useNotification } from '../../hooks';
-import { EVENT_DATETIME_FORMAT } from '../../types';
+import { EVENT_DATETIME_FORMAT, EVENT_DATE_FORMAT } from '../../types';
 
 interface TimeRangesCardProps {
 	addedTimeRanges: Array<{ start: string; end: string }>;
 	addTimeRange: (range: [string, string]) => void;
 	removeTimeRange: (index: number) => void;
+	date: string;
 }
 
 export const TimeRangesCard = ({
 	addedTimeRanges,
 	addTimeRange,
 	removeTimeRange,
+	date,
 }: TimeRangesCardProps) => {
 	const { RangePicker } = TimePicker;
 	const TIME_FORMAT = 'HH:mm';
 	const [selectedTimeRange, setSelectedTimeRange] = useState<
 		[start: string, end: string]
 	>([
-		moment().startOf('day').format(EVENT_DATETIME_FORMAT),
-		moment().endOf('day').minutes(0).format(EVENT_DATETIME_FORMAT),
+		moment(date, EVENT_DATE_FORMAT)
+			.startOf('day')
+			.format(EVENT_DATETIME_FORMAT),
+		moment(date, EVENT_DATE_FORMAT)
+			.endOf('day')
+			.minutes(0)
+			.format(EVENT_DATETIME_FORMAT),
 	]);
 
 	const notification = useNotification();
@@ -70,7 +77,10 @@ export const TimeRangesCard = ({
 									moment(selectedTimeRange[0], EVENT_DATETIME_FORMAT),
 									moment(selectedTimeRange[1], EVENT_DATETIME_FORMAT),
 							  ]
-							: [moment().startOf('day'), moment().endOf('day').minutes(0)]
+							: [
+									moment(date, EVENT_DATE_FORMAT).startOf('day'),
+									moment(date, EVENT_DATE_FORMAT).endOf('day').minutes(0),
+							  ]
 					}
 				/>
 				<Button
@@ -78,7 +88,10 @@ export const TimeRangesCard = ({
 						onAddTimeRange(selectedTimeRange);
 						setSelectedTimeRange((prevTimeRange) => [
 							prevTimeRange[1],
-							moment().endOf('day').minutes(0).format(EVENT_DATETIME_FORMAT),
+							moment(prevTimeRange[1])
+								.endOf('day')
+								.minutes(0)
+								.format(EVENT_DATETIME_FORMAT),
 						]);
 					}}
 				>

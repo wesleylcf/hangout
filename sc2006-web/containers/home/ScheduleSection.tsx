@@ -71,5 +71,10 @@ export const ScheduleSection = React.memo(function _ScheduleModal({
 		);
 	};
 
-	return <Calendar dateFullCellRender={renderDateCellOverride} />;
+	return (
+		<Calendar
+			dateFullCellRender={renderDateCellOverride}
+			defaultValue={moment().add(6, 'days')}
+		/>
+	);
 });

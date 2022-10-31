@@ -44,13 +44,18 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 		if (!moment.isBetween(startDate, endDate, undefined, '[]')) return;
 		setSelectedDates((selected) => {
 			const selectedCopy = new Set(selected);
-			setInternalBusyTimeRanges((timeRanges) => {
-				return { ...timeRanges, [presentableDate]: [] };
-			});
+
 			if (selected.has(presentableDate)) {
+				setInternalBusyTimeRanges((timeRanges) => {
+					const { [presentableDate]: _, ...rest } = timeRanges;
+					return rest;
+				});
 				selectedCopy.delete(presentableDate);
 				return selectedCopy;
 			} else {
+				setInternalBusyTimeRanges((timeRanges) => {
+					return { ...timeRanges, [presentableDate]: [] };
+				});
 				return selectedCopy.add(presentableDate);
 			}
 		});
@@ -166,6 +171,7 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 					onSelect={!viewOnly ? onSelectDate : undefined}
 					className="w-4/6"
 					dateFullCellRender={renderDateCellOverride}
+					defaultValue={endDate}
 				/>
 				<div className="w-2/6 pl-4 overflow-y-auto scroll-m-4">
 					<Collapse
@@ -196,6 +202,7 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 										onAddTimeRange({ start: range[0], end: range[1] }, date)
 									}
 									removeTimeRange={(index) => onRemoveTimeRange(index, date)}
+									date={date}
 								/>
 							</Collapse.Panel>
 						))}
