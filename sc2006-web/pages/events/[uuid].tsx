@@ -11,7 +11,7 @@ import {
 	EVENT_DATE_FORMAT,
 	TimeRange,
 } from '../../types';
-import { PageTransitionContext } from '../../contexts';
+import { GlobalContext, PageTransitionContext } from '../../contexts';
 import moment from 'moment';
 import { CreateEventForm } from '../../containers/event/CreateEventForm';
 import { EventResultCard } from '../../containers/event/EventResultCard';
@@ -21,6 +21,7 @@ const EventPage = () => {
 	const notification = useNotification();
 	const { setLoading } = useContext(PageTransitionContext);
 	const { uuid } = router.query;
+	const { me } = useContext(GlobalContext);
 
 	const [eventResult, setEventResult] = useState<DbEventResultRes>();
 	const [event, setEvent] = useState<Omit<DetailedEventRes, 'eventResult'>>();
@@ -130,7 +131,17 @@ const EventPage = () => {
 							form={form}
 							initialValues={{
 								name: event.name,
-								participants: event.participants,
+								participants: event.participants.map((participant) => {
+									if (participant.isCreator) {
+										return {
+											...participant!,
+											isCreator: true,
+											name: me!.uuid,
+											address: me!.address?.toString() || '',
+										};
+									}
+									return participant;
+								}),
 							}}
 							onSubmitHandler={onSubmit}
 							submitText="Update Event"
