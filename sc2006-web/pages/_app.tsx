@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 			meContext={globalContext}
 			pageTransitionContext={PageTransitionContext}
 		>
-			{<Component {...pageProps} />}
+			<Component {...pageProps} />
 		</AppContainer>
 	);
 }

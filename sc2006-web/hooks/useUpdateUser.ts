@@ -1,7 +1,7 @@
 import { doc, onSnapshot } from 'firebase/firestore';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
-import { GlobalContextProps } from '../contexts';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContextProps, PageTransitionContext } from '../contexts';
 import { db } from '../services';
 import { DbUser, EVENT_DATETIME_FORMAT, TimeRange } from '../types';
 
@@ -13,6 +13,7 @@ type useUpdateUserProps = Pick<GlobalContextProps, 'me' | 'setMe'>;
 	a backend call by the current user and will be set by calling setMe(<Result of making backend call>)
 */
 export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
+	const { setLoading } = useContext(PageTransitionContext);
 	useEffect(() => {
 		if (!me) return;
 
@@ -23,6 +24,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 				console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
+					setLoading(true);
 					setMe((prevMe) => {
 						if (
 							prevMe!.notificationIds.length === data.notificationIds.length &&
@@ -38,6 +40,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 							createdAt: createdAt.toDate(),
 						};
 					});
+					setLoading(false);
 				}
 			},
 			(error) => {
