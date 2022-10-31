@@ -85,7 +85,25 @@ export function MenuBar() {
 				),
 				key: '/home',
 			},
-			getLoginOrSignupButton(router.asPath),
+			//getLoginOrSignupButton(router.asPath),
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<LoginOutlined className="pr-1" />
+						Login
+					</div>
+				),
+				key: '/login',
+			},
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<UserAddOutlined className="pr-1" />
+						Sign Up
+					</div>
+				),
+				key: '/signup',
+			},
 		],
 		[me, router.asPath],
 	);
@@ -147,22 +165,22 @@ export function MenuBar() {
 function getLoginOrSignupButton(path: string): MenuBarItem {
 	return path === '/signup' || path === '/home'
 		? {
-				label: (
-					<div className="flex flex-row items-center justify-center">
-						<LoginOutlined className="pr-1" />
-						Login
-					</div>
-				),
-				key: '/login',
-		  }
+			label: (
+				<div className="flex flex-row items-center justify-center">
+					<LoginOutlined className="pr-1" />
+					Login
+				</div>
+			),
+			key: '/login',
+		}
 		: {
-				label: (
-					<div className="flex flex-row items-center justify-center">
-						<UserAddOutlined className="pr-1" />
-						Sign Up
-					</div>
-				),
-				key: '/signup',
-		  };
+			label: (
+				<div className="flex flex-row items-center justify-center">
+					<UserAddOutlined className="pr-1" />
+					Sign Up
+				</div>
+			),
+			key: '/signup',
+		};
 	/* eslint-enable no-mixed-spaces-and-tabs */
 }
