@@ -23,6 +23,23 @@ export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
 	const router = useRouter();
 	const { setFieldValue, getFieldValue } = form;
 
+	const renderFormName = () => {
+		if (type === AuthFormType.LOGIN) {
+			return (
+				<h1 className="text-4xl text-gray-700 left-1/2 font-mono">
+					Welcome back to Hangout!
+				</h1>
+			)
+		}
+		if (type === AuthFormType.SIGNUP) {
+			return (
+				<h1 className="text-4xl text-gray-700 left-1/2 font-mono">
+					Sign up to Hangout!
+				</h1>
+			)
+		}
+	}
+
 	const renderAssistiveText = () => {
 		if (type === AuthFormType.LOGIN) {
 			return (
@@ -54,6 +71,7 @@ export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
 				form={form}
 				onFinish={onSubmit}
 			>
+				{renderFormName()}
 				<InputLabel>Email</InputLabel>
 				<Form.Item
 					name="email"
@@ -93,13 +111,13 @@ export const AuthForm = ({ form, onSubmit, type }: AuthFormProps) => {
 						onChange={(e: any) => setFieldValue('password', e.target.value)}
 					/>
 				</Form.Item>
-				<div className="pt-2 flex flex-row items-center space-x-4">
+				<div className="pt-2 flex flex-row items-center space-x-4 ">
 					<div className="w-2/5">
 						<Input
 							type="submit"
 							value={type === AuthFormType.LOGIN ? 'Login' : 'Sign up'}
 							size="small"
-							className="h-8 sky-400"
+							className="h-8 bg-sky-400"
 						/>
 					</div>
 					{renderAssistiveText()}
