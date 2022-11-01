@@ -7,17 +7,17 @@ export const Demo = () => {
 	return (
 		<div className="h-full w-full space-y-2">
 			<div className="h-screen w-full">
-				<section className="flex flex-col items-center h-1/6 justify-center">
-					<h1 className="text-7xl text-gray-700 left-1/2 font-mono">
+				<section className="flex flex-col items-center h-2/6 justify-center">
+					<h1 className="text-7xl text-gray-700 left-1/2 font-mono animate-bounce">
 						Hangout!
 					</h1>
 					<span className="w-full p-0.5 bg-blue-400 lg:w-1/3"></span>
 				</section>
-				<section className="flex flex-row h-5/6 items-center space-y-8 w-11/12 mx-auto">
-					<div className="w-1/2 h-3/5 flex flex-row items-center justify-center relative">
+				<section className="flex flex-row items-center space-y-8 w-11/12 mx-auto h-1/2">
+					<div className="w-7/12 h-full flex flex-row items-center justify-center relative">
 						<Image src="/hangout.png" layout="fill" />
 					</div>
-					<div className="w-1/2 h-3/5 flex flex-col justify-center">
+					<div className="w-5/12 flex flex-col justify-center">
 						<h1 className="text-5xl text-pink-400">
 							Planning outings made simple.
 						</h1>

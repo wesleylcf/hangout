@@ -20,6 +20,7 @@ import {
 	ListBriefEventRes,
 	EVENT_DATE_FORMAT,
 	EventFilterType,
+	DbEventRes,
 } from '../../../sc2006-common/src';
 import { UpdateEventDto } from './update-event.dto';
 import * as moment from 'moment';
@@ -48,11 +49,10 @@ export class EventController {
 			...rest,
 			eventResult,
 		};
-		('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');
 	}
 
 	@Post('brief/list')
-	async getFilteredEvents(@Body() body: ListEventsDto) {
+	async getEvents(@Body() body: ListEventsDto) {
 		const { eventUuids, userUuid } = body;
 		const events = await this.eventService.findMany(eventUuids);
 		const now = moment();
@@ -88,7 +88,7 @@ export class EventController {
 	}
 
 	@Post('brief/list/:filter')
-	async getEvents(
+	async getFilteredEvents(
 		@Body() body: ListEventsDto,
 		@Param() params: { filter: EventFilterType },
 	): Promise<ListBriefEventRes> {
@@ -116,8 +116,8 @@ export class EventController {
 				(filterFunction ? filterFunction(expiry) : true)
 			);
 		});
-		const activeAndCreatedEvents = [];
-		const activeAndParticipantEvent = [];
+		const activeAndCreatedEvents: DbEventRes[] = [];
+		const activeAndParticipantEvent: DbEventRes[] = [];
 		activeEvents.forEach((event) => {
 			if (event.creatorId === userUuid) activeAndCreatedEvents.push(event);
 			else activeAndParticipantEvent.push(event);
@@ -129,8 +129,8 @@ export class EventController {
 				now.isAfter(expiry) && (filterFunction ? filterFunction(expiry) : true)
 			);
 		});
-		const expiredAndCreatedEvents = [];
-		const expiredAndParticipantEvent = [];
+		const expiredAndCreatedEvents: DbEventRes[] = [];
+		const expiredAndParticipantEvent: DbEventRes[] = [];
 		expiredEvents.forEach((event) => {
 			if (event.creatorId === userUuid) expiredAndCreatedEvents.push(event);
 			else expiredAndParticipantEvent.push(event);
@@ -138,12 +138,40 @@ export class EventController {
 
 		return {
 			active: {
-				creator: activeAndCreatedEvents,
-				participant: activeAndParticipantEvent,
+				creator: activeAndCreatedEvents.sort((e1, e2) =>
+					moment(e1.resultGeneratedAt, EVENT_DATETIME_FORMAT).isAfter(
+						moment(e2.resultGeneratedAt, EVENT_DATETIME_FORMAT),
+						'ms',
+					)
+						? -1
+						: 1,
+				),
+				participant: activeAndParticipantEvent.sort((e1, e2) =>
+					moment(e1.resultGeneratedAt, EVENT_DATETIME_FORMAT).isAfter(
+						moment(e2.resultGeneratedAt, EVENT_DATETIME_FORMAT),
+						'ms',
+					)
+						? -1
+						: 1,
+				),
 			},
 			expired: {
-				creator: expiredAndCreatedEvents,
-				participant: expiredAndParticipantEvent,
+				creator: expiredAndCreatedEvents.sort((e1, e2) =>
+					moment(e1.resultGeneratedAt, EVENT_DATETIME_FORMAT).isAfter(
+						moment(e2.resultGeneratedAt, EVENT_DATETIME_FORMAT),
+						'ms',
+					)
+						? -1
+						: 1,
+				),
+				participant: expiredAndParticipantEvent.sort((e1, e2) =>
+					moment(e1.resultGeneratedAt, EVENT_DATETIME_FORMAT).isAfter(
+						moment(e2.resultGeneratedAt, EVENT_DATETIME_FORMAT),
+						'ms',
+					)
+						? -1
+						: 1,
+				),
 			},
 		};
 	}
@@ -172,8 +200,9 @@ export class EventController {
 
 		const authUserUuids = [];
 		const authUsers = [];
-		const updatedParticipants = participants.map((p) => {
-			if ('uuid' in p) {
+		participants.forEach((p) => {
+			if ('uuid' in p && p.isCreator) {
+				authUserUuids.push(p.uuid);
 				const newSchedule = {
 					...p.schedule,
 					[proposedDate]: [
@@ -187,39 +216,10 @@ export class EventController {
 						},
 					],
 				};
-				authUserUuids.push(p.uuid);
-				if (p.isCreator) {
-					authUsers.push({
-						...p,
-						schedule: {
-							[proposedDate]: [
-								{
-									start: moment(proposedDate, EVENT_DATE_FORMAT)
-										.startOf('day')
-										.format(EVENT_DATETIME_FORMAT),
-									end: moment(proposedDate, EVENT_DATE_FORMAT)
-										.endOf('day')
-										.format(EVENT_DATETIME_FORMAT),
-								},
-							],
-						},
-					});
-				} else {
-					authUsers.push({
-						schedule: {
-							[proposedDate]: [
-								{
-									start: moment(proposedDate, EVENT_DATE_FORMAT)
-										.startOf('day')
-										.format(EVENT_DATETIME_FORMAT),
-									end: moment(proposedDate, EVENT_DATE_FORMAT)
-										.endOf('day')
-										.format(EVENT_DATETIME_FORMAT),
-								},
-							],
-						},
-					});
-				}
+				authUsers.push({
+					...p,
+					schedule: newSchedule,
+				});
 
 				return { ...p, schedule: newSchedule };
 			}
@@ -231,7 +231,7 @@ export class EventController {
 			expiresAt,
 			creatorId: creator.name,
 			eventResultId,
-			participants: updatedParticipants,
+			participants,
 			proposedDate,
 		});
 
@@ -264,8 +264,9 @@ export class EventController {
 		const authUserUuids = [];
 		const authUsers = [];
 
+		// When an event is updated, we adjust the participant details of the creator to include proposed date
 		const updatedParticipants = participants.map((p) => {
-			if ('uuid' in p) {
+			if ('uuid' in p && p.isCreator) {
 				const newSchedule = {
 					...p.schedule,
 					[proposedDate]: [
@@ -281,20 +282,9 @@ export class EventController {
 				};
 				authUserUuids.push(p.uuid);
 				authUsers.push({
-					schedule: {
-						[proposedDate]: [
-							{
-								start: moment(proposedDate, EVENT_DATE_FORMAT)
-									.startOf('day')
-									.format(EVENT_DATETIME_FORMAT),
-								end: moment(proposedDate, EVENT_DATE_FORMAT)
-									.endOf('day')
-									.format(EVENT_DATETIME_FORMAT),
-							},
-						],
-					},
+					...p,
+					schedule: newSchedule,
 				});
-				return { ...p, schedule: newSchedule };
 			}
 			return p;
 		});
@@ -306,14 +296,17 @@ export class EventController {
 			proposedDate,
 		});
 
+		console.log(authUserUuids, authUsers);
+
 		await this.userService.bulkUpdate({
 			uuids: authUserUuids,
 			users: authUsers,
 		});
 
 		const creator = participants.find((p) => p.isCreator);
+
 		this.emailService.onUpdateEvent({
-			to: authUserUuids.filter((uuid) => uuid !== creator.name),
+			to: authUserUuids,
 			eventName: name,
 			eventCreator: creator.name,
 			proposedDate,

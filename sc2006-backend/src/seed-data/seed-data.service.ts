@@ -62,17 +62,18 @@ export class SeedDataService {
 	}
 
 	private async seedUsers(notificationIds: Array<string[]>) {
-		const users: (Omit<DbUser, 'createdAt'> & { username: string })[] =
-			this.emails.map((email, index) => ({
-				username: email,
-				password: 'password',
-				preferences: ['catering.cafe'],
-				eventIds: [],
-				schedule: {},
-				notificationIds: notificationIds[index],
-				address: '163009',
-				friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
-			}));
+		const users: (Omit<DbUser, 'createdAt' | 'updatedAt'> & {
+			username: string;
+		})[] = this.emails.map((email, index) => ({
+			username: email,
+			password: 'password',
+			preferences: ['catering.cafe'],
+			eventIds: [],
+			schedule: {},
+			notificationIds: [],
+			address: '163009',
+			friendIds: this.emails.filter((otherEmail) => otherEmail !== email),
+		}));
 		const passwords = await this.authService.hashPasswords(users);
 		const hashedUsers = passwords.map((hash, index) => ({
 			...users[index],

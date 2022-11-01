@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import React, { useMemo, useContext, useState, useEffect } from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import { Regex } from '../../types';
-import { UpdateUserReq, UpdatableUserProps } from '../../types/api-models/user';
+import { UpdatableUserProps } from '../../types/api-models/user';
 import { TextInput } from '../../components/common';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { FieldRow } from '../../components/common/FieldRow';
@@ -59,7 +59,7 @@ const ProfilePage = function () {
 			},
 			{
 				key: 'address',
-				label: 'Address(postal):',
+				label: 'Postal Code:',
 			},
 		],
 		[],
@@ -108,18 +108,9 @@ const ProfilePage = function () {
 				...(dirtyMap['schedule'] && { schedule }),
 				...(dirtyMap['address'] && { address }),
 			};
-
 			await userService.updateUser({
 				uuid: me!.uuid,
 				user: req,
-			});
-			setMe((newMe) => {
-				if (newMe) {
-					return {
-						...newMe,
-						...form,
-					};
-				}
 			});
 			notification.success(
 				<div> Successfully Updated Profile </div>,

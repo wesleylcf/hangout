@@ -40,7 +40,7 @@ import { EmailModule } from './email/email.module';
 			}),
 		}),
 		ThrottlerModule.forRoot({
-			ttl: 60,
+			ttl: 30,
 			limit: 10,
 		}),
 		AuthModule,

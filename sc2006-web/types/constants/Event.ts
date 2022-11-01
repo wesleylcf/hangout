@@ -6,6 +6,8 @@ import { DbUserRes } from './User';
 export interface DbEvent extends CreateEventReq {
 	creatorId: string;
 	createdAt: Timestamp;
+	sourceDataUpdatedAt: string;
+	resultGeneratedAt: string;
 	eventResultId: string;
 	expiresAt: string;
 	proposedDate: string;

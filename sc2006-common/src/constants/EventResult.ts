@@ -15,6 +15,7 @@ export interface DbEventSuggestion {
 	[category: string]: DbPlace[];
 }
 
+export const API_DATETIME_FORMAT = 'ddd LL HH:mm:ss.SSS';
 export const EVENT_DATETIME_FORMAT = 'ddd LL HH:mm';
 export const EVENT_DATE_FORMAT = 'ddd (DD MMM)';
 

@@ -39,10 +39,14 @@ export function useProtectRoutes() {
 			if (wasLoggedIn) {
 				if (!allowedRoutes[plainPath as Routes]) {
 					onUnauthorized(plainPath);
-					router.push(redirectToIfAuthenticated);
+					router.push(postLoginPath);
 				}
 			} else {
 				setWasLoggedIn(true);
+				if (!allowedRoutes[plainPath as Routes]) {
+					onUnauthorized(plainPath);
+					router.push(postLoginPath);
+				}
 			}
 		} else {
 			if (!allowedRoutes[plainPath as Routes]) {

@@ -13,17 +13,20 @@ import {
 	where,
 	getDocs,
 	documentId,
+	updateDoc,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser, DbUserRes, PresentableError } from '../../../sc2006-common/';
-import { NotificationService } from 'src/notification/notification.service';
+import {
+	API_DATETIME_FORMAT,
+	DbUser,
+	DbUserRes,
+	PresentableError,
+} from '../../../sc2006-common/src';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
-	constructor(
-		private readonly logger: Logger,
-		private readonly notificationService: NotificationService,
-	) {}
+	constructor(private readonly logger: Logger) {}
 
 	/*
     Returns User document if found, else undefined
@@ -54,7 +57,10 @@ export class UserService {
 			if (!docSnap.exists()) {
 				throw new Error(`User ${uuid} does not exist`);
 			}
-			await setDoc(docRef, user, { merge: true });
+			await updateDoc(docRef, {
+				...user,
+				updatedAt: moment().format(API_DATETIME_FORMAT),
+			});
 			return null;
 		} catch (e) {
 			this.logger.error(e.message, 'userService');
@@ -82,6 +88,7 @@ export class UserService {
 				notificationIds: [],
 				address: null,
 				friendIds: [],
+				updatedAt: moment().format(API_DATETIME_FORMAT),
 			};
 			await setDoc(doc(db, 'users', username), dbUser);
 			this.logger.log(`User ${username} created`, 'UserService');
@@ -92,7 +99,9 @@ export class UserService {
 	}
 
 	async bulkCreate(
-		users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
+		users: Array<
+			Omit<DbUser, 'createdAt' | 'updatedAt'> & { username: string }
+		>,
 		existingBatch?: WriteBatch,
 	) {
 		const batch = existingBatch ? existingBatch : writeBatch(db);
@@ -100,6 +109,7 @@ export class UserService {
 			users.forEach(({ username, ...rest }) => {
 				const user: DbUser = {
 					...rest,
+					updatedAt: moment().format(API_DATETIME_FORMAT),
 					createdAt: serverTimestamp() as Timestamp,
 				};
 				const newUserDocRef = doc(db, 'users', username);
@@ -144,7 +154,10 @@ export class UserService {
 			}
 			uuids.forEach((uuid, index) => {
 				const docRef = doc(db, 'users', uuid);
-				batch.set(docRef, users[index], { merge: true });
+				batch.update(docRef, {
+					...users[index],
+					updatedAt: moment().format(API_DATETIME_FORMAT),
+				});
 			});
 			if (!existingBatch) {
 				await batch.commit();

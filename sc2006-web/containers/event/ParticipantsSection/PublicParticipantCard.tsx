@@ -86,7 +86,7 @@ export const PublicParticipantCard = React.memo(
 				},
 				{
 					key: 'address',
-					label: 'Address (Postal Code):',
+					label: 'Postal Code:',
 				},
 			],
 			[],

@@ -21,6 +21,7 @@ export interface DbUser {
 	notificationIds: string[];
 	address: string | null;
 	password: string;
+	updatedAt: string;
 }
 
 export interface DbUserRes extends Omit<DbUser, 'createdAt'> {

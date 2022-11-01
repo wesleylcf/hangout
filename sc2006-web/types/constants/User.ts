@@ -16,11 +16,12 @@ export interface DbUser {
 	createdAt: Timestamp;
 	eventIds: string[];
 	friendIds: string[];
-	schedule: Record<string, Array<TimeRange>>;
+	schedule: Schedule;
 	preferences: string[];
 	notificationIds: string[];
 	address: string | null;
 	password: string;
+	updatedAt: string;
 }
 
 export interface DbUserRes extends Omit<DbUser, 'createdAt'> {

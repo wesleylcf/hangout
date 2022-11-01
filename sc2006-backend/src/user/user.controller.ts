@@ -3,14 +3,20 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { GetUserDto } from './get-user.dto';
-import { GetUserRes, PresentableError } from '../../../sc2006-common/src';
+import {
+	DbEvent,
+	GetUserRes,
+	PresentableError,
+} from '../../../sc2006-common/src';
 import { UpdateUserDto } from './update-user.dto';
+import { EventService } from 'src/event/event.service';
 
 @Controller('users')
 export class UserController {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly userService: UserService,
+		private readonly eventService: EventService,
 	) {}
 
 	@UseGuards(JwtAuthGuard)
@@ -45,8 +51,27 @@ export class UserController {
 	async updateOne(
 		@Body() body: UpdateUserDto,
 	): Promise<{ error: null | Omit<PresentableError, 'name'> }> {
-		const { uuid, user } = body;
-		const error = await this.userService.updateOne(uuid, user);
+		const error = await this.userService.updateOne(body.uuid, body.user);
+		const requiredUser = await this.userService.findOne(body.uuid);
+		const { eventIds, address, preferences, schedule } = requiredUser;
+		const events = await this.eventService.findMany(eventIds);
+
+		// When a user updates his profile information, we update his info in all associated events too so that the correct info
+		// appears in re-generate event result form for events that the user created or is a participant.
+		const eventsToUpdate: { uuid: string; newEvent: Partial<DbEvent> }[] = [];
+		events.forEach((event) => {
+			const { participants, createdAt, ...rest } = event;
+			const index = participants.findIndex((p) => p.name === requiredUser.uuid);
+			const updatedParticipants = [
+				...participants.slice(0, index),
+				{ ...participants[index], address, preferences, schedule },
+				...participants.slice(index + 1),
+			];
+			const updatedEvent = { ...rest, participants: updatedParticipants };
+			eventsToUpdate.push({ uuid: event.uuid, newEvent: updatedEvent });
+			return updatedEvent;
+		});
+		await this.eventService.bulkUpdate(eventsToUpdate);
 		return { error };
 	}
 }

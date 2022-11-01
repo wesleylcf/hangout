@@ -88,19 +88,7 @@ const EventPage = () => {
 				suggestedDates: sortedSuggestDates,
 			});
 
-			// Since we are updating the event we should remove the current proposedDate from participants' schedules
-			const { participants, proposedDate } = eventRest;
-			const prevParticipants = participants.map((participant) => {
-				const { schedule } = participant;
-				const prevSchedule: Record<string, TimeRange[]> = {};
-				Object.keys(schedule).forEach((date) => {
-					if (date !== proposedDate) {
-						prevSchedule[date] = schedule[date];
-					}
-				});
-				return { ...participant, schedule: prevSchedule };
-			});
-			setEvent({ ...eventRest, participants: prevParticipants });
+			setEvent(eventRest);
 		} catch (e) {
 			notification.apiError(e);
 		}
@@ -124,30 +112,24 @@ const EventPage = () => {
 						eventResult={{ ...eventResult, proposedDate: event!.proposedDate }}
 					/>
 				)}
-				<h1 className="text-2xl">Edit and re-generate result</h1>
-				<div className="w-full flex flex-row justify-center">
-					{event && (
-						<CreateEventForm
-							form={form}
-							initialValues={{
-								name: event.name,
-								participants: event.participants.map((participant) => {
-									if (participant.isCreator) {
-										return {
-											...participant!,
-											isCreator: true,
-											name: me!.uuid,
-											address: me!.address?.toString() || '',
-										};
-									}
-									return participant;
-								}),
-							}}
-							onSubmitHandler={onSubmit}
-							submitText="Update Event"
-						/>
-					)}
-				</div>
+				{event && event.creatorId === me?.uuid && (
+					<>
+						<h1 className="text-2xl">Edit and re-generate result</h1>
+						<div className="w-full flex flex-row justify-center">
+							{event && (
+								<CreateEventForm
+									form={form}
+									initialValues={{
+										name: event.name,
+										participants: event.participants,
+									}}
+									onSubmitHandler={onSubmit}
+									submitText="Update Event"
+								/>
+							)}
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

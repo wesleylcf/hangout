@@ -6,6 +6,7 @@ import {
 	EVENT_DATETIME_FORMAT,
 	AuthEventParticipant,
 	DbUser,
+	API_DATETIME_FORMAT,
 } from '../../../sc2006-common/src';
 import { db } from 'src/firebase.config';
 import {
@@ -22,7 +23,6 @@ import {
 	arrayUnion,
 	WriteBatch,
 	DocumentReference,
-	setDoc,
 } from 'firebase/firestore';
 import * as moment from 'moment';
 import { NotificationService } from 'src/notification/notification.service';
@@ -35,13 +35,22 @@ export class EventService {
 	) {}
 
 	async createOne(
-		event: Omit<DbEvent, 'createdAt' | 'eventResultIds'>,
+		event: Omit<
+			DbEvent,
+			| 'createdAt'
+			| 'sourceDataUpdatedAt'
+			| 'resultGeneratedAt'
+			| 'eventResultIds'
+		>,
 	): Promise<{ eventUuid: string }> {
 		try {
 			const batch = writeBatch(db);
 			const { creatorId } = event;
+			const now = moment().format(API_DATETIME_FORMAT);
 			const newEvent: DbEvent = {
 				createdAt: serverTimestamp() as Timestamp,
+				sourceDataUpdatedAt: now,
+				resultGeneratedAt: now,
 				...event,
 				creatorId,
 			};
@@ -111,8 +120,12 @@ export class EventService {
 			};
 			batch.update(authParticipantDocRef, updatedParticipant);
 		});
-
-		batch.set(eventDocRef, rest, { merge: true });
+		const now = moment().format(API_DATETIME_FORMAT);
+		batch.update(eventDocRef, {
+			...rest,
+			resultGeneratedAt: now,
+			sourceDataUpdatedAt: now,
+		});
 		await batch.commit();
 	}
 
@@ -200,18 +213,31 @@ export class EventService {
 	}
 
 	async bulkUpdate(
-		notifications: {
+		events: {
 			uuid: string;
-			updatedNotification: Partial<DbNotification>;
+			newEvent: Partial<DbEvent>;
 		}[],
 		existingBatch?: WriteBatch,
 	) {
 		const batch = existingBatch ? existingBatch : writeBatch(db);
 		try {
-			notifications.forEach(({ uuid, updatedNotification }) => {
-				const ref = doc(db, 'notifications', uuid);
-
-				batch.set(ref, updatedNotification, { merge: true });
+			events.forEach(({ uuid, newEvent }) => {
+				const ref = doc(db, 'events', uuid);
+				if (newEvent?.participants) {
+					const { participants, ...rest } = newEvent;
+					batch.set(ref, { participants }, { merge: true });
+					if (Object.keys(rest).length) {
+						batch.update(ref, {
+							...rest,
+							sourceDataUpdatedAt: moment().format(API_DATETIME_FORMAT),
+						});
+					}
+				} else {
+					batch.update(ref, {
+						...newEvent,
+						sourceDataUpdatedAt: moment().format(API_DATETIME_FORMAT),
+					});
+				}
 			});
 
 			if (!existingBatch) {

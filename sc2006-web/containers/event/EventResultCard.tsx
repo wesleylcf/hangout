@@ -47,7 +47,7 @@ export const EventResultCard = ({ eventResult }: EventResultCardProps) => {
 			);
 		});
 		return res;
-	}, []);
+	}, [eventResult.suggestions]);
 
 	const getCenter = (placeType: string) => {
 		const index = centerMap[placeType] || 0;

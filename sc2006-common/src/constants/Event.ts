@@ -6,6 +6,8 @@ import { DbUserRes } from './User';
 export interface DbEvent extends CreateEventReq {
 	creatorId: string;
 	createdAt: Timestamp;
+	sourceDataUpdatedAt: string; // when a participant updates his profile, the result that was generated is outdated so we should indicate this.
+	resultGeneratedAt: string;
 	eventResultId: string;
 	expiresAt: string;
 	proposedDate: string;

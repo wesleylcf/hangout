@@ -26,13 +26,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 				if (!snapshot.metadata.hasPendingWrites) {
 					setLoading(true);
 					setMe((prevMe) => {
-						if (
-							prevMe!.notificationIds.length === data.notificationIds.length &&
-							prevMe!.eventIds.length === data.eventIds.length &&
-							prevMe!.friendIds.length === data.friendIds.length &&
-							isScheduleEqual(prevMe?.schedule, data.schedule)
-						)
-							return prevMe;
+						if (prevMe?.updatedAt === data.updatedAt) return prevMe;
 						const { password, createdAt, ...rest } = data;
 						return {
 							uuid: prevMe!.uuid,
@@ -53,29 +47,3 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 		};
 	}, [me]);
 };
-
-function isScheduleEqual(
-	current?: Record<string, TimeRange[]>,
-	next?: Record<string, TimeRange[]>,
-) {
-	if (!current || !next) return false;
-	if (Object.keys(current).length !== Object.keys(next).length) return false;
-	Object.keys(next).forEach((date) => {
-		if (!(date in current)) return false;
-		if (current[date].length != next[date].length) return false;
-		for (let i = 0; i < current[date].length; i++) {
-			if (
-				!moment(current[date][i].start, EVENT_DATETIME_FORMAT).isSame(
-					moment(next[date][i].start),
-				) ||
-				!moment(current[date][i].end, EVENT_DATETIME_FORMAT).isSame(
-					moment(next[date][i].end),
-				)
-			) {
-				return false;
-			}
-		}
-	});
-
-	return true;
-}

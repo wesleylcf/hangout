@@ -5,6 +5,7 @@ import { Form, Input, FormInstance } from 'antd';
 import { GlobalContext } from '../../../contexts';
 import { AddUserToEventModal } from '../AddUserToEventModal';
 import { ParticipantsSection } from '../ParticipantsSection';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import {
 	CreateEventRes,
 	DbUserRes,
@@ -129,6 +130,19 @@ export const CreateEventForm = ({
 	return (
 		<>
 			<Card className="p-8 space-y-2 w-full h-full overflow-auto">
+				{!limitFeatures && (
+					<div className="flex flex-row items-center space-x-2 pb-2">
+						<InfoCircleOutlined
+							className="w-4"
+							style={{ fontSize: '1rem', color: 'red' }}
+						/>
+						<b>
+							The generated proposed date will be automatically added to your
+							schedule. You can remove it from your schedule by updating your
+							profile.
+						</b>
+					</div>
+				)}
 				<Form
 					className="w-full h-full flex flex-col"
 					initialValues={initialValues}
