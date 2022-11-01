@@ -119,7 +119,6 @@ export function MenuBar() {
 		try {
 			await meService.logout();
 			setMe(undefined);
-			// router.push('/login');
 			setWasLoggedIn(false);
 
 			notification.success('Logged out successfully');

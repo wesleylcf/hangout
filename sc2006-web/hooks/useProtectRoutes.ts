@@ -33,23 +33,29 @@ export function useProtectRoutes() {
 	useEffect(() => {
 		const unhashedPath = router.asPath.split('#')[0];
 		const plainPath = '/' + unhashedPath.split('/')[1];
-
+		console.log(plainPath);
 		const { allowedRoutes } = getRoutes(me);
 		if (me) {
 			if (wasLoggedIn) {
 				if (!allowedRoutes[plainPath as Routes]) {
+					console.log('m, pm');
+					console.log('m, pm, un');
 					onUnauthorized(plainPath);
-					router.push(postLoginPath);
+					router.push(redirectToIfAuthenticated);
 				}
 			} else {
+				console.log('m, !pm');
 				setWasLoggedIn(true);
 				if (!allowedRoutes[plainPath as Routes]) {
+					console.log('m, !pm, un');
 					onUnauthorized(plainPath);
-					router.push(postLoginPath);
+					router.push(redirectToIfAuthenticated);
 				}
 			}
 		} else {
+			console.log('!m');
 			if (!allowedRoutes[plainPath as Routes]) {
+				console.log('!m, un');
 				onUnauthorized(plainPath);
 				router.push(redirectToIfUnauthenticated);
 			}

@@ -137,7 +137,8 @@ export const ParticipantsSection = ({
 					{!limitFeatures && (
 						<>
 							<Card
-								className="flex flex-row items-center justify-center p-4 bg-sky-400 text-white"
+								className="flex flex-row items-center justify-center p-4 text-white"
+								style={{ backgroundColor: 'rgb(56,189,248)' }}
 								onClick={() =>
 									setIsInviteUserModalOpen
 										? setIsInviteUserModalOpen(true)
