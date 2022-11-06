@@ -115,7 +115,7 @@ export function MenuBar() {
 	}, [me, ProtectedItems, PublicItems]);
 
 	const onLogout = async () => {
-		router.push('/home');
+		await router.push('/home');
 		try {
 			await meService.logout();
 			setMe(undefined);

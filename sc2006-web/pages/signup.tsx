@@ -20,8 +20,8 @@ const Login = () => {
 		try {
 			await meService.signup({ username: email, password });
 			// toast notification you have signed up
+			await router.push('/login');
 			notification.success('You have successfully signed up!');
-			router.push('/login');
 		} catch (e: any) {
 			// toast notification
 			notification.apiError(e);

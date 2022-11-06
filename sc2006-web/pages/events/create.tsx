@@ -17,14 +17,13 @@ const CreateEventPage = () => {
 		try {
 			console.log(form);
 			await eventService.create(form);
-
+			await router.push('/events');
 			notification.success(
 				<div>
 					Successfully created event <b>{form.name}</b>
 				</div>,
 				'Event created!',
 			);
-			router.push('/events');
 		} catch (e) {
 			const error = e.title
 				? e

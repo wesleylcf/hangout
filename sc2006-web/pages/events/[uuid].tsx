@@ -36,14 +36,13 @@ const EventPage = () => {
 				eventResultId: eventResult!.uuid,
 				newEvent: form,
 			});
-
+			await router.push('/events');
 			notification.success(
 				<div>
 					Successfully updated event <b>{form.name}</b>
 				</div>,
 				'Event updated!',
 			);
-			router.push('/events');
 		} catch (e) {
 			const error = e.title
 				? e
