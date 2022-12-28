@@ -2,7 +2,7 @@ import {
 	NotificationContext,
 	NotificationContextProps,
 	NotificationExtraProps,
-} from '../../contexts/NotificationContext';
+} from '../../contexts/';
 
 import React, { ReactNode } from 'react';
 import { notification } from 'antd';
@@ -19,10 +19,11 @@ export const NotificationContainer = ({
 	topOffset,
 }: NotificationContainerProps) => {
 	const baseNotificationStyle = {
-		position: 'fixed' as any,
 		color: 'rgba(0, 0, 0, 0.65)',
+	};
+
+	const baseNotificationProps = {
 		top: NAVIGATION_HEIGHT + 5,
-		right: 5,
 	};
 
 	const info = (
@@ -86,6 +87,7 @@ export const NotificationContainer = ({
 				border: '1px solid #ffa39e',
 				backgroundColor: '#fff1f0',
 			},
+			...baseNotificationProps,
 		});
 	};
 
@@ -137,8 +139,10 @@ export const NotificationContainer = ({
 		<>
 			<div
 				id="notificationContainer"
-				className="fixed"
-				style={{ zIndex: 1001 }}
+				className="fixed p-8"
+				style={{
+					zIndex: 1001,
+				}}
 			/>
 			<NotificationContext.Provider value={contextValue}>
 				{children}

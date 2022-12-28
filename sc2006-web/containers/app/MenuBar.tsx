@@ -39,7 +39,7 @@ interface MenuBarItem {
 
 export function MenuBar() {
 	const router = useRouter();
-	const { me, setMe } = useContext(GlobalContext);
+	const { me, setMe, setWasLoggedIn } = useContext(GlobalContext);
 	const notification = useNotification();
 
 	const ProtectedItems: MenuBarItem[] = useMemo(
@@ -85,7 +85,25 @@ export function MenuBar() {
 				),
 				key: '/home',
 			},
-			getLoginOrSignupButton(router.asPath),
+			//getLoginOrSignupButton(router.asPath),
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<LoginOutlined className="pr-1" />
+						Login
+					</div>
+				),
+				key: '/login',
+			},
+			{
+				label: (
+					<div className="flex flex-row items-center justify-center">
+						<UserAddOutlined className="pr-1" />
+						Sign Up
+					</div>
+				),
+				key: '/signup',
+			},
 		],
 		[me, router.asPath],
 	);
@@ -97,10 +115,12 @@ export function MenuBar() {
 	}, [me, ProtectedItems, PublicItems]);
 
 	const onLogout = async () => {
-		router.push('/home');
+		await router.push('/home');
 		try {
 			await meService.logout();
 			setMe(undefined);
+			setWasLoggedIn(false);
+
 			notification.success('Logged out successfully');
 		} catch (e: any) {
 			notification.apiError(e);
@@ -109,8 +129,8 @@ export function MenuBar() {
 
 	return (
 		<nav
-			className="flex flew-row justify-between bg-white"
-			style={{ height: NAVIGATION_HEIGHT }}
+			className="w-full flex flew-row justify-between bg-white fixed top-0"
+			style={{ height: NAVIGATION_HEIGHT, zIndex: 1 }}
 		>
 			<Logo />
 			<div className="w-3/6 flex flex-row justify-end">
@@ -120,7 +140,7 @@ export function MenuBar() {
 					mode="horizontal"
 					className="w-4/5 justify-end"
 					expandIcon={<MenuOutlined />}
-					onClick={({ key }) => router.push(`${key}`)}
+					onClick={({ key }) => router.push(key)}
 					style={{ border: 'none' }}
 				/>
 				{me && (

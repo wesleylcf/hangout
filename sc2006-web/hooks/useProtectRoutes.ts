@@ -1,4 +1,4 @@
-import { useEffect, useContext, Dispatch, useState } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import { GlobalContext } from '../contexts/';
 import { getRoutes, Routes } from '../lib/routes';
@@ -24,14 +24,15 @@ export function useProtectRoutes() {
 					'You do not have permission to access that page',
 					'Unauthorized',
 				);
-				setPostLoginPath(path);
+				setPostLoginPath(path === '/login' ? '/home' : path);
 			}
 			return true;
 		});
 	};
 
 	useEffect(() => {
-		const plainPath = router.asPath.split('#')[0];
+		const unhashedPath = router.asPath.split('#')[0];
+		const plainPath = '/' + unhashedPath.split('/')[1];
 		const { allowedRoutes } = getRoutes(me);
 		if (me) {
 			if (wasLoggedIn) {
@@ -41,6 +42,10 @@ export function useProtectRoutes() {
 				}
 			} else {
 				setWasLoggedIn(true);
+				if (!allowedRoutes[plainPath as Routes]) {
+					onUnauthorized(plainPath);
+					router.push(redirectToIfAuthenticated);
+				}
 			}
 		} else {
 			if (!allowedRoutes[plainPath as Routes]) {

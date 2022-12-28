@@ -1,28 +1,48 @@
 import {
+	ArrayMinSize,
+	IsArray,
 	IsBoolean,
-	IsNotEmpty,
+	IsOptional,
 	IsString,
 	Length,
-	MaxLength,
-	MinLength,
+	Matches,
+	ValidateNested,
 } from 'class-validator';
-import { DbEvent } from '../../../sc2006-common/src';
+import { Type } from 'class-transformer';
+import { CreateEventReq, EventParticipant } from '../../../sc2006-common/src';
+import { Regex } from '../../../sc2006-common/src';
 
-export class CreateEventDto
-	implements Omit<DbEvent, 'createdAt' | 'creatorId' | 'eventResultIds'>
-{
+export class CreateEventDto implements CreateEventReq {
 	@IsString()
 	@Length(10, 50)
-	title: string;
+	name: string;
 
-	@MinLength(1)
-	@MaxLength(10)
-	invitedParticipantIds: string[];
+	@IsArray()
+	@ArrayMinSize(2)
+	@ValidateNested({ each: true })
+	@Type(() => ParticipantDto)
+	participants: Array<EventParticipant>;
+}
 
-	@MinLength(1)
-	@MaxLength(10)
-	activeParticipantIds: string[];
+export class ParticipantDto {
+	@IsOptional()
+	@IsString()
+	uuid?: string;
 
 	@IsBoolean()
-	expired: boolean;
+	isCreator: boolean;
+
+	@IsString()
+	name: string;
+
+	@IsArray()
+	@IsString({ each: true })
+	preferences: Array<string>;
+
+	@IsOptional()
+	schedule: Record<string, Array<{ start: string; end: string }>>;
+
+	@IsString()
+	@Matches(Regex.POSTAL_CODE)
+	address: string;
 }

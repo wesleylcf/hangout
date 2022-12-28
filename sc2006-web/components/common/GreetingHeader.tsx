@@ -21,11 +21,13 @@ export const GreetingHeader = ({
 	return (
 		<h1 className={className} style={style}>
 			{timePeriod === 'evening' ? (
-				<EveningSvg size={48} />
+				<div className="bg-black">
+					<EveningSvg size={48} />
+				</div>
 			) : (
 				<MorningAfternoonSvg size={48} />
 			)}{' '}
-			<div className="pl-8 flex flex-row">
+			<div className="pl-4 flex flex-row">
 				Good {timePeriod}, <div className={nameClassName}>{name}</div>!
 			</div>
 		</h1>
@@ -113,5 +115,7 @@ export const EveningSvg = ({ size }: { size: number }) => (
 
 const getTimePeriod = (date: Date) => {
 	const hours = date.getHours();
-	return hours > 5 ? 'evening' : 'morningAndAfternoon';
+	if (hours > 17) return 'evening';
+	if (hours > 12) return 'afternoon';
+	return 'morning';
 };

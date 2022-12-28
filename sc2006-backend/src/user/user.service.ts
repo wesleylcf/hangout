@@ -3,22 +3,30 @@ import { db } from 'src/firebase.config';
 import {
 	doc,
 	getDoc,
+	query,
 	serverTimestamp,
 	setDoc,
 	Timestamp,
 	WriteBatch,
 	writeBatch,
+	collection,
+	where,
+	getDocs,
+	documentId,
+	updateDoc,
 } from 'firebase/firestore';
 import { AuthUserDto } from 'src/auth/auth-user.dto';
-import { DbUser, DbUserRes } from '../../../sc2006-common/';
-import { NotificationService } from 'src/notification/notification.service';
+import {
+	API_DATETIME_FORMAT,
+	DbUser,
+	DbUserRes,
+	PresentableError,
+} from '../../../sc2006-common/src';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
-	constructor(
-		private readonly logger: Logger,
-		private readonly notificationService: NotificationService,
-	) {}
+	constructor(private readonly logger: Logger) {}
 
 	/*
     Returns User document if found, else undefined
@@ -39,6 +47,31 @@ export class UserService {
 		};
 	}
 
+	async updateOne(
+		uuid: string,
+		user: Partial<DbUserRes>,
+	): Promise<Omit<PresentableError, 'name'> | null> {
+		try {
+			const docRef = doc(db, 'users', uuid);
+			const docSnap = await getDoc(docRef);
+			if (!docSnap.exists()) {
+				throw new Error(`User ${uuid} does not exist`);
+			}
+			await updateDoc(docRef, {
+				...user,
+				updatedAt: moment().format(API_DATETIME_FORMAT),
+			});
+			return null;
+		} catch (e) {
+			this.logger.error(e.message, 'userService');
+			return {
+				title: 'Failed to update user',
+				message: e.message,
+				level: 'error',
+			};
+		}
+	}
+
 	async create({ username, password }: AuthUserDto) {
 		try {
 			const docRef = doc(db, 'users', username);
@@ -50,10 +83,12 @@ export class UserService {
 				password,
 				createdAt: serverTimestamp() as Timestamp,
 				eventIds: [],
-				schedule: [],
+				preferences: [],
+				schedule: {},
 				notificationIds: [],
 				address: null,
 				friendIds: [],
+				updatedAt: moment().format(API_DATETIME_FORMAT),
 			};
 			await setDoc(doc(db, 'users', username), dbUser);
 			this.logger.log(`User ${username} created`, 'UserService');
@@ -64,7 +99,9 @@ export class UserService {
 	}
 
 	async bulkCreate(
-		users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
+		users: Array<
+			Omit<DbUser, 'createdAt' | 'updatedAt'> & { username: string }
+		>,
 		existingBatch?: WriteBatch,
 	) {
 		const batch = existingBatch ? existingBatch : writeBatch(db);
@@ -72,6 +109,7 @@ export class UserService {
 			users.forEach(({ username, ...rest }) => {
 				const user: DbUser = {
 					...rest,
+					updatedAt: moment().format(API_DATETIME_FORMAT),
 					createdAt: serverTimestamp() as Timestamp,
 				};
 				const newUserDocRef = doc(db, 'users', username);
@@ -89,35 +127,44 @@ export class UserService {
 		}
 	}
 
-	// async seedUsers(
-	// 	users: Array<Omit<DbUser, 'createdAt'> & { username: string }>,
-	// ) {
-	// 	try {
-	// 		const batch = writeBatch(db);
+	async bulkFindAllById(uuids: string[]): Promise<DbUserRes[]> {
+		try {
+			const usersRef = collection(db, 'users');
+			const qry = query(usersRef, where(documentId(), 'in', uuids));
+			const res = [];
+			const querySnapshot = await getDocs(qry);
+			querySnapshot.forEach((q) => res.push(q.data()));
+			return res as unknown as DbUserRes[];
+		} catch (e) {
+			this.logger.warn(
+				`Could not batch find users: ${e.message}`,
+				'UserService',
+			);
+		}
+	}
 
-	// 		const usersNotifications = users.map((user) => user.notifications);
-
-	// 		const usersNotificationUuids = await Promise.all(
-	// 			usersNotifications.map(
-	// 				async (userNotification) =>
-	// 					await this.notificationService.bulkCreate(userNotification),
-	// 			),
-	// 		);
-
-	// 		users.forEach((user, index) => {
-	// 			const { username, notifications, ...rest } = user;
-
-	// 			const docRef = doc(db, 'users', username);
-	// 			batch.set(docRef, {
-	// 				createdAt: serverTimestamp(),
-	// 				notificationIds: usersNotificationUuids[index].uuids,
-	// 				...rest,
-	// 			});
-	// 		});
-
-	// 		await batch.commit();
-	// 	} catch (e) {
-	// 		this.logger.warn('Could not batch write users', 'UserService');
-	// 	}
-	// }
+	async bulkUpdate(
+		{ uuids, users }: { uuids: string[]; users: Partial<DbUserRes>[] },
+		existingBatch?: WriteBatch,
+	) {
+		const batch = existingBatch ? existingBatch : writeBatch(db);
+		try {
+			if (uuids.length !== users.length) {
+				throw new Error('uuids and users must be of the same length');
+			}
+			uuids.forEach((uuid, index) => {
+				const docRef = doc(db, 'users', uuid);
+				batch.update(docRef, {
+					...users[index],
+					updatedAt: moment().format(API_DATETIME_FORMAT),
+				});
+			});
+			if (!existingBatch) {
+				await batch.commit();
+			}
+		} catch (e) {
+			this.logger.error(e.message, 'UserService');
+			throw e;
+		}
+	}
 }

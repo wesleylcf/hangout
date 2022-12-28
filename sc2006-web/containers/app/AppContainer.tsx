@@ -1,17 +1,24 @@
 import { Layout as AntdLayout } from 'antd';
 import React from 'react';
 import { MenuBar, PageTransitionWrapper } from '.';
-import { GlobalContextProps, GlobalContext } from '../../contexts/';
+import {
+	GlobalContextProps,
+	GlobalContext,
+	PageTransitionContext,
+	PageTransitionContextProps,
+} from '../../contexts/';
 import { NotificationContainer } from '../notification';
 
 interface AppContainerProps {
 	children: React.ReactNode;
 	meContext: GlobalContextProps;
+	pageTransitionContext: PageTransitionContextProps;
 }
 
 export const AppContainer: React.FC<AppContainerProps> = ({
 	children,
 	meContext,
+	pageTransitionContext,
 }) => {
 	return (
 		<AntdLayout
@@ -21,7 +28,9 @@ export const AppContainer: React.FC<AppContainerProps> = ({
 			<GlobalContext.Provider value={meContext}>
 				<NotificationContainer>
 					<MenuBar />
-					<PageTransitionWrapper>{children}</PageTransitionWrapper>
+					<PageTransitionContext.Provider value={pageTransitionContext}>
+						<PageTransitionWrapper>{children}</PageTransitionWrapper>
+					</PageTransitionContext.Provider>
 				</NotificationContainer>
 			</GlobalContext.Provider>
 		</AntdLayout>

@@ -7,7 +7,8 @@ type ErrorResponse = Response & {
 interface ThrowErrorOrGetDataOptions {
 	fallbackTitle?: string;
 	fallbackMessage?: string;
-	responseNotNeeded?: boolean;
+	overrideTitle?: string;
+	overrideMessage?: string;
 }
 
 /*
@@ -20,14 +21,18 @@ export async function throwErrorOrGetData<T>(
 ): Promise<T> {
 	const { status } = response;
 	const data = await response.json();
-	const { fallbackTitle, fallbackMessage } = options;
+	const { fallbackTitle, fallbackMessage, overrideTitle, overrideMessage } =
+		options;
 	const { error, message } = data;
 	if (!error && status < 205) {
 		return data;
 	}
-
 	if (error) {
-		throw ErrorUtil.apiError(error.message, error.title, error.level);
+		throw ErrorUtil.apiError(
+			overrideMessage || error.message || fallbackMessage,
+			overrideTitle || error.title || fallbackTitle,
+			error.level,
+		);
 	} else {
 		throw ErrorUtil.apiError(message || fallbackMessage, fallbackTitle);
 	}

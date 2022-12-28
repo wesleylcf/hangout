@@ -1,155 +1,72 @@
-import React, { useContext, useState } from 'react';
-import { Card, InputLabel, TextInput } from '../../components/common';
-import { Form, Input } from 'antd';
+/* eslint-disable no-mixed-spaces-and-tabs */
+import React, { useContext } from 'react';
+import { Form, PageHeader } from 'antd';
 import { GlobalContext } from '../../contexts';
-import { AddUserToEventModal } from '../../containers/event/AddUserToEventModal';
-import { ParticipantsSection } from '../../containers/event/ParticipantsSection/ParticipantsSection';
-
-enum Preference {
-	OUTDOOR = 'outdoor',
-	INDOOR = 'indoor',
-}
-
-export interface PublicEventParticipant {
-	name: string;
-	preferences: Array<Preference>;
-	schedule: any;
-	address: string;
-	isCreator: boolean;
-}
-
-interface AuthEventParticipant {
-	uuid: string;
-	isCreator: boolean;
-}
-
-export type Participant = PublicEventParticipant | AuthEventParticipant;
-
-interface CreateEventForm {
-	title: string;
-	users: Array<Participant>;
-}
+import { CreateEventReq } from '../../types';
+import { useNotification } from '../../hooks';
+import { useRouter } from 'next/router';
+import { CreateEventForm } from '../../containers/event/CreateEventForm';
+import { eventService } from '../../services';
 
 const CreateEventPage = () => {
-	const { me } = useContext(GlobalContext);
-
-	const [form] = Form.useForm<CreateEventForm>();
-	const { setFieldValue, getFieldValue } = form;
-	const onSubmit = (form: CreateEventForm) => {
-		console.log(form);
-		// call eventService.createEvent(form)
+	const { me, setMe } = useContext(GlobalContext);
+	const notification = useNotification();
+	const router = useRouter();
+	const [form] = Form.useForm<CreateEventReq>();
+	const onSubmit = async (form: CreateEventReq) => {
+		try {
+			console.log(form);
+			await eventService.create(form);
+			await router.push('/events');
+			notification.success(
+				<div>
+					Successfully created event <b>{form.name}</b>
+				</div>,
+				'Event created!',
+			);
+		} catch (e) {
+			const error = e.title
+				? e
+				: {
+						name: '',
+						level: 'error',
+						message: 'Please check your inputs or alert us.',
+						title: 'Failed to create Event',
+				  };
+			notification.apiError(error);
+		}
 	};
-
-	const [isInviteUserModal, setIsInviteUserModalOpen] = useState(false);
-	const [addedParticipants, setAddedParticipants] = useState<Set<string>>(
-		new Set(me ? [me.uuid] : []),
-	);
-
 	if (!me) {
 		return null;
 	}
-
-	const initialFormValues: CreateEventForm = {
-		title: '',
-		users: [
+	// Let current user be of type PublicEventParticipant to allow user to edit his info.
+	const initialFormValues: CreateEventReq = {
+		name: '',
+		participants: [
 			{
-				name: me.uuid,
-				preferences: [],
-				schedule: me.schedule,
-				address: me.address?.toString() || '',
+				...me,
 				isCreator: true,
+				name: me.uuid,
+				address: me.address?.toString() || '',
 			},
 		],
 	};
 
-	const onAddUser = (userEmail: string) => {
-		const currentParticipants = getFieldValue('users');
-		setFieldValue('users', currentParticipants.concat({ uuid: userEmail }));
-	};
-
-	const onRemoveParticipant = (name: string) => {
-		const currentParticipants: Participant[] = getFieldValue('users');
-		const newParticipants = currentParticipants.filter((participant) => {
-			if ('name' in participant) {
-				return participant.name !== name;
-			}
-			if ('uuid' in participant) {
-				return participant.uuid !== name;
-			}
-		});
-		setAddedParticipants((added) => {
-			const newAdded = new Set(added);
-			newAdded.delete(name);
-			return newAdded;
-		});
-		setFieldValue('users', newParticipants);
-	};
-
 	return (
-		<>
-			<Card className="p-8 w-5/6 h-5/6 flex flex-col justify-center items-start space-y-2 overflow-auto">
-				<Form
-					className="w-full h-full"
-					initialValues={initialFormValues}
-					form={form}
-					onFinish={onSubmit}
-				>
-					<InputLabel>Name of Event</InputLabel>
-					<Form.Item
-						name="title"
-						rules={[
-							{
-								required: true,
-								message: 'Name of Event cannot be empty',
-							},
-							{
-								min: 10,
-								message: 'Name of Event must be at least 10 characters',
-							},
-							{
-								max: 50,
-								message: 'Name of Event cannot exceed 50 characters',
-							},
-						]}
-					>
-						<TextInput
-							onChange={(e: any) => setFieldValue('title', e.target.value)}
-							value={getFieldValue('title')}
-						/>
-					</Form.Item>
-					<Form.Item name="users" dependencies={['users']}>
-						<ParticipantsSection
-							setIsInviteUserModalOpen={setIsInviteUserModalOpen}
-							onRemoveParticipant={onRemoveParticipant}
-							formInstance={form}
-						/>
-					</Form.Item>
-
-					<div className="pt-2 flex flex-row items-center space-x-4">
-						<div className="w-2/5">
-							<Input
-								type="submit"
-								value="Create Event"
-								size="small"
-								className="h-8 sky-400"
-							/>
-						</div>
-					</div>
-				</Form>
-			</Card>
-			<AddUserToEventModal
-				me={me}
-				isOpen={isInviteUserModal}
-				onOk={(user: string) => {
-					onAddUser(user);
-					setIsInviteUserModalOpen(false);
-				}}
-				onCancel={() => {
-					setIsInviteUserModalOpen(false);
-				}}
-				addedParticipants={addedParticipants}
+		<div className="flex flex-col w-full h-full items-center">
+			<PageHeader
+				onBack={() => router.back()}
+				title="Create Event"
+				className="self-start"
 			/>
-		</>
+			<div className="w-5/6 h-5/6">
+				<CreateEventForm
+					form={form}
+					initialValues={initialFormValues}
+					onSubmitHandler={onSubmit}
+				/>
+			</div>
+		</div>
 	);
 };
 

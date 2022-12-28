@@ -2,14 +2,31 @@
 import React, { useState, RefObject, useEffect } from 'react';
 import { EyeOutlined } from '@ant-design/icons';
 import { ScheduleModalProps } from '../../containers/event/ScheduleModal';
+import Form, { Rule } from 'antd/lib/form';
+import { PreferencesModalProps } from '../../containers/event/PreferencesModal';
 
-type FieldRowType = string | Record<string, any>;
+type FieldRowType = string | string[] | Record<string, [string, string]>;
 
-type FieldRowProps<T extends FieldRowType> = {
+// Ideally isValuePresentable should be true or false, but false is not assignable to true so use undefined or true instead
+interface FieldValuePresentableProps<T> extends FieldRowBaseProps<T> {
+	value?: T;
+	isValuePresentable: true;
+	Presentable?: never;
+	presentableProps?: never;
+}
+
+interface FieldValueNotPresentableProps<T> extends FieldRowBaseProps<T> {
+	value?: T;
+	isValuePresentable: undefined;
+	Presentable?: React.ElementType;
+	presentableProps?:
+		| Partial<ScheduleModalProps>
+		| Partial<PreferencesModalProps>;
+}
+
+type FieldRowBaseProps<T> = {
 	ref?: RefObject<any>;
 	label?: string;
-	value?: T;
-	isValuePresentable?: boolean;
 	onClick?: () => void;
 	isClickDisabled?: boolean;
 	highlight?: boolean;
@@ -19,9 +36,14 @@ type FieldRowProps<T extends FieldRowType> = {
 	onEditFinish?: (value?: T) => void;
 	AllowEditIcon?: React.ElementType;
 	CancelEditIcon?: React.ElementType;
-	Modal?: React.ElementType;
-	modalProps?: Partial<ScheduleModalProps>;
+	formFieldName?: string;
+	fieldFormRules?: Rule[];
+	className?: string;
 };
+
+type FieldRowProps<T extends FieldRowType> =
+	| FieldValuePresentableProps<T>
+	| FieldValueNotPresentableProps<T>;
 
 export function FieldRow<T extends FieldRowType>({
 	ref,
@@ -37,11 +59,16 @@ export function FieldRow<T extends FieldRowType>({
 	onEditFinish,
 	AllowEditIcon,
 	CancelEditIcon,
-	Modal,
-	modalProps,
+	Presentable,
+	presentableProps,
+	formFieldName,
+	fieldFormRules,
+	className,
+	...formItemProps
 }: FieldRowProps<T>) {
 	const [isEditing, setIsEditing] = useState(false);
 	const [internalValue, setInternalValue] = useState(value);
+	const [modalViewOnly, setModalViewOnly] = useState(false);
 
 	const iconStyle = {
 		fontSize: '1.25rem',
@@ -65,10 +92,12 @@ export function FieldRow<T extends FieldRowType>({
 	}, [value]);
 
 	const getClassName = () => {
-		if (isClickDisabled) return 'text-black bg-neutral-400';
-		if (isSelected) return 'text-white bg-cyan-400';
-		if (highlight) return 'bg-sky-100';
-		return '';
+		let _className = '';
+		if (isClickDisabled) _className += ' text-black bg-neutral-400';
+		else if (isSelected) _className += ' text-white bg-cyan-400';
+		else if (highlight) _className += ' bg-sky-100';
+		if (className) _className += ` ${className}`;
+		return _className;
 	};
 
 	const PresentableValue = isValuePresentable ? (
@@ -76,57 +105,78 @@ export function FieldRow<T extends FieldRowType>({
 	) : (
 		<EyeOutlined
 			style={{ fontSize: '1rem' }}
-			onClick={() => setIsEditing(true)}
+			onClick={() => {
+				setModalViewOnly(true);
+			}}
 		/>
 	);
 
-	const FixedField = <div className="w-5/6">{internalValue as string}</div>;
+	const FixedField = <div className="w-5/6">{PresentableValue}</div>;
 	const EditableField = (
 		<>
 			<div className="w-5/6 flex flex-row justify-between items-center">
-				<div className="w-5/6">
-					{isEditing
-						? Editable && (
-								<Editable
-									value={internalValue}
-									onChange={onChangeHandler}
-									onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
-										if (event.code === 'Enter') {
-											setIsEditing(false);
-											onEditFinish && onEditFinish(internalValue);
-										}
-									}}
-								/>
-						  )
-						: PresentableValue}
-				</div>
-				<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
-					{isEditing
-						? CancelEditIcon && (
-								<CancelEditIcon
-									onClick={() => {
+				{isEditing
+					? Editable && (
+							<Editable
+								value={internalValue}
+								onChange={onChangeHandler}
+								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
+									event.stopPropagation();
+									if (event.code === 'Enter') {
 										setIsEditing(false);
-										// onEditFinish && onEditFinish(internalValue);
-										setInternalValue(value);
-									}}
-									style={iconStyle}
-									className="hover:text-sky-400"
-								/>
-						  )
-						: AllowEditIcon && (
-								<AllowEditIcon
-									onClick={() => {
-										setIsEditing(true);
-									}}
-									className="hover:text-sky-400"
-									style={iconStyle}
-								/>
-						  )}
-				</div>
+										onEditFinish && onEditFinish(internalValue);
+									}
+								}}
+							/>
+					  )
+					: PresentableValue}
 			</div>
-			{Modal && (
-				<Modal
-					visible={isEditing}
+			<div className="w-1/6 space-x-4 flex flex-row items-center justify-end">
+				{isEditing
+					? CancelEditIcon && (
+							<CancelEditIcon
+								onClick={() => {
+									setIsEditing(false);
+									onEditFinish && onEditFinish(internalValue);
+								}}
+								style={iconStyle}
+								className="hover:text-sky-400"
+							/>
+					  )
+					: AllowEditIcon && (
+							<AllowEditIcon
+								onClick={() => {
+									setIsEditing(true);
+								}}
+								className="hover:text-sky-400"
+								style={iconStyle}
+							/>
+					  )}
+			</div>
+		</>
+	);
+
+	return (
+		<>
+			<Form.Item
+				name={formFieldName}
+				rules={fieldFormRules ? fieldFormRules : undefined}
+				style={{ margin: 0 }}
+				className={`p-2 w-full h-full ${getClassName()}`}
+				{...formItemProps}
+			>
+				<div
+					ref={ref}
+					onClick={isClickDisabled ? undefined : onClickHandler}
+					className="w-full h-full flex flex-row p-2"
+				>
+					{label && <b className="w-1/6">{label} </b>}
+					{allowEdit ? EditableField : FixedField}
+				</div>
+			</Form.Item>
+			{Presentable && (
+				<Presentable
+					open={isEditing || modalViewOnly}
 					onOk={(value: T) => {
 						onEditFinish && onEditFinish(value);
 						setIsEditing(false);
@@ -134,23 +184,14 @@ export function FieldRow<T extends FieldRowType>({
 					onCancel={() => {
 						setIsEditing(false);
 						setInternalValue(value);
+						setModalViewOnly(false);
 						// onEditFinish && onEditFinish(internalValue);
 					}}
-					{...modalProps}
+					viewOnly={modalViewOnly}
+					{...presentableProps}
 				/>
 			)}
 		</>
-	);
-
-	return (
-		<div
-			ref={ref}
-			className={`p-2 flex flex-row ${getClassName()}`}
-			onClick={isClickDisabled ? undefined : onClickHandler}
-		>
-			{label && <b className="w-1/6">{label} </b>}
-			{allowEdit ? EditableField : FixedField}
-		</div>
 	);
 }
 

@@ -14,9 +14,7 @@ export class MeService {
 			body: JSON.stringify(user),
 			credentials: 'include',
 		});
-		await throwErrorOrGetData(response, {
-			responseNotNeeded: true,
-		});
+		await throwErrorOrGetData(response, {});
 	}
 
 	async login(req: AuthUserReq) {
@@ -31,7 +29,8 @@ export class MeService {
 			credentials: 'include',
 		});
 		const data = await throwErrorOrGetData<LoginRes>(response, {
-			fallbackMessage: 'Please check your email and password carefully',
+			fallbackMessage:
+				'Please check your email and password carefully. Otherwise, please try again later',
 			fallbackTitle: 'Login error',
 		});
 		const { user } = data;

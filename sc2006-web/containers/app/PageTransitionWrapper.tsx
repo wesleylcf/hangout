@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
-import { useEffect, ReactNode, useState } from 'react';
+import { useEffect, ReactNode, useState, useContext } from 'react';
 import { Spin } from '../../components/common';
+import { PageTransitionContext } from '../../contexts';
 import { useProtectRoutes } from '../../hooks';
+import { NAVIGATION_HEIGHT } from '../../constants';
 
 interface PageTransitionWrapperProps {
 	children: ReactNode;
@@ -11,6 +13,7 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 	children,
 }) => {
 	const router = useRouter();
+	const { loading } = useContext(PageTransitionContext);
 	const [internalLoading, setInternalLoading] = useState(false);
 	useProtectRoutes();
 
@@ -32,8 +35,35 @@ export const PageTransitionWrapper: React.FC<PageTransitionWrapperProps> = ({
 	});
 
 	return (
-		<div className="flex flex-row items-center justify-center w-full h-full">
-			{internalLoading ? <Spin size="large" center /> : children}
+		<div
+			className="flex flex-row items-center justify-center min-w-screen min-h-screen"
+			style={{ marginTop: NAVIGATION_HEIGHT }}
+		>
+			{children}
+			{(loading || internalLoading) && (
+				<div
+					className="bg-white w-screen h-screen"
+					style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						zIndex: 999,
+						width: '100vw',
+						height: '100vh',
+						marginTop: NAVIGATION_HEIGHT,
+					}}
+				>
+					<Spin
+						size="large"
+						center
+						style={{
+							position: 'absolute',
+							top: '50%',
+							left: '50%',
+						}}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };
