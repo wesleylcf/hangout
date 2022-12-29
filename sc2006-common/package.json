@@ -14,7 +14,7 @@
 	"main": "dist/index.js",
 	"types": "src/index.ts",
 	"scripts": {
-		"preinstall": "npm install typescript@latest -g",
+		"preinstall": "npm ci",
 		"lint": "eslint '**/*.ts'",
 		"test": "jest",
 		"build": "tsc",
