@@ -1,6 +1,5 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@firebase/firestore-types';
 import { DbNotification } from '.';
-import { Moment } from 'moment';
 
 export interface SeedUser {
 	username: string;
