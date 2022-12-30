@@ -1,4 +1,3 @@
-export * from './DateUtil';
 export * from './ErrorUtil';
 
 function rad2degr(rad) {
