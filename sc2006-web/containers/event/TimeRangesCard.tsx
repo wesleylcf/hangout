@@ -4,7 +4,11 @@ import React, { useState } from 'react';
 import { Button, TimePicker } from 'antd';
 import moment from 'moment';
 import { useNotification } from '../../hooks';
-import { EVENT_DATETIME_FORMAT, EVENT_DATE_FORMAT } from '../../types';
+import {
+	API_DATETIME_FORMAT,
+	EVENT_DATETIME_FORMAT,
+	EVENT_DATE_FORMAT,
+} from '../../types';
 
 interface TimeRangesCardProps {
 	addedTimeRanges: Array<{ start: string; end: string }>;
@@ -24,12 +28,13 @@ export const TimeRangesCard = ({
 	const [selectedTimeRange, setSelectedTimeRange] = useState<
 		[start: string, end: string]
 	>([
-		moment(date, EVENT_DATE_FORMAT)
+		moment(date, API_DATETIME_FORMAT)
 			.startOf('day')
-			.format(EVENT_DATETIME_FORMAT),
-		moment(date, EVENT_DATE_FORMAT)
-			.endOf('day')
 			.minutes(0)
+			.format(EVENT_DATETIME_FORMAT),
+		moment(date, API_DATETIME_FORMAT)
+			.endOf('day')
+			.minutes(45)
 			.format(EVENT_DATETIME_FORMAT),
 	]);
 
@@ -79,7 +84,7 @@ export const TimeRangesCard = ({
 							  ]
 							: [
 									moment(date, EVENT_DATE_FORMAT).startOf('day'),
-									moment(date, EVENT_DATE_FORMAT).endOf('day').minutes(0),
+									moment(date, EVENT_DATE_FORMAT).endOf('day').minutes(45),
 							  ]
 					}
 				/>
