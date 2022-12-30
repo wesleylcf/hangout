@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@firebase/firestore-types": "^2.5.1",
 		"dayjs": "^1.11.1",
 		"dayjs-precise-range": "^1.0.1",
 		"moment": "^2.29.4"
@@ -20,7 +21,7 @@
 		"build:clean": "del-cli --force dist && npm run build",
 		"build:watch": "tsc -w"
 	},
-	"author": "",
+	"author": "Wesley Lim Cher Fong",
 	"license": "ISC",
 	"description": ""
 }
