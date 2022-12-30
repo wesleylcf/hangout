@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@firebase/firestore-types';
 
 export interface DbNotification {
 	createdAt: Timestamp;

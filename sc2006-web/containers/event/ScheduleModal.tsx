@@ -4,7 +4,7 @@ import { Badge, Calendar, Collapse, Modal, ModalProps } from 'antd';
 import moment, { Moment } from 'moment';
 import { CollapseItemHeader } from '../../components/common';
 import { TimeRangesCard } from './TimeRangesCard';
-import { EVENT_DATE_FORMAT } from '../../types';
+import { API_DATETIME_FORMAT, EVENT_DATE_FORMAT } from '../../types';
 
 export type ScheduleModalProps = Omit<ModalProps, 'onOk'> & {
 	onOk: (value: any) => void;
@@ -25,7 +25,7 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 	const [selectedDates, setSelectedDates] = useState<Set<string>>(
 		new Set(
 			Object.keys(busyTimeRanges || []).filter((date) =>
-				moment(date, EVENT_DATE_FORMAT).isBetween(
+				moment(date, API_DATETIME_FORMAT).isBetween(
 					startDate,
 					endDate,
 					undefined,
@@ -40,29 +40,29 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 	>(busyTimeRanges || {});
 
 	const onSelectDate = (moment: Moment) => {
-		const presentableDate = moment.format(EVENT_DATE_FORMAT);
+		const formattedDate = moment.format(API_DATETIME_FORMAT);
 		if (!moment.isBetween(startDate, endDate, undefined, '[]')) return;
 		setSelectedDates((selected) => {
 			const selectedCopy = new Set(selected);
 
-			if (selected.has(presentableDate)) {
+			if (selected.has(formattedDate)) {
 				setInternalBusyTimeRanges((timeRanges) => {
-					const { [presentableDate]: _, ...rest } = timeRanges;
+					const { [formattedDate]: _, ...rest } = timeRanges;
 					return rest;
 				});
-				selectedCopy.delete(presentableDate);
+				selectedCopy.delete(formattedDate);
 				return selectedCopy;
 			} else {
 				setInternalBusyTimeRanges((timeRanges) => {
-					return { ...timeRanges, [presentableDate]: [] };
+					return { ...timeRanges, [formattedDate]: [] };
 				});
-				return selectedCopy.add(presentableDate);
+				return selectedCopy.add(formattedDate);
 			}
 		});
 	};
 
 	const renderDateCellOverride = (moment: Moment) => {
-		const presentableDate = moment.format(EVENT_DATE_FORMAT);
+		const presentableDate = moment.format(API_DATETIME_FORMAT);
 		const date = moment.date();
 		let bgColorClassName = '';
 
@@ -185,7 +185,9 @@ export const ScheduleModal = React.memo(function _ScheduleModal({
 								key={date}
 								header={
 									<CollapseItemHeader
-										title={date}
+										title={moment(date, API_DATETIME_FORMAT).format(
+											EVENT_DATE_FORMAT,
+										)}
 										isExpanded={expandedDates.has(date.toString())}
 									/>
 								}

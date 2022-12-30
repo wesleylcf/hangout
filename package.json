@@ -23,6 +23,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"dependencies": {
+		"@nestjs/cli": "^9.1.8",
 		"acorn": "^8.8.0",
 		"acorn-jsx": "^5.3.2",
 		"ajv": "^6.12.6",
@@ -128,8 +129,8 @@
 	},
 	"scripts": {
 		"postinstall": "if [ $CLIENT_ENV ]; then npm run postinstall-client; elif [ $SERVER_ENV ]; then npm run postinstall-server; else echo no environment detected, please set CLIENT_ENV or SERVER_ENV; fi",
-		"postinstall-client": "cd sc2006-web && npm ci && npm run build",
-		"postinstall-server": "cd sc2006-common && npm ci && npm run build && cd ../sc2006-backend && npm ci && npm run build",
+		"postinstall-client": "cd sc2006-web && npm i && npm run build",
+		"postinstall-server": "cd sc2006-common && npm i && npm run build && cd ../sc2006-backend && npm i && npm run build",
 		"start": "if [ $CLIENT_ENV ]; then npm run start:web; elif [ $SERVER_ENV ]; then npm run start:server; else echo no environment detected, please set CLIENT_ENV or SERVER_ENV; fi",
 		"start:web": "cd sc2006-web && npm run start",
 		"start:server": "cd sc2006-backend && npm run start:prod",

@@ -8,6 +8,7 @@ import { meService } from '../services';
 import { Spin } from '../components/common';
 import { PageTransitionContextProps } from '../contexts/PageTransitionContext';
 import { useUpdateUser } from '../hooks';
+import Head from 'next/head';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, setMe] = useState<Me | undefined>(undefined as any);
@@ -28,11 +29,13 @@ function MyApp({ Component, pageProps }: AppProps) {
 		loading: isPageLoading,
 		setLoading: setIsPageLoading,
 	};
+
 	useEffect(() => {
 		const reconstructUser = async () => {
 			let user;
 			try {
 				setIsAppLoading(true);
+				setTimeout(() => setIsAppLoading(false), 3000);
 				user = await meService.reconstructUser();
 				console.log('reconstructed user', user);
 				setMe(user);
@@ -40,7 +43,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 				console.log('Could not reconstruct user');
 				// No JWT token, so we cannot reconstructUser(401 response)
 			}
-			setTimeout(() => setIsAppLoading(false), 300);
+			setIsAppLoading(false);
 		};
 		reconstructUser();
 	}, []);
@@ -56,12 +59,19 @@ function MyApp({ Component, pageProps }: AppProps) {
 	}
 
 	return (
-		<AppContainer
-			meContext={globalContext}
-			pageTransitionContext={PageTransitionContext}
-		>
-			<Component {...pageProps} />
-		</AppContainer>
+		<>
+			<Head>
+				<title>Hangout!</title>
+				<meta name="author" content="Wesley Lim Cher Fong" />
+				<link rel="icon" href="/favicon.ico" />
+			</Head>
+			<AppContainer
+				meContext={globalContext}
+				pageTransitionContext={PageTransitionContext}
+			>
+				<Component {...pageProps} />
+			</AppContainer>
+		</>
 	);
 }
 
