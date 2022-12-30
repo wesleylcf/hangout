@@ -8,6 +8,7 @@ import { meService } from '../services';
 import { Spin } from '../components/common';
 import { PageTransitionContextProps } from '../contexts/PageTransitionContext';
 import { useUpdateUser } from '../hooks';
+import Head from 'next/head';
 
 function MyApp({ Component, pageProps }: AppProps) {
 	const [me, setMe] = useState<Me | undefined>(undefined as any);
@@ -28,6 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 		loading: isPageLoading,
 		setLoading: setIsPageLoading,
 	};
+
 	useEffect(() => {
 		const reconstructUser = async () => {
 			let user;
@@ -57,12 +59,19 @@ function MyApp({ Component, pageProps }: AppProps) {
 	}
 
 	return (
-		<AppContainer
-			meContext={globalContext}
-			pageTransitionContext={PageTransitionContext}
-		>
-			<Component {...pageProps} />
-		</AppContainer>
+		<>
+			<Head>
+				<title>Hangout!</title>
+				<meta name="author" content="Wesley Lim Cher Fong" />
+				<link rel="icon" href="/favicon.ico" />
+			</Head>
+			<AppContainer
+				meContext={globalContext}
+				pageTransitionContext={PageTransitionContext}
+			>
+				<Component {...pageProps} />
+			</AppContainer>
+		</>
 	);
 }
 
