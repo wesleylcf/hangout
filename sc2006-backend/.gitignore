@@ -37,6 +37,7 @@ lerna-debug.log*
 
 # configs and keys like firebase
 *.config.json
+firebase.config.ts
 
 #env variables
 *.env
