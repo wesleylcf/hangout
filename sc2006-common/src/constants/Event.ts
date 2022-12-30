@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@firebase/firestore-types';
 import { CreateEventReq } from '../api-models';
 import { DbEventResultRes } from './EventResult';
 import { DbUserRes } from './User';
