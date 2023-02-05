@@ -1,4 +1,4 @@
-import { PresentableError, ErrorUtil, defaultApiErrMessage } from '.';
+import { ErrorUtil, defaultApiErrMessage } from '.';
 
 type ErrorResponse = Response & {
 	message?: string;
@@ -28,6 +28,9 @@ export async function throwErrorOrGetData<T>(
 	if (error.message) {
 		throw ErrorUtil.apiError(error.message, error.title, error.level);
 	} else {
-		throw ErrorUtil.apiError(fallbackMessage, fallbackTitle);
+		throw ErrorUtil.apiError(
+			fallbackMessage?.length ? fallbackMessage : defaultApiErrMessage,
+			fallbackTitle,
+		);
 	}
 }
