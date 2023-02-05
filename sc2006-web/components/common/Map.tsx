@@ -33,10 +33,7 @@ export const MapCard = ({ markers, center }: MapCardProps) => {
 
 	return (
 		<div className="w-full h-96 flex flex-row items-center self-justify-center">
-			<Wrapper
-				apiKey={'AIzaSyC5folvhu8lxrYEgdUg1FYQBimQbChW8hk'}
-				render={render}
-			>
+			<Wrapper apiKey={process.env.GOOGLE_MAP_API_KEY!} render={render}>
 				<Map
 					center={internalCenter}
 					onIdle={onIdle}
