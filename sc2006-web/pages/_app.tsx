@@ -37,10 +37,10 @@ function MyApp({ Component, pageProps }: AppProps) {
 				setIsAppLoading(true);
 				setTimeout(() => setIsAppLoading(false), 3000);
 				user = await meService.reconstructUser();
-				console.log('reconstructed user', user);
+				// console.log('reconstructed user', user);
 				setMe(user);
 			} catch (e) {
-				console.log('Could not reconstruct user');
+				// console.log('Could not reconstruct user');
 				// No JWT token, so we cannot reconstructUser(401 response)
 			}
 			setIsAppLoading(false);
