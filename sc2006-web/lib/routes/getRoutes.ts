@@ -16,6 +16,7 @@ export function getRoutes(me?: Me) {
 		'/events/create': false,
 		'/events': false,
 		'/profile': false,
+		'/playground': true,
 	};
 
 	const authRoutes = {

@@ -15,7 +15,7 @@ const CreateEventPage = () => {
 	const [form] = Form.useForm<CreateEventReq>();
 	const onSubmit = async (form: CreateEventReq) => {
 		try {
-			console.log(form);
+			// console.log(form);
 			await eventService.create(form);
 			await router.push('/events');
 			notification.success(

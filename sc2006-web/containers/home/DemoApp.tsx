@@ -18,7 +18,6 @@ export const DemoApp = () => {
 		participants: [],
 	};
 	const onSubmit = async (formValues: CreateEventReq) => {
-		console.log(formValues);
 		let hasError = false;
 
 		try {

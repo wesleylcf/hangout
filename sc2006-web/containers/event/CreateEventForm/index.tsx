@@ -94,7 +94,7 @@ export const CreateEventForm = ({
 		publicParticipantFormInstances.forEach((formInstance) => {
 			formInstance.submit();
 		});
-		console.log(form);
+		// console.log(form);
 
 		const participants: Array<EventParticipant> = getFieldValue('participants');
 

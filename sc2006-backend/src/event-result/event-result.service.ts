@@ -194,7 +194,9 @@ export class EventResultService {
 			const coordinates: [lat: number, lng: number][] = geoCodes.map(
 				(geoCode, index) => {
 					if (geoCode.found < 1) {
-						throw new Error('One or more postal codes are invalid');
+						throw new Error(
+							`Postal code ${participants[index].address} is not supported. Please try another postal code.`,
+						);
 					}
 					const { LATITUDE, LONGTITUDE } = geoCode.results[0];
 					if (!LATITUDE || !LONGTITUDE) {

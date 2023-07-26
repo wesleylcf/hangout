@@ -21,7 +21,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 			doc(db, 'users', me.uuid),
 			(snapshot) => {
 				const data = snapshot.data() as DbUser;
-				console.log('snapshot received', snapshot, snapshot.data());
+				// console.log('snapshot received', snapshot, snapshot.data());
 
 				if (!snapshot.metadata.hasPendingWrites) {
 					setLoading(true);
@@ -38,7 +38,7 @@ export const useUpdateUser = ({ me, setMe }: useUpdateUserProps) => {
 				}
 			},
 			(error) => {
-				console.log('error listening to user doc', error.message);
+				// console.log('error listening to user doc', error.message);
 			},
 		);
 
